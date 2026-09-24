@@ -1,0 +1,205 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap');
+
+/* ============================================================
+   CHESSMASTER — DESIGN SYSTEM v2
+   Inspired by: Lichess + Chess.com aesthetic
+   Philosophy: Clean, warm, context-driven colors. NO glow. NO glass.
+   Color per context: Green=Play, Orange=Puzzles, Blue=Learn, Gold=Tournament
+============================================================ */
+
+:root {
+  /* ─── Base (Lichess-inspired dark brown-black) ─── */
+  --bg-base:      #161512;
+  --bg-surface:   #1e1c19;
+  --bg-raised:    #262421;
+  --bg-overlay:   #302e2b;
+  --bg-input:     #2c2a27;
+
+  /* ─── Text ─── */
+  --text-primary:   #e8e6e3;
+  --text-secondary: #b0a99f;
+  --text-muted:     #7a7269;
+  --text-inverse:   #1a1816;
+
+  /* ─── Context Colors ─── */
+  /* Play / Online PvP → Forest Green */
+  --green-vivid:  #629924;
+  --green-dark:   #4a7a1a;
+  --green-light:  #7ab530;
+  --green-bg:     #1e2916;
+  --green-border: #3a5a18;
+
+  /* AI / Machine → Steel Blue */
+  --blue-vivid:   #3d8bc9;
+  --blue-dark:    #2c6fa0;
+  --blue-light:   #5aa3dc;
+  --blue-bg:      #152030;
+  --blue-border:  #1e3a52;
+
+  /* Puzzles → Amber/Orange */
+  --orange-vivid: #c97c2a;
+  --orange-dark:  #a5601a;
+  --orange-light: #e09040;
+  --orange-bg:    #2a1e0e;
+  --orange-border:#4a3010;
+
+  /* Tournament → Gold */
+  --gold-vivid:   #b8960c;
+  --gold-dark:    #8f7208;
+  --gold-light:   #d4ae1a;
+  --gold-bg:      #221e08;
+  --gold-border:  #3a3206;
+
+  /* Learn → Teal */
+  --teal-vivid:   #2a9d8f;
+  --teal-dark:    #1f7a6e;
+  --teal-light:   #3dbcac;
+  --teal-bg:      #0d2422;
+  --teal-border:  #184038;
+
+  /* Danger / Check → Red */
+  --red-vivid:    #c84b3a;
+  --red-dark:     #a83828;
+
+  /* ─── Board Colors (Wood) ─── */
+  --board-light:  #f0d9b5;
+  --board-dark:   #b58863;
+  --board-coord:  #a07850;
+
+  /* ─── Neutrals ─── */
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-medium: rgba(255,255,255,0.12);
+  --divider:       #2a2825;
+
+  /* ─── Typography ─── */
+  --font-ui:      'Noto Sans', system-ui, sans-serif;
+  --font-serif:   'Noto Serif', Georgia, serif;
+  --font-mono:    'Source Code Pro', monospace;
+}
+
+/* ─── Reset ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--bg-overlay); border-radius: 3px; }
+
+/* ─── Layout ─── */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ─── Solid Buttons (NO glow) ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 24px;
+  border-radius: 6px;
+  border: none;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.1s ease;
+  text-decoration: none;
+  line-height: 1;
+  white-space: nowrap;
+}
+.btn:hover  { filter: brightness(1.12); }
+.btn:active { transform: translateY(1px); filter: brightness(0.95); }
+
+.btn-green  { background: var(--green-vivid);  color: #fff; }
+.btn-blue   { background: var(--blue-vivid);   color: #fff; }
+.btn-orange { background: var(--orange-vivid); color: #fff; }
+.btn-gold   { background: var(--gold-vivid);   color: #1a1a0a; }
+.btn-ghost  {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-medium);
+}
+.btn-ghost:hover { background: var(--bg-raised); color: var(--text-primary); filter: none; }
+
+/* ─── Card ─── */
+.card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ─── Section label ─── */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* ─── Classic Chess Board (CSS) ─── */
+.chess-board-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  border: 2px solid var(--board-coord);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.chess-square-light { background: var(--board-light); }
+.chess-square-dark  { background: var(--board-dark); }
+.chess-square {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(14px, 2vw, 24px);
+  line-height: 1;
+  transition: background 0.1s ease;
+}
+.chess-square:hover { filter: brightness(1.15); cursor: pointer; }
+
+/* ─── Rank/file labels ─── */
+.board-coords {
+  position: absolute;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--board-coord);
+  padding: 2px;
+}
+
+/* ─── Animations (subtle, no flash) ─── */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* ─── Divider ─── */
+hr {
+  border: none;
+  border-top: 1px solid var(--divider);
+}

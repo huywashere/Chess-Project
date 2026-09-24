@@ -1,0 +1,111 @@
+version: '3.9'
+
+services:
+  # ===== Nginx Reverse Proxy =====
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - chess-net
+
+  # ===== Next.js Frontend =====
+  frontend:
+    build:
+      context: ./chess-frontend
+      dockerfile: Dockerfile
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost/api
+      - NEXT_PUBLIC_WS_URL=ws://localhost/ws
+    depends_on:
+      - backend
+    networks:
+      - chess-net
+
+  # ===== Spring Boot Backend =====
+  backend:
+    build:
+      context: ./chess-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=chessdb
+      - DB_USER=chess
+      - DB_PASS=${DB_PASS:-chess_secret}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - AI_SERVICE_URL=http://ai-service:8001
+      - JWT_SECRET=${JWT_SECRET:-change-this-in-production-min-32-chars!!}
+      - FRONTEND_URL=http://localhost:3000
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    networks:
+      - chess-net
+
+  # ===== Python FastAPI AI Service =====
+  ai-service:
+    build:
+      context: ./chess-ai-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    networks:
+      - chess-net
+
+  # ===== PostgreSQL =====
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: chessdb
+      POSTGRES_USER: chess
+      POSTGRES_PASSWORD: ${DB_PASS:-chess_secret}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chess -d chessdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chess-net
+
+  # ===== Redis =====
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redisdata:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - chess-net
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  chess-net:
+    driver: bridge
