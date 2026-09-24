@@ -6,6 +6,7 @@ interface DifficultyConfig {
   depth: number;
   maxTimeMs: number;
   engineName: string;
+  contempt?: number;
 }
 
 const DIFFICULTY_MAP: Record<AiDifficulty, DifficultyConfig> = {
@@ -37,7 +38,50 @@ const DIFFICULTY_MAP: Record<AiDifficulty, DifficultyConfig> = {
     skillLevel: 20,
     depth: 14,
     maxTimeMs: 2000,
-    engineName: "Stockfish (Level 5 — Bất Khả Chiến Bại)",
+    engineName: "Stockfish 17 (Bất Khả Chiến Bại)",
+    contempt: 30,
+  },
+  tal: {
+    skillLevel: 19,
+    depth: 11,
+    maxTimeMs: 1400,
+    engineName: "Mikhail Tal (Phù Thủy Riga)",
+    contempt: 85,
+  },
+  petrosian: {
+    skillLevel: 18,
+    depth: 12,
+    maxTimeMs: 1400,
+    engineName: "Tigran Petrosian (Bức Tường Thép)",
+    contempt: -20,
+  },
+  fischer: {
+    skillLevel: 20,
+    depth: 13,
+    maxTimeMs: 1600,
+    engineName: "Bobby Fischer (Kỳ Tài Sát Thủ)",
+    contempt: 100,
+  },
+  carlsen: {
+    skillLevel: 20,
+    depth: 15,
+    maxTimeMs: 2200,
+    engineName: "Magnus Carlsen (Vua Tàn Cuộc)",
+    contempt: 50,
+  },
+  morphy: {
+    skillLevel: 17,
+    depth: 10,
+    maxTimeMs: 1100,
+    engineName: "Paul Morphy (Lãng Tử 1858)",
+    contempt: 60,
+  },
+  mittens: {
+    skillLevel: 20,
+    depth: 16,
+    maxTimeMs: 2500,
+    engineName: "Mèo Mittens (Meo Meo 3000 ELO)",
+    contempt: 100,
   },
 };
 
@@ -194,6 +238,9 @@ class StockfishWorkerService {
       try {
         this.worker?.postMessage("stop");
         this.worker?.postMessage(`setoption name Skill Level value ${config.skillLevel}`);
+        if (config.contempt !== undefined) {
+          this.worker?.postMessage(`setoption name Contempt value ${config.contempt}`);
+        }
         this.worker?.postMessage(`position fen ${fen}`);
         this.worker?.postMessage(
           `go depth ${config.depth} movetime ${config.maxTimeMs}`

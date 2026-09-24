@@ -1,6 +1,17 @@
 import { Chess, Square } from "chess.js";
 
-export type AiDifficulty = "beginner" | "easy" | "medium" | "hard" | "master";
+export type AiDifficulty =
+  | "beginner"
+  | "easy"
+  | "medium"
+  | "hard"
+  | "master"
+  | "tal"
+  | "petrosian"
+  | "fischer"
+  | "carlsen"
+  | "morphy"
+  | "mittens";
 
 export interface AiMoveResult {
   from: string;

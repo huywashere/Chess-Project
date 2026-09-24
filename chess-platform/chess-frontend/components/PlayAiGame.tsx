@@ -32,6 +32,11 @@ import {
   CheckCircle2,
   BarChart2,
   Cpu,
+  Crown,
+  Shield,
+  Zap,
+  Swords,
+  MessageSquare,
 } from "lucide-react";
 import { getAiMove, AiDifficulty, AiMoveResult } from "@/lib/chessAiEngine";
 import { soundManager } from "@/lib/soundEffects";
@@ -117,54 +122,199 @@ const TIME_CONTROLS: TimeControlConfig[] = [
 interface BotProfile {
   id: AiDifficulty;
   name: string;
+  category: "standard" | "legend";
   elo: number;
   avatarColor: string;
   desc: string;
   tag: string;
+  title?: string;
+  quote?: string;
+  speechResponses?: string[];
+  iconType: "bot" | "tal" | "petrosian" | "fischer" | "carlsen" | "morphy" | "mittens";
 }
 
 const BOTS: BotProfile[] = [
+  // --- STANDARD BOTS ---
   {
     id: "beginner",
     name: "Bảo (Người Mới)",
+    category: "standard",
     elo: 600,
     avatarColor: "#629924",
     desc: "Mới học luật cờ, thỉnh thoảng đi nước ngây thơ. Phù hợp cho người mới bắt đầu.",
     tag: "Tập Sự",
+    iconType: "bot",
   },
   {
     id: "easy",
     name: "Minh (Học Viên)",
+    category: "standard",
     elo: 1000,
     avatarColor: "#3d8bc9",
     desc: "Nắm vững phát triển quân cơ bản, ít mắc lỗi ăn nhầm quân. Phù hợp luyện tập cơ bản.",
     tag: "Sơ Cấp",
+    iconType: "bot",
   },
   {
     id: "medium",
     name: "Tuấn (Kỳ Thủ CLB)",
+    category: "standard",
     elo: 1400,
     avatarColor: "#c97c2a",
     desc: "Biết tận dụng thế ghim quân, bắt đôi và kiểm soát trung tâm. Đối thủ đáng gờm.",
     tag: "Trung Cấp",
+    iconType: "bot",
   },
   {
     id: "hard",
     name: "Hải (Kiện Tướng)",
+    category: "standard",
     elo: 1800,
     avatarColor: "#b8960c",
     desc: "Tính toán chiến thuật sâu 4-5 nước đi, khai thác triệt để các sai sót vị trí.",
     tag: "Cao Cấp",
+    iconType: "bot",
   },
   {
     id: "master",
     name: "Stockfish 17 (Siêu AI)",
+    category: "standard",
     elo: 2500,
     avatarColor: "#c84b3a",
     desc: "Động cơ cờ vua mạnh nhất thế giới. Đánh giá vị trí centipawn tối ưu tuyệt đối.",
     tag: "Bất Khả Chiến Bại",
+    iconType: "bot",
+  },
+
+  // --- LEGENDARY GRANDMASTER BOTS ---
+  {
+    id: "tal",
+    name: "Mikhail Tal",
+    category: "legend",
+    title: "Vua Cờ Thứ 8 — Phù Thủy Riga",
+    elo: 2400,
+    avatarColor: "#e11d48",
+    desc: "Lối chơi cuồng phong bão táp, sẵn sàng hy sinh quân để mở toang thành đối phương.",
+    tag: "Thí Quân Tấn Công",
+    quote: "Có hai loại thí quân: một loại là chính xác, và một loại là của tôi.",
+    speechResponses: [
+      "Chào bạn! Hãy chuẩn bị bước vào một khu rừng rậm chiến thuật!",
+      "Tôi không quan tâm mất quân, chỉ cần Vua bạn đang run sợ!",
+      "Một đòn thí quân đẹp mắt đáng giá hơn cả một rổ tốt!",
+      "Nước đi táo bạo đấy, nhưng liệu có chịu nổi đợt bão táp tiếp theo?",
+    ],
+    iconType: "tal",
+  },
+  {
+    id: "petrosian",
+    name: "Tigran Petrosian",
+    category: "legend",
+    title: "Vua Cờ Thứ 9 — Bức Tường Thép",
+    elo: 2300,
+    avatarColor: "#0d9488",
+    desc: "Bậc thầy phòng thủ dự phòng, phong tỏa triệt để mọi đòn tấn công từ xa.",
+    tag: "Phòng Ngự Bê Tông",
+    quote: "Phòng thủ là nghệ thuật tước đoạt hy vọng của đối thủ.",
+    speechResponses: [
+      "Bạn muốn tấn công? Cứ thử tìm xem có kẽ hở nào không nhé.",
+      "Tôi đã thấy trước ý đồ của bạn từ 5 nước cờ rồi.",
+      "Kiên nhẫn là vũ khí sắc bén nhất trên bàn cờ.",
+      "Từng ô cờ đều được bảo vệ kiên cố. Đừng nóng vội!",
+    ],
+    iconType: "petrosian",
+  },
+  {
+    id: "fischer",
+    name: "Bobby Fischer",
+    category: "legend",
+    title: "Vua Cờ Thứ 11 — Kỳ Tài Sát Thủ",
+    elo: 2500,
+    avatarColor: "#d97706",
+    desc: "Đòn đánh sấm sét, tính toán chính xác như dao cạo, quyết liệt tới cùng.",
+    tag: "Sát Thủ Sắc Bén",
+    quote: "Tôi không tin vào tâm lý học, tôi chỉ tin vào những nước cờ tốt.",
+    speechResponses: [
+      "Tôi đến đây để chiến thắng, không phải để bắt tay hòa.",
+      "Mỗi nước cờ đều phải là một lưỡi kiếm găm vào thế trận!",
+      "Bạn vừa để lộ một điểm yếu ở trung tâm rồi.",
+      "Chơi cờ là sự tập trung tuyệt đối. Hãy cố gắng hết sức!",
+    ],
+    iconType: "fischer",
+  },
+  {
+    id: "carlsen",
+    name: "Magnus Carlsen",
+    category: "legend",
+    title: "Vua Cờ Thứ 16 — Bậc Thầy Tàn Cuộc",
+    elo: 2850,
+    avatarColor: "#2563eb",
+    desc: "Kỳ thủ số 1 hành tinh. Lối chơi siêu toàn diện, bóp nghẹt đối thủ tới cùng ở cờ tàn.",
+    tag: "Vua Tàn Cuộc",
+    quote: "Khi cờ bắt đầu đơn giản hóa, đó là lúc tôi cảm thấy mình mạnh nhất.",
+    speechResponses: [
+      "Chào bạn! Cùng tạo nên một ván cờ chất lượng nhé.",
+      "Cờ tàn là nơi chân lý được phơi bày.",
+      "Tôi sẽ mài mòn từng lợi thế nhỏ nhất trên bàn cờ.",
+      "Bạn phòng thủ rất cừ, nhưng ván cờ này còn rất dài!",
+    ],
+    iconType: "carlsen",
+  },
+  {
+    id: "morphy",
+    name: "Paul Morphy",
+    category: "legend",
+    title: "Huyền Thoại 1858 — Lãng Tử Khai Cuộc",
+    elo: 2200,
+    avatarColor: "#059669",
+    desc: "Thiên tài thế kỷ 19. Phát triển toàn bộ quân nhẹ thần tốc, mở toang trung tâm công thành.",
+    tag: "Tốc Chiến 1858",
+    quote: "Hãy phát triển toàn bộ lực lượng, trung tâm thuộc về kẻ dũng cảm.",
+    speechResponses: [
+      "Tiến lên! Mọi quân cờ đều phải tham chiến!",
+      "Không có thời gian để chần chừ, trung tâm đã mở toang!",
+      "Tốc độ phát triển quân chính là sinh mệnh của ván cờ.",
+      "Một đòn phối hợp tấn công kinh điển từ thế kỷ 19!",
+    ],
+    iconType: "morphy",
+  },
+  {
+    id: "mittens",
+    name: "Mèo Mittens",
+    category: "legend",
+    title: "Quàng Thượng Tinh Quái — 3000 ELO",
+    elo: 3000,
+    avatarColor: "#9333ea",
+    desc: "Vẻ ngoài mèo con ngây thơ nhưng ẩn chứa trí tuệ 3000+ ELO bất khả chiến bại.",
+    tag: "Trêu Ngươi Siêu Cấp",
+    quote: "Meo meo... Bạn vừa thả quân đó cho trẫm ăn sao? Meo~",
+    speechResponses: [
+      "Meo meo~ Chào bạn nhỏ, sẵn sàng bị cào nát thế cờ chưa? Meo~",
+      "Nước đi đó cute đấy, nhưng trẫm đã tính trước 20 nước rồi! Meo~",
+      "Meo... Bạn nghĩ trẫm là một chú mèo bình thường sao? Ngây thơ quá!",
+      "Gừ gừ... Nước cờ hay đấy! Nhưng trẫm vẫn sẽ thắng thôi, meo meo~",
+    ],
+    iconType: "mittens",
   },
 ];
+
+function renderBotIcon(type: BotProfile["iconType"], size = 20) {
+  switch (type) {
+    case "tal":
+      return <Flame size={size} />;
+    case "petrosian":
+      return <Shield size={size} />;
+    case "fischer":
+      return <Zap size={size} />;
+    case "carlsen":
+      return <Crown size={size} />;
+    case "morphy":
+      return <Swords size={size} />;
+    case "mittens":
+      return <Sparkles size={size} />;
+    default:
+      return <Bot size={size} />;
+  }
+}
 
 const THEME_COLORS: Record<
   BoardTheme,
@@ -237,6 +387,10 @@ export default function PlayAiGame() {
 
   // Custom FEN / PGN Modal
   const [isFenModalOpen, setIsFenModalOpen] = useState(false);
+
+  // Bot Roster Tabs & Speech Bubble
+  const [botTab, setBotTab] = useState<"standard" | "legend">("standard");
+  const [botSpeech, setBotSpeech] = useState<string>("");
 
   const [, startTransition] = useTransition();
   const currentBot = BOTS.find((b) => b.id === difficulty) || BOTS[2];
@@ -311,6 +465,15 @@ export default function PlayAiGame() {
             });
             setEvalScore(result.evaluation);
             setEngineInfo(result.engineName);
+            if (
+              currentBot.speechResponses &&
+              currentBot.speechResponses.length > 0 &&
+              Math.random() < 0.5
+            ) {
+              const quotes = currentBot.speechResponses;
+              const pick = quotes[Math.floor(Math.random() * quotes.length)];
+              setBotSpeech(pick);
+            }
             updateGameStatus(currentGame);
           });
         }
@@ -597,6 +760,13 @@ export default function PlayAiGame() {
     setCustomArrows([]);
     setRightClickSquares({});
     setArrowStartSquare(null);
+    if (currentBot.quote) {
+      setBotSpeech(currentBot.quote);
+    } else if (currentBot.speechResponses && currentBot.speechResponses.length > 0) {
+      setBotSpeech(currentBot.speechResponses[0]);
+    } else {
+      setBotSpeech("");
+    }
     const config =
       TIME_CONTROLS.find((t) => t.id === timeControl) || TIME_CONTROLS[5];
     setWhiteTime(config.initialSeconds);
@@ -930,7 +1100,11 @@ export default function PlayAiGame() {
                   color: "#fff",
                 }}
               >
-                {playMode === "ai" ? <Bot size={22} /> : <Users size={20} />}
+                {playMode === "ai" ? (
+                  renderBotIcon(currentBot.iconType, 22)
+                ) : (
+                  <Users size={20} />
+                )}
               </div>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -958,6 +1132,21 @@ export default function PlayAiGame() {
                       {currentBot.elo} ELO
                     </span>
                   )}
+                  {playMode === "ai" && currentBot.tag && (
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 600,
+                        padding: "2px 6px",
+                        borderRadius: 3,
+                        background: `${currentBot.avatarColor}22`,
+                        color: currentBot.avatarColor,
+                        border: `1px solid ${currentBot.avatarColor}44`,
+                      }}
+                    >
+                      {currentBot.tag}
+                    </span>
+                  )}
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
@@ -979,6 +1168,40 @@ export default function PlayAiGame() {
                 </div>
               </div>
             </div>
+
+            {/* Interactive Bot Speech Bubble */}
+            {botSpeech && playMode === "ai" && (
+              <div
+                style={{
+                  background: "var(--bg-overlay)",
+                  border: `1px solid ${currentBot.avatarColor}66`,
+                  borderRadius: 16,
+                  padding: "5px 12px",
+                  fontSize: 12,
+                  color: "#f1f5f9",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.35)",
+                  maxWidth: 320,
+                  fontStyle: "italic",
+                }}
+              >
+                <MessageSquare
+                  size={13}
+                  style={{ color: currentBot.avatarColor, flexShrink: 0 }}
+                />
+                <span
+                  style={{
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  "{botSpeech}"
+                </span>
+              </div>
+            )}
 
             {/* Top Clock */}
             <div
@@ -1454,7 +1677,7 @@ export default function PlayAiGame() {
             </button>
           </div>
 
-          {/* Bot Level Selector (only in AI mode) */}
+          {/* Bot Selector Panel (Tabs: Standard & Legendary Masters) */}
           {playMode === "ai" && (
             <div
               style={{
@@ -1466,19 +1689,83 @@ export default function PlayAiGame() {
             >
               <div
                 style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: "var(--text-muted)",
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
-                  marginBottom: 10,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 12,
                 }}
               >
-                Chọn Đối Thủ Máy (Bot Level)
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  Đối Thủ Máy (AI Bots)
+                </div>
+
+                {/* Tab Switcher: Standard vs Legendary */}
+                <div
+                  style={{
+                    display: "flex",
+                    background: "var(--bg-raised)",
+                    borderRadius: 6,
+                    padding: 2,
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setBotTab("standard")}
+                    style={{
+                      background:
+                        botTab === "standard" ? "var(--bg-surface)" : "transparent",
+                      border: "none",
+                      color:
+                        botTab === "standard"
+                          ? "var(--text-primary)"
+                          : "var(--text-muted)",
+                      padding: "4px 8px",
+                      borderRadius: 4,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    Tiêu Chuẩn (5)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBotTab("legend")}
+                    style={{
+                      background:
+                        botTab === "legend" ? "var(--bg-surface)" : "transparent",
+                      border: "none",
+                      color:
+                        botTab === "legend" ? "var(--gold-light)" : "var(--text-muted)",
+                      padding: "4px 8px",
+                      borderRadius: 4,
+                      fontSize: 11,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <Crown size={11} /> Huyền Thoại (6)
+                  </button>
+                </div>
               </div>
 
+              {/* Bot List according to active tab */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {BOTS.map((bot) => {
+                {BOTS.filter((b) => b.category === botTab).map((bot) => {
                   const isSelected = difficulty === bot.id;
                   return (
                     <button
@@ -1486,11 +1773,25 @@ export default function PlayAiGame() {
                       type="button"
                       onClick={() => {
                         setDifficulty(bot.id);
+                        if (bot.quote) {
+                          setBotSpeech(bot.quote);
+                        } else if (
+                          bot.speechResponses &&
+                          bot.speechResponses.length > 0
+                        ) {
+                          setBotSpeech(bot.speechResponses[0]);
+                        } else {
+                          setBotSpeech("");
+                        }
                         handleNewGame();
                       }}
                       style={{
-                        background: isSelected ? "var(--bg-overlay)" : "var(--bg-raised)",
-                        border: `1px solid ${isSelected ? bot.avatarColor : "var(--border-subtle)"}`,
+                        background: isSelected
+                          ? "var(--bg-overlay)"
+                          : "var(--bg-raised)",
+                        border: `1px solid ${
+                          isSelected ? bot.avatarColor : "var(--border-subtle)"
+                        }`,
                         borderRadius: 6,
                         padding: "8px 12px",
                         display: "flex",
@@ -1502,30 +1803,68 @@ export default function PlayAiGame() {
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <span
+                        <div
                           style={{
-                            width: 9,
-                            height: 9,
-                            borderRadius: "50%",
-                            background: bot.avatarColor,
-                            display: "inline-block",
+                            width: 28,
+                            height: 28,
+                            borderRadius: 6,
+                            background: `${bot.avatarColor}25`,
+                            color: bot.avatarColor,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
                           }}
-                        />
+                        >
+                          {renderBotIcon(bot.iconType, 16)}
+                        </div>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
-                            {bot.name}
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 700,
+                              color: "var(--text-primary)",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 6,
+                            }}
+                          >
+                            <span>{bot.name}</span>
+                            {bot.title && (
+                              <span
+                                style={{
+                                  fontSize: 10,
+                                  fontWeight: 500,
+                                  color: "var(--text-muted)",
+                                }}
+                              >
+                                • {bot.title.split("—")[1]?.trim() || bot.title}
+                              </span>
+                            )}
                           </div>
-                          <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                          <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>
                             {bot.desc}
                           </div>
                         </div>
                       </div>
 
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: bot.avatarColor }}>
+                      <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 8 }}>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: bot.avatarColor,
+                          }}
+                        >
                           {bot.elo} ELO
                         </div>
-                        <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
+                        <div
+                          style={{
+                            fontSize: 10,
+                            color: "var(--text-muted)",
+                            fontWeight: 600,
+                          }}
+                        >
                           {bot.tag}
                         </div>
                       </div>
