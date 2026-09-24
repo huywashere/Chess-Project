@@ -147,19 +147,27 @@ export default function ChessAcademy() {
   );
 
   return (
-    <div className="game-arena-container" style={{ padding: "74px 24px 48px" }}>
-      {/* Header Banner */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 20,
-          flexWrap: "wrap",
-          gap: 12,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background:
+          "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 130, 246, 0.12), transparent 70%), radial-gradient(ellipse 60% 40% at 90% 20%, rgba(212, 174, 26, 0.08), transparent 60%), #12110e",
+        padding: "80px 24px 64px",
+      }}
+    >
+      <div className="game-arena-container" style={{ maxWidth: 1400, margin: "0 auto" }}>
+        {/* Header Banner */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 24,
+            flexWrap: "wrap",
+            gap: 12,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div
             style={{
               width: 44,
@@ -676,6 +684,7 @@ export default function ChessAcademy() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ export interface LeaderboardPlayer {
   username: string;
   title?: "GM" | "IM" | "FM" | "WGM" | "CM";
   avatarColor: string;
+  avatarUrl?: string;
   country: string;
   flag: string;
   rating: number;
@@ -27,6 +28,7 @@ export const LEADERBOARD_PLAYERS: Record<LeaderboardCategory, LeaderboardPlayer[
       username: "LeQuangLiem_VN",
       title: "GM",
       avatarColor: "#2563eb",
+      avatarUrl: "/avatars/le_quang_liem.jpg",
       country: "Việt Nam",
       flag: "🇻🇳",
       rating: 2785,
@@ -44,6 +46,7 @@ export const LEADERBOARD_PLAYERS: Record<LeaderboardCategory, LeaderboardPlayer[
       username: "Magnus_Ghost",
       title: "GM",
       avatarColor: "#eab308",
+      avatarUrl: "/avatars/magnus_carlsen.jpg",
       country: "Na Uy",
       flag: "🇳🇴",
       rating: 2882,
@@ -61,6 +64,7 @@ export const LEADERBOARD_PLAYERS: Record<LeaderboardCategory, LeaderboardPlayer[
       username: "Hikaru_Speed",
       title: "GM",
       avatarColor: "#ef4444",
+      avatarUrl: "/avatars/hikaru_nakamura.jpg",
       country: "Hoa Kỳ",
       flag: "🇺🇸",
       rating: 2860,
@@ -78,6 +82,7 @@ export const LEADERBOARD_PLAYERS: Record<LeaderboardCategory, LeaderboardPlayer[
       username: "TruongSon_Master",
       title: "GM",
       avatarColor: "#059669",
+      avatarUrl: "/avatars/truong_son.jpg",
       country: "Việt Nam",
       flag: "🇻🇳",
       rating: 2680,
@@ -165,6 +170,7 @@ export const LEADERBOARD_PLAYERS: Record<LeaderboardCategory, LeaderboardPlayer[
       username: "Magnus_Ghost",
       title: "GM",
       avatarColor: "#eab308",
+      avatarUrl: "/avatars/magnus_carlsen.jpg",
       country: "Na Uy",
       flag: "🇳🇴",
       rating: 2895,
@@ -182,6 +188,7 @@ export const LEADERBOARD_PLAYERS: Record<LeaderboardCategory, LeaderboardPlayer[
       username: "LeQuangLiem_VN",
       title: "GM",
       avatarColor: "#2563eb",
+      avatarUrl: "/avatars/le_quang_liem.jpg",
       country: "Việt Nam",
       flag: "🇻🇳",
       rating: 2760,
@@ -235,6 +242,7 @@ export const LEADERBOARD_PLAYERS: Record<LeaderboardCategory, LeaderboardPlayer[
       username: "Hikaru_Speed",
       title: "GM",
       avatarColor: "#ef4444",
+      avatarUrl: "/avatars/hikaru_nakamura.jpg",
       country: "Hoa Kỳ",
       flag: "🇺🇸",
       rating: 3240,
