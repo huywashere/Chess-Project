@@ -300,7 +300,7 @@ export default function Play3DExperience() {
         }}
       >
         <div
-          className="container"
+          className="game-arena-container"
           style={{
             display: "flex",
             alignItems: "center",
@@ -362,11 +362,11 @@ export default function Play3DExperience() {
       </div>
 
       {/* Main 3D Arena */}
-      <div className="container" style={{ padding: "28px 0 60px 0" }}>
+      <div className="game-arena-container" style={{ padding: "28px 0 60px 0" }}>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(0, 1.35fr) minmax(340px, 1fr)",
+            gridTemplateColumns: "minmax(520px, 1.3fr) minmax(380px, 1fr)",
             gap: 28,
             alignItems: "start",
           }}

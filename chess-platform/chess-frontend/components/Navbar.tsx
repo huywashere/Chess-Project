@@ -47,7 +47,7 @@ export default function Navbar() {
       }}
     >
       <div
-        className="container"
+        className="game-arena-container"
         style={{
           display: "flex",
           alignItems: "center",

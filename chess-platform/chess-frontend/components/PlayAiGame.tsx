@@ -428,14 +428,14 @@ export default function PlayAiGame() {
   const whitePercent = Math.round(50 + clampedEval * 4);
 
   return (
-    <div className="container" style={{ padding: "80px 24px 60px" }}>
+    <div className="game-arena-container" style={{ padding: "74px 28px 40px" }}>
       {/* Top Breadcrumb & Status */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 20,
+          marginBottom: 16,
           flexWrap: "wrap",
           gap: 12,
         }}
@@ -487,8 +487,8 @@ export default function PlayAiGame() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(320px, 580px) 1fr",
-          gap: 36,
+          gridTemplateColumns: "min(calc(100vh - 260px), 720px) minmax(380px, 1fr)",
+          gap: 32,
           alignItems: "start",
         }}
       >

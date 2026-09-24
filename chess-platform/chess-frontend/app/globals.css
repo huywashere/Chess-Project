@@ -96,7 +96,22 @@ body {
 
 /* ─── Layout ─── */
 .container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.game-arena-container {
+  width: 100%;
+  max-width: 1680px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.container-wide {
+  width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
   padding: 0 24px;
 }
