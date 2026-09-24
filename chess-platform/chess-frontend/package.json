@@ -6,9 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:push": "prisma db push",
+    "db:seed": "node prisma/seed.mjs",
+    "db:studio": "prisma studio",
+    "db:generate": "prisma generate"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.mjs"
   },
   "dependencies": {
+    "@prisma/client": "^6.4.1",
     "@react-three/drei": "^10.7.8",
     "@react-three/fiber": "^9.8.0",
     "@stomp/stompjs": "^7.3.0",
@@ -32,6 +40,7 @@
     "@types/three": "^0.186.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
+    "prisma": "^6.4.1",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

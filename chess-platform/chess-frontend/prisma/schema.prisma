@@ -1,0 +1,216 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum GameResult {
+  WHITE_WIN
+  BLACK_WIN
+  DRAW
+  ONGOING
+  ABORTED
+
+  @@map("game_result")
+}
+
+enum TerminationType {
+  CHECKMATE
+  RESIGNATION
+  TIMEOUT
+  STALEMATE
+  AGREEMENT
+  INSUFFICIENT_MATERIAL
+  REPETITION
+  FIFTY_MOVE
+
+  @@map("termination_type")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  GRANDMASTER
+  BOT
+}
+
+enum TournamentStatus {
+  UPCOMING
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  username     String    @unique @db.VarChar(30)
+  email        String    @unique @db.VarChar(255)
+  passwordHash String?   @map("password_hash") @db.VarChar(255)
+  avatarUrl    String?   @map("avatar_url")
+  eloRating    Int       @default(1200) @map("elo_rating")
+  ratingRapid  Int       @default(1200) @map("rating_rapid")
+  ratingBlitz  Int       @default(1200) @map("rating_blitz")
+  ratingBullet Int       @default(1200) @map("rating_bullet")
+  ratingPuzzle Int       @default(1500) @map("rating_puzzle")
+  role         UserRole  @default(USER)
+  title        String?   @db.VarChar(10) // "GM", "IM", "FM"
+  country      String?   @db.VarChar(10) // "VN", "NO", "US"
+  provider     String?   @default("local") @db.VarChar(20)
+  providerId   String?   @map("provider_id") @db.VarChar(255)
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
+
+  whiteGames         Game[]                  @relation("WhitePlayer")
+  blackGames         Game[]                  @relation("BlackPlayer")
+  ratingHistories    RatingHistory[]
+  puzzleAttempts     UserPuzzleAttempt[]
+  tournamentEntries  TournamentParticipant[]
+
+  @@index([username], name: "idx_users_username")
+  @@index([email], name: "idx_users_email")
+  @@index([eloRating(sort: Desc)], name: "idx_users_elo")
+  @@map("users")
+}
+
+model Game {
+  id                 String           @id @default(uuid()) @db.Uuid
+  whitePlayerId      String?          @map("white_player_id") @db.Uuid
+  blackPlayerId      String?          @map("black_player_id") @db.Uuid
+  whitePlayer        User?            @relation("WhitePlayer", fields: [whitePlayerId], references: [id], onDelete: SetNull)
+  blackPlayer        User?            @relation("BlackPlayer", fields: [blackPlayerId], references: [id], onDelete: SetNull)
+  result             GameResult       @default(ONGOING)
+  termination        TerminationType?
+  pgn                String?          @db.Text
+  fenFinal           String?          @map("fen_final") @db.Text
+  timeControl        String           @map("time_control") @db.VarChar(20)
+  isRated            Boolean          @default(true) @map("is_rated")
+  vsAi               Boolean          @default(false) @map("vs_ai")
+  aiDifficulty       String?          @map("ai_difficulty") @db.VarChar(20)
+  whiteRatingBefore  Int?             @map("white_rating_before")
+  blackRatingBefore  Int?             @map("black_rating_before")
+  playedAt           DateTime         @default(now()) @map("played_at") @db.Timestamptz()
+  endedAt            DateTime?        @map("ended_at") @db.Timestamptz()
+
+  ratingHistories    RatingHistory[]
+  analysis           GameAnalysis?
+
+  @@index([whitePlayerId], name: "idx_games_white_player")
+  @@index([blackPlayerId], name: "idx_games_black_player")
+  @@index([playedAt(sort: Desc)], name: "idx_games_played_at")
+  @@index([result], name: "idx_games_result")
+  @@map("games")
+}
+
+model RatingHistory {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  gameId    String?  @map("game_id") @db.Uuid
+  oldRating Int      @map("old_rating")
+  newRating Int      @map("new_rating")
+  change    Int
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game? @relation(fields: [gameId], references: [id], onDelete: SetNull)
+
+  @@index([userId], name: "idx_rating_history_user_id")
+  @@index([createdAt(sort: Desc)], name: "idx_rating_history_created_at")
+  @@map("rating_history")
+}
+
+model GameAnalysis {
+  id                 String   @id @default(uuid()) @db.Uuid
+  gameId             String   @unique @map("game_id") @db.Uuid
+  accuracyWhite      Float?   @map("accuracy_white")
+  accuracyBlack      Float?   @map("accuracy_black")
+  blundersWhite      Int      @default(0) @map("blunders_white")
+  blundersBlack      Int      @default(0) @map("blunders_black")
+  mistakesWhite      Int      @default(0) @map("mistakes_white")
+  mistakesBlack      Int      @default(0) @map("mistakes_black")
+  brilliantWhite     Int      @default(0) @map("brilliant_white")
+  brilliantBlack     Int      @default(0) @map("brilliant_black")
+  evalGraphJson      String?  @map("eval_graph_json") @db.Text
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@map("game_analyses")
+}
+
+model Puzzle {
+  id              String   @id @default(uuid()) @db.Uuid
+  puzzleId        String   @unique @map("puzzle_id") @db.VarChar(50)
+  fen             String   @db.Text
+  moves           String   @db.Text
+  rating          Int      @default(1500)
+  ratingDeviation Int      @default(100) @map("rating_deviation")
+  theme           String   @db.VarChar(50)
+  title           String   @db.VarChar(100)
+  description     String?  @db.Text
+  timesSolved     Int      @default(0) @map("times_solved")
+  timesAttempted  Int      @default(0) @map("times_attempted")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  attempts UserPuzzleAttempt[]
+
+  @@index([rating])
+  @@index([theme])
+  @@map("puzzles")
+}
+
+model UserPuzzleAttempt {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  puzzleId     String   @map("puzzle_id") @db.Uuid
+  isSolved     Boolean  @map("is_solved")
+  timeSpentMs  Int      @map("time_spent_ms")
+  ratingChange Int      @default(0) @map("rating_change")
+  attemptedAt  DateTime @default(now()) @map("attempted_at") @db.Timestamptz()
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  puzzle Puzzle @relation(fields: [puzzleId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([puzzleId])
+  @@map("user_puzzle_attempts")
+}
+
+model Tournament {
+  id            String            @id @default(uuid()) @db.Uuid
+  title         String            @db.VarChar(120)
+  description   String?           @db.Text
+  format        String            @default("Arena") @db.VarChar(30)
+  timeControl   String            @map("time_control") @db.VarChar(20)
+  status        TournamentStatus  @default(UPCOMING)
+  maxPlayers    Int               @default(128) @map("max_players")
+  prizePool     String?           @map("prize_pool") @db.VarChar(50)
+  startsAt      DateTime          @map("starts_at") @db.Timestamptz()
+  endedAt       DateTime?         @map("ended_at") @db.Timestamptz()
+  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz()
+
+  participants  TournamentParticipant[]
+
+  @@index([status])
+  @@index([startsAt])
+  @@map("tournaments")
+}
+
+model TournamentParticipant {
+  id           String     @id @default(uuid()) @db.Uuid
+  tournamentId String     @map("tournament_id") @db.Uuid
+  userId       String     @map("user_id") @db.Uuid
+  score        Float      @default(0.0)
+  rank         Int?
+  registeredAt DateTime   @default(now()) @map("registered_at") @db.Timestamptz()
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, userId])
+  @@index([tournamentId, score(sort: Desc)])
+  @@map("tournament_participants")
+}
