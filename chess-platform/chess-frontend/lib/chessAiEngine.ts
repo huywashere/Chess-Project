@@ -290,15 +290,25 @@ export function calculateLocalAiMove(
   };
 }
 
-// Hybrid AI Service: Tries backend FastAPI Stockfish service first, seamlessly falls back to client TS engine!
+// Hybrid AI Service: Official Stockfish WebAssembly Engine (Worker) -> Backend FastAPI -> Client TS Fallback
 export async function getAiMove(
   fen: string,
   difficulty: AiDifficulty
 ): Promise<AiMoveResult> {
-  // 1. Try FastAPI Stockfish 17 service if reachable
+  // 1. Primary: Official Stockfish WebAssembly Worker (Runs in browser, zero lag, ELO up to 3000+)
+  if (typeof window !== "undefined") {
+    try {
+      const { getStockfishService } = await import("./stockfishWorker");
+      return await getStockfishService().getMove(fen, difficulty);
+    } catch (e) {
+      console.warn("Stockfish worker fallback:", e);
+    }
+  }
+
+  // 2. Try FastAPI Stockfish service if reachable
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1200);
+    const timeoutId = setTimeout(() => controller.abort(), 800);
 
     const res = await fetch("http://localhost:8001/ai/move", {
       method: "POST",
@@ -325,9 +335,9 @@ export async function getAiMove(
       };
     }
   } catch {
-    // Backend offline or timeout -> Seamlessly run local high-speed Minimax engine
+    // Backend offline or timeout
   }
 
-  // 2. Local TypeScript Chess AI fallback (Zero network dependency, instant response!)
+  // 3. Local TypeScript Chess AI fallback (Zero network dependency, instant response!)
   return calculateLocalAiMove(fen, difficulty);
 }

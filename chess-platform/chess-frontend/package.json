@@ -21,6 +21,7 @@
     "react-chessboard": "^5.12.1",
     "react-dom": "19.2.8",
     "sockjs-client": "^1.6.1",
+    "stockfish.js": "^10.0.2",
     "three": "^0.186.1"
   },
   "devDependencies": {
