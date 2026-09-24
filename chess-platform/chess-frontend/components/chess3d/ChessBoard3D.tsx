@@ -11,7 +11,7 @@ export interface ChessBoard3DProps {
   possibleMoves: string[];
   lastMove: { from: string; to: string } | null;
   onSquareClick: (square: string) => void;
-  boardTheme?: "green" | "wood" | "blue" | "dark";
+  boardTheme?: string;
   flipped?: boolean;
   onFlip?: () => void;
 }
@@ -22,7 +22,7 @@ export default function ChessBoard3D({
   possibleMoves,
   lastMove,
   onSquareClick,
-  boardTheme = "green",
+  boardTheme = "listudy",
   flipped = false,
   onFlip,
 }: ChessBoard3DProps) {

@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useRef,
   useTransition,
+  useMemo,
 } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -37,10 +38,19 @@ import {
   Zap,
   Swords,
   MessageSquare,
+  Palette,
+  SlidersHorizontal,
 } from "lucide-react";
 import { getAiMove, AiDifficulty, AiMoveResult } from "@/lib/chessAiEngine";
 import { soundManager } from "@/lib/soundEffects";
-import { BoardTheme } from "./InteractiveBoard";
+import {
+  BOARD_THEMES,
+  BoardThemeKey,
+  PIECE_THEMES,
+  PieceThemeKey,
+  getCustomPieces,
+} from "@/lib/boardThemes";
+import BoardCustomizerModal from "./play/BoardCustomizerModal";
 import CapturedPieces from "./play/CapturedPieces";
 import PromotionModal, { PromotionPiece } from "./play/PromotionModal";
 import GameReviewModal from "./play/GameReviewModal";
@@ -316,16 +326,6 @@ function renderBotIcon(type: BotProfile["iconType"], size = 20) {
   }
 }
 
-const THEME_COLORS: Record<
-  BoardTheme,
-  { dark: string; light: string; border: string }
-> = {
-  green: { dark: "#779952", light: "#edeed1", border: "#496332" },
-  wood: { dark: "#b58863", light: "#f0d9b5", border: "#734e2c" },
-  blue: { dark: "#4d7399", light: "#d0e0ed", border: "#2d4866" },
-  dark: { dark: "#4a4845", light: "#b8b5b0", border: "#2a2825" },
-};
-
 function formatClockTime(sec: number): string {
   if (sec <= 0) return "00:00";
   const m = Math.floor(sec / 60);
@@ -339,7 +339,9 @@ export default function PlayAiGame() {
   const [playMode, setPlayMode] = useState<"ai" | "pass_and_play">("ai");
   const [difficulty, setDifficulty] = useState<AiDifficulty>("medium");
   const [playerColor, setPlayerColor] = useState<"white" | "black">("white");
-  const [boardTheme, setBoardTheme] = useState<BoardTheme>("green");
+  const [boardTheme, setBoardTheme] = useState<BoardThemeKey>("listudy");
+  const [pieceTheme, setPieceTheme] = useState<PieceThemeKey>("cburnett");
+  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [is3D, setIs3D] = useState(false);
   const [isAiThinking, setIsAiThinking] = useState(false);
   const [evalScore, setEvalScore] = useState<number>(0);
@@ -894,7 +896,12 @@ export default function PlayAiGame() {
     };
   });
 
-  const colors = THEME_COLORS[boardTheme] || THEME_COLORS.green;
+  const currentThemeConfig = BOARD_THEMES[boardTheme] || BOARD_THEMES.listudy;
+  const currentPieceConfig = PIECE_THEMES[pieceTheme] || PIECE_THEMES.cburnett;
+  const customPiecesObject = useMemo(
+    () => getCustomPieces(currentPieceConfig),
+    [currentPieceConfig]
+  );
   const clampedEval = Math.max(-10, Math.min(10, evalScore));
   const whitePercent = Math.round(50 + clampedEval * 4);
 
@@ -1311,18 +1318,19 @@ export default function PlayAiGame() {
                       onSquareRightClick: ({ square }) =>
                         handleSquareRightClick(square),
                       showNotation: true,
-                      darkSquareStyle: { backgroundColor: colors.dark },
-                      lightSquareStyle: { backgroundColor: colors.light },
+                      darkSquareStyle: { backgroundColor: currentThemeConfig.dark },
+                      lightSquareStyle: { backgroundColor: currentThemeConfig.light },
                       darkSquareNotationStyle: {
-                        color: colors.light,
+                        color: currentThemeConfig.lightNotationColor,
                         fontWeight: "600",
                         fontSize: 11,
                       },
                       lightSquareNotationStyle: {
-                        color: colors.dark,
+                        color: currentThemeConfig.darkNotationColor,
                         fontWeight: "600",
                         fontSize: 11,
                       },
+                      pieces: customPiecesObject,
                       squareStyles,
                       allowDrawingArrows: true,
                       arrows: customArrows,
@@ -1424,7 +1432,7 @@ export default function PlayAiGame() {
             </div>
           </div>
 
-          {/* Board Theme & 3D Selector Toolbar */}
+          {/* Board Theme & Piece Customizer Toolbar */}
           <div
             style={{
               display: "flex",
@@ -1434,25 +1442,71 @@ export default function PlayAiGame() {
               padding: "8px 12px",
               background: "var(--bg-surface)",
               border: "1px solid var(--border-subtle)",
-              borderRadius: 6,
+              borderRadius: 8,
+              gap: 8,
+              flexWrap: "wrap",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Bàn cờ:</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+                <Palette size={13} />
+                Bàn cờ:
+              </span>
+              <button
+                type="button"
+                onClick={() => setBoardTheme("listudy")}
+                style={{
+                  background: boardTheme === "listudy" ? "rgba(140, 162, 173, 0.25)" : "transparent",
+                  border: `1px solid ${boardTheme === "listudy" ? "#8ca2ad" : "var(--border-subtle)"}`,
+                  color: boardTheme === "listudy" ? "#dee3e6" : "var(--text-secondary)",
+                  borderRadius: 4,
+                  padding: "3px 8px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+                title="Bàn cờ xanh chuẩn Listudy / Lichess Blue"
+              >
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    backgroundColor: "#8ca2ad",
+                    border: "1px solid #dee3e6",
+                  }}
+                />
+                Listudy
+              </button>
               <button
                 type="button"
                 onClick={() => setBoardTheme("green")}
                 style={{
                   background: boardTheme === "green" ? "var(--green-bg)" : "transparent",
-                  border: `1px solid ${boardTheme === "green" ? "var(--green-border)" : "transparent"}`,
+                  border: `1px solid ${boardTheme === "green" ? "var(--green-border)" : "var(--border-subtle)"}`,
                   color: boardTheme === "green" ? "var(--green-light)" : "var(--text-secondary)",
                   borderRadius: 4,
                   padding: "3px 8px",
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
                 }}
               >
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    backgroundColor: "#779952",
+                    border: "1px solid #edeed1",
+                  }}
+                />
                 Xanh Lá
               </button>
               <button
@@ -1460,16 +1514,50 @@ export default function PlayAiGame() {
                 onClick={() => setBoardTheme("wood")}
                 style={{
                   background: boardTheme === "wood" ? "var(--gold-bg)" : "transparent",
-                  border: `1px solid ${boardTheme === "wood" ? "var(--gold-border)" : "transparent"}`,
+                  border: `1px solid ${boardTheme === "wood" ? "var(--gold-border)" : "var(--border-subtle)"}`,
                   color: boardTheme === "wood" ? "var(--gold-light)" : "var(--text-secondary)",
                   borderRadius: 4,
                   padding: "3px 8px",
                   fontSize: 12,
                   fontWeight: 600,
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
                 }}
               >
-                Gỗ Tự Nhiên
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    backgroundColor: "#b58863",
+                    border: "1px solid #f0d9b5",
+                  }}
+                />
+                Gỗ Walnut
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsCustomizerOpen(true)}
+                style={{
+                  background: "linear-gradient(135deg, rgba(129, 182, 76, 0.15), rgba(59, 130, 246, 0.15))",
+                  border: "1px solid rgba(129, 182, 76, 0.4)",
+                  color: "var(--gold-light)",
+                  borderRadius: 4,
+                  padding: "3px 10px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  transition: "all 0.2s",
+                }}
+                title="Mở bảng đổi toàn bộ màu sắc, kiểu quân cờ và âm thanh"
+              >
+                <SlidersHorizontal size={12} />
+                <span>Đổi Màu & Kiểu Quân...</span>
               </button>
             </div>
 
@@ -1989,6 +2077,16 @@ export default function PlayAiGame() {
         pgn={game.pgn()}
         onClose={() => setIsFenModalOpen(false)}
         onLoadFen={handleLoadCustomFen}
+      />
+
+      {/* Board & Piece Theme Customizer Modal */}
+      <BoardCustomizerModal
+        isOpen={isCustomizerOpen}
+        onClose={() => setIsCustomizerOpen(false)}
+        currentBoardTheme={boardTheme}
+        currentPieceTheme={pieceTheme}
+        onSelectBoardTheme={(theme) => setBoardTheme(theme)}
+        onSelectPieceTheme={(theme) => setPieceTheme(theme)}
       />
     </div>
   );

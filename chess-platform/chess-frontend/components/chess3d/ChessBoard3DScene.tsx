@@ -11,7 +11,7 @@ export interface ChessBoard3DSceneProps {
   possibleMoves: string[];
   lastMove: { from: string; to: string } | null;
   onSquareClick: (square: string) => void;
-  boardTheme?: "green" | "wood" | "blue" | "dark";
+  boardTheme?: string;
   materialTheme?: "classic_wood" | "tournament" | "marble";
   flipped?: boolean;
 }
@@ -25,7 +25,7 @@ export function ChessBoard3DScene({
   possibleMoves,
   lastMove,
   onSquareClick,
-  boardTheme = "green",
+  boardTheme = "listudy",
   materialTheme = "classic_wood",
   flipped = false,
 }: ChessBoard3DSceneProps) {
@@ -83,6 +83,12 @@ export function ChessBoard3DScene({
   // Board square colors based on theme
   const { lightColor, darkColor, frameColor } = useMemo(() => {
     switch (boardTheme) {
+      case "listudy":
+        return {
+          lightColor: 0xdee3e6,
+          darkColor: 0x8ca2ad,
+          frameColor: 0x485860,
+        };
       case "wood":
         return {
           lightColor: 0xf0d9b5,

@@ -31,7 +31,16 @@ const Chessboard = dynamic(
   }
 );
 
-export type BoardTheme = "green" | "wood" | "blue" | "dark";
+export type BoardTheme =
+  | "green"
+  | "wood"
+  | "blue"
+  | "dark"
+  | "listudy"
+  | "brown"
+  | "slate"
+  | "icy"
+  | "violet";
 
 interface InteractiveBoardProps {
   initialFen?: string;
@@ -44,10 +53,15 @@ const THEME_COLORS: Record<
   BoardTheme,
   { dark: string; light: string; border: string }
 > = {
+  listudy: { dark: "#8ca2ad", light: "#dee3e6", border: "#6b828d" },
   green: { dark: "#779952", light: "#edeed1", border: "#496332" },
   wood: { dark: "#b58863", light: "#f0d9b5", border: "#734e2c" },
   blue: { dark: "#4d7399", light: "#d0e0ed", border: "#2d4866" },
   dark: { dark: "#4a4845", light: "#b8b5b0", border: "#2a2825" },
+  brown: { dark: "#b88b4a", light: "#e3c16f", border: "#856230" },
+  slate: { dark: "#4a5568", light: "#cbd5e1", border: "#334155" },
+  icy: { dark: "#52796f", light: "#cad2c5", border: "#354f52" },
+  violet: { dark: "#886f9e", light: "#e5d9ed", border: "#6b547d" },
 };
 
 export default function InteractiveBoard({
