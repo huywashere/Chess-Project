@@ -2,6 +2,7 @@ package com.chess.game;
 
 import com.chess.user.User;
 import com.chess.user.UserRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -100,7 +101,7 @@ public class GameRestController {
     }
 
     @PostMapping
-    public ResponseEntity<?> recordGame(@RequestBody CreateGameRequest req) {
+    public ResponseEntity<?> recordGame(@Valid @RequestBody CreateGameRequest req) {
         User white = req.getWhitePlayerId() != null
                 ? userRepository.findById(req.getWhitePlayerId()).orElse(null)
                 : null;

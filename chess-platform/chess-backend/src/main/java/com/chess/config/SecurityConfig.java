@@ -43,12 +43,12 @@ public class SecurityConfig {
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/ws/**").permitAll()          // WebSocket handshake
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh").permitAll()
+                .requestMatchers("/ws/**").permitAll()                   // WebSocket handshake
                 .requestMatchers("/api/leaderboard").permitAll()
-                .requestMatchers("/api/games/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/games/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/**").permitAll()
-                .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 // Protected
                 .anyRequest().authenticated()
             )

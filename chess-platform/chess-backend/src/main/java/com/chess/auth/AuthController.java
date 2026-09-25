@@ -7,12 +7,15 @@ import com.chess.auth.dto.UserDto;
 import com.chess.user.User;
 import com.chess.user.UserRepository;
 import com.chess.user.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,6 +31,8 @@ public class AuthController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenBlacklistService tokenBlacklistService;
+    private final UserDetailsService userDetailsService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
@@ -60,6 +65,9 @@ public class AuthController {
 
         String token = jwtService.generateTokenForUsername(user.getUsername(), claims);
 
+        org.springframework.security.core.userdetails.UserDetails ud = userDetailsService.loadUserByUsername(user.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(ud);
+
         UserDto userDto = UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -73,6 +81,7 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(AuthResponse.builder()
                 .token(token)
+                .refreshToken(refreshToken)
                 .user(userDto)
                 .message("User registered successfully")
                 .build());
@@ -101,6 +110,9 @@ public class AuthController {
 
         String token = jwtService.generateTokenForUsername(user.getUsername(), claims);
 
+        org.springframework.security.core.userdetails.UserDetails ud = userDetailsService.loadUserByUsername(user.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(ud);
+
         UserDto userDto = UserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
@@ -114,6 +126,7 @@ public class AuthController {
 
         return ResponseEntity.ok(AuthResponse.builder()
                 .token(token)
+                .refreshToken(refreshToken)
                 .user(userDto)
                 .message("Login successful")
                 .build());
@@ -151,8 +164,64 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            tokenBlacklistService.blacklist(token);
+        }
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+    }
+
+    /**
+     * Exchange a valid refresh token for a new access token.
+     * Refresh tokens are long-lived (7 days by default) and are issued
+     * at login time alongside the access token.
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody Map<String, String> body) {
+        String refreshToken = body.get("refreshToken");
+        if (refreshToken == null || refreshToken.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "refreshToken is required"));
+        }
+
+        if (tokenBlacklistService.isBlacklisted(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Refresh token has been revoked"));
+        }
+
+        try {
+            String username = jwtService.extractUsername(refreshToken);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            if (!jwtService.isTokenValid(refreshToken, userDetails)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Refresh token is invalid or expired"));
+            }
+
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("userId", user.getId().toString());
+            claims.put("email", user.getEmail());
+            claims.put("role", "ROLE_USER");
+
+            String newAccessToken = jwtService.generateTokenForUsername(username, claims);
+            String newRefreshToken = jwtService.generateRefreshToken(userDetails);
+
+            // Blacklist old refresh token
+            tokenBlacklistService.blacklist(refreshToken);
+
+            return ResponseEntity.ok(Map.of(
+                    "token", newAccessToken,
+                    "refreshToken", newRefreshToken
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid refresh token"));
+        }
     }
 }

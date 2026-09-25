@@ -1,12 +1,15 @@
 package com.chess.game;
 
 import com.chess.game.dto.*;
+import com.chess.rating.RatingService;
 import com.chess.user.User;
+import com.chess.user.UserRepository;
 import com.github.bhlangonijr.chesslib.Board;
 import com.github.bhlangonijr.chesslib.move.Move;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,8 @@ import java.util.*;
 public class GameService {
 
     private final GameRepository gameRepository;
+    private final UserRepository userRepository;
+    private final RatingService ratingService;
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String GAME_STATE_PREFIX = "game:";
@@ -166,10 +171,90 @@ public class GameService {
         return Long.parseLong(parts[0]) * 60 * 1000;
     }
 
+    /**
+     * Persist the final game state to PostgreSQL and trigger Elo rating updates.
+     * Runs in a separate transaction so Redis game-state updates are not coupled.
+     */
     @Transactional
-    private void persistGameResult(String gameId, GameStateDto state, GameStatus status) {
-        // TODO: Save final game to PostgreSQL with PGN
-        log.info("Game {} ended with status: {}", gameId, status);
+    @Async("taskExecutor")
+    public void persistGameResult(String gameId, GameStateDto state, GameStatus status) {
+        try {
+            log.info("Persisting finished game {} (status={})", gameId, status);
+
+            // Resolve players (nullable for AI side)
+            User white = null;
+            User black = null;
+            try {
+                if (state.getWhitePlayerId() != null && !state.getWhitePlayerId().equals("AI")) {
+                    white = userRepository.findById(java.util.UUID.fromString(state.getWhitePlayerId())).orElse(null);
+                }
+                if (state.getBlackPlayerId() != null && !state.getBlackPlayerId().equals("AI")) {
+                    black = userRepository.findById(java.util.UUID.fromString(state.getBlackPlayerId())).orElse(null);
+                }
+            } catch (IllegalArgumentException ignored) {
+                // playerId may be a username string in some flows — best-effort lookup
+            }
+
+            // Map GameStatus → Game.GameResult
+            Game.GameResult result = switch (status) {
+                case CHECKMATE -> {
+                    // Determine winner from whose turn it is (the side that just got mated loses)
+                    yield state.getCurrentTurn().equals("white") ? Game.GameResult.BLACK_WIN : Game.GameResult.WHITE_WIN;
+                }
+                case RESIGNED -> {
+                    // The player who resigned loses
+                    yield state.getCurrentTurn().equals("white") ? Game.GameResult.WHITE_WIN : Game.GameResult.BLACK_WIN;
+                }
+                case TIMEOUT -> {
+                    yield state.getCurrentTurn().equals("white") ? Game.GameResult.BLACK_WIN : Game.GameResult.WHITE_WIN;
+                }
+                case STALEMATE, DRAW -> Game.GameResult.DRAW;
+                case ABORTED -> Game.GameResult.ABORTED;
+                default -> Game.GameResult.ONGOING;
+            };
+
+            // Build PGN from UCI move list (simplified — full SAN conversion would require chesslib)
+            String moves = state.getMoves() != null ? String.join(" ", state.getMoves()) : "";
+
+            Game game = Game.builder()
+                    .whitePlayer(white)
+                    .blackPlayer(black)
+                    .result(result)
+                    .termination(mapTermination(status))
+                    .pgn(moves)
+                    .fenFinal(state.getFen())
+                    .timeControl(state.getTimeControl() != null ? state.getTimeControl() : "10+0")
+                    .isRated(!state.isVsAi())
+                    .vsAi(state.isVsAi())
+                    .aiDifficulty(state.getAiDifficulty())
+                    .whiteRatingBefore(white != null ? white.getEloRating() : null)
+                    .blackRatingBefore(black != null ? black.getEloRating() : null)
+                    .endedAt(Instant.now())
+                    .build();
+
+            game = gameRepository.save(game);
+            log.info("Game {} saved to DB with id={}", gameId, game.getId());
+
+            // Update Elo ratings for rated PvP games
+            ratingService.processGameResult(game);
+
+            // Clean up Redis game state after DB persist
+            redisTemplate.delete(GAME_STATE_PREFIX + gameId);
+
+        } catch (Exception e) {
+            log.error("Failed to persist game result for gameId={}: {}", gameId, e.getMessage(), e);
+        }
+    }
+
+    private Game.TerminationType mapTermination(GameStatus status) {
+        return switch (status) {
+            case CHECKMATE -> Game.TerminationType.CHECKMATE;
+            case RESIGNED  -> Game.TerminationType.RESIGNATION;
+            case TIMEOUT   -> Game.TerminationType.TIMEOUT;
+            case STALEMATE -> Game.TerminationType.STALEMATE;
+            case DRAW      -> Game.TerminationType.AGREEMENT;
+            default        -> null;
+        };
     }
 
     // ===== Status Enum =====
