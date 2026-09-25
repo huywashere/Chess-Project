@@ -17,7 +17,10 @@ export default function FeaturesSection() {
   const features = [
     {
       icon: Trophy,
-      title: language === "vi" ? "Hệ Thống ELO Chuẩn Quốc Tế" : "International ELO Rating System",
+      title:
+        language === "vi"
+          ? "Hệ Thống ELO Chuẩn Quốc Tế"
+          : "International ELO Rating System",
       desc:
         language === "vi"
           ? "Rating Glicko-2 chuẩn xác như FIDE và Lichess. Ghép cặp đối thủ công bằng và chính xác."
@@ -27,7 +30,10 @@ export default function FeaturesSection() {
     },
     {
       icon: Zap,
-      title: language === "vi" ? "Đồng Hồ Thời Gian Thực Golang" : "Golang Realtime Game Gateway",
+      title:
+        language === "vi"
+          ? "Đồng Hồ Thời Gian Thực Golang"
+          : "Golang Realtime Game Gateway",
       desc:
         language === "vi"
           ? "Gateway WebSocket Golang siêu nhẹ xử lý đồng hồ ticker chính xác microsecond, độ trễ < 15ms."
@@ -37,7 +43,10 @@ export default function FeaturesSection() {
     },
     {
       icon: BarChart3,
-      title: language === "vi" ? "Phân Tích Nước Đi Siêu Tốc (Rust)" : "Rust Sub-Millisecond Analysis",
+      title:
+        language === "vi"
+          ? "Phân Tích Nước Đi Siêu Tốc (Rust)"
+          : "Rust Sub-Millisecond Analysis",
       desc:
         language === "vi"
           ? "Động cơ Rust đánh giá thế cờ, phân loại nước đi (Thiên tài, Tốt, Sai lầm) chỉ trong 10 microseconds."
@@ -47,7 +56,8 @@ export default function FeaturesSection() {
     },
     {
       icon: BookOpen,
-      title: language === "vi" ? "Thư Viện Khai Cuộc Đồ Sộ" : "Extensive Openings Library",
+      title:
+        language === "vi" ? "Thư Viện Khai Cuộc Đồ Sộ" : "Extensive Openings Library",
       desc:
         language === "vi"
           ? "Hơn 3,000+ biến thế khai cuộc phổ biến kèm tỷ lệ thắng thực tế từ Ruy Lopez đến Sicilian Defense."
@@ -57,7 +67,8 @@ export default function FeaturesSection() {
     },
     {
       icon: ShieldCheck,
-      title: language === "vi" ? "Chống Gian Lận Đa Tầng (Entropy)" : "Multi-Layer Anti-Cheat",
+      title:
+        language === "vi" ? "Chống Gian Lận Đa Tầng (Entropy)" : "Multi-Layer Anti-Cheat",
       desc:
         language === "vi"
           ? "Thuật toán tính toán Entropy nhịp thời gian nước đi và phương sai chuẩn nhận diện bot tự động."
@@ -67,7 +78,8 @@ export default function FeaturesSection() {
     },
     {
       icon: Smartphone,
-      title: language === "vi" ? "Tối Ưu Cảm Ứng & Bàn Cờ 3D" : "Touch Optimized & 3D Boards",
+      title:
+        language === "vi" ? "Tối Ưu Cảm Ứng & Bàn Cờ 3D" : "Touch Optimized & 3D Boards",
       desc:
         language === "vi"
           ? "Cử chỉ chạm vuốt mượt mà trên iPhone, Android, iPad cùng chế độ 3D WebGL chân thực."

@@ -28,7 +28,10 @@ export default function GameModesSection() {
     {
       href: "/play/ai",
       icon: Bot,
-      title: language === "vi" ? "Chơi vs Máy (Stockfish 17)" : "Play vs Computer (Stockfish 17)",
+      title:
+        language === "vi"
+          ? "Chơi vs Máy (Stockfish 17)"
+          : "Play vs Computer (Stockfish 17)",
       desc:
         language === "vi"
           ? "Tập luyện cùng động cơ cờ vua số 1 thế giới Stockfish 17 NNUE với 5 cấp độ từ Nhập môn đến Đại Kiện Tướng."
@@ -40,7 +43,13 @@ export default function GameModesSection() {
       border: "var(--blue-border)",
       labelColor: "var(--blue-light)",
       label: "AI ENGINE",
-      details: ["Beginner ~600", "Casual ~1200", "Intermediate ~1600", "Hard ~2200", "Master ~3500"],
+      details: [
+        "Beginner ~600",
+        "Casual ~1200",
+        "Intermediate ~1600",
+        "Hard ~2200",
+        "Master ~3500",
+      ],
     },
     {
       href: "/puzzles",
@@ -143,7 +152,8 @@ export default function GameModesSection() {
                   (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border-subtle)";
+                  (e.currentTarget as HTMLElement).style.borderColor =
+                    "var(--border-subtle)";
                   (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
                 }}
               >
@@ -210,7 +220,14 @@ export default function GameModesSection() {
                   </p>
 
                   {/* Pills */}
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 20 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 6,
+                      marginBottom: 20,
+                    }}
+                  >
                     {mode.details.map((d) => (
                       <span
                         key={d}

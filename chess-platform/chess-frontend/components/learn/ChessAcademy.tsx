@@ -18,6 +18,7 @@ import {
 import { CHESS_LESSONS, ChessLesson } from "@/lib/lessonsData";
 import { soundManager } from "@/lib/soundEffects";
 import { BOARD_THEMES, PIECE_THEMES, getCustomPieces } from "@/lib/boardThemes";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Dynamically import Chessboard with SSR disabled
 const Chessboard = dynamic(
@@ -38,18 +39,23 @@ const Chessboard = dynamic(
           fontSize: 14,
         }}
       >
-        Đang chuẩn bị học liệu...
+        Loading lesson board...
       </div>
     ),
   }
 );
 
 export default function ChessAcademy() {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [activeLessonId, setActiveLessonId] = useState<string>(CHESS_LESSONS[0].id);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isPracticing, setIsPracticing] = useState(false);
-  const [taskFeedback, setTaskFeedback] = useState<{ status: "idle" | "success" | "wrong"; message: string }>({
+  const [taskFeedback, setTaskFeedback] = useState<{
+    status: "idle" | "success" | "wrong";
+    message: string;
+  }>({
     status: "idle",
     message: "",
   });
@@ -142,11 +148,11 @@ export default function ChessAcademy() {
   );
 
   const categories = [
-    { id: "all", label: "Tất Cả Bài Học" },
-    { id: "openings", label: "Khai Cuộc Kinh Điển" },
-    { id: "tactics", label: "Chiến Thuật & Đòn Đánh" },
-    { id: "endgame", label: "Tàn Cuộc Căn Bản" },
-    { id: "basics", label: "Luật Chơi & Nhập Môn" },
+    { id: "all", label: isVi ? "Tất Cả Bài Học" : "All Lessons" },
+    { id: "openings", label: isVi ? "Khai Cuộc Kinh Điển" : "Classic Openings" },
+    { id: "tactics", label: isVi ? "Chiến Thuật & Đòn Đánh" : "Tactics & Combinations" },
+    { id: "endgame", label: isVi ? "Tàn Cuộc Căn Bản" : "Basic Endgames" },
+    { id: "basics", label: isVi ? "Luật Chơi & Nhập Môn" : "Rules & Basics" },
   ];
 
   return (
@@ -174,7 +180,7 @@ export default function ChessAcademy() {
             }}
           >
             <GraduationCap size={15} />
-            <span>HỌC VIỆN CỜ VUA</span>
+            <span>{isVi ? "HỌC VIỆN CỜ VUA" : "CHESS ACADEMY"}</span>
           </div>
 
           <div
@@ -197,7 +203,7 @@ export default function ChessAcademy() {
                   letterSpacing: "-0.5px",
                 }}
               >
-                Giáo Trình Cờ Vua Tương Tác
+                {isVi ? "Giáo Trình Cờ Vua Tương Tác" : "Interactive Chess Curriculum"}
               </h1>
               <p
                 style={{
@@ -207,7 +213,9 @@ export default function ChessAcademy() {
                   marginBottom: 0,
                 }}
               >
-                Lộ trình bài giảng từ Nhập Môn đến Kiện Tướng, phân tích trực quan từng nước đi
+                {isVi
+                  ? "Lộ trình bài giảng từ Nhập Môn đến Kiện Tướng, phân tích trực quan từng nước đi"
+                  : "Guided structured curriculum from Beginner to Grandmaster with visual move analysis"}
               </p>
             </div>
 
@@ -224,11 +232,22 @@ export default function ChessAcademy() {
               }}
             >
               <div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
-                  TIẾN ĐỘ KHÓA HỌC
+                <div
+                  style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}
+                >
+                  {isVi ? "TIẾN ĐỘ KHÓA HỌC" : "COURSE PROGRESS"}
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--teal-light)", marginTop: 2 }}>
-                  {completedLessonIds.length} / {CHESS_LESSONS.length} Bài Đạt ({progressPercent}%)
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "var(--teal-light)",
+                    marginTop: 2,
+                  }}
+                >
+                  {isVi
+                    ? `${completedLessonIds.length} / ${CHESS_LESSONS.length} Bài Đạt (${progressPercent}%)`
+                    : `${completedLessonIds.length} / ${CHESS_LESSONS.length} Passed (${progressPercent}%)`}
                 </div>
               </div>
             </div>
@@ -300,8 +319,16 @@ export default function ChessAcademy() {
                   onPieceDrop: handlePieceDrop,
                   darkSquareStyle: { backgroundColor: boardTheme.dark },
                   lightSquareStyle: { backgroundColor: boardTheme.light },
-                  darkSquareNotationStyle: { color: boardTheme.lightNotationColor, fontSize: 10, fontWeight: "600" },
-                  lightSquareNotationStyle: { color: boardTheme.darkNotationColor, fontSize: 10, fontWeight: "600" },
+                  darkSquareNotationStyle: {
+                    color: boardTheme.lightNotationColor,
+                    fontSize: 10,
+                    fontWeight: "600",
+                  },
+                  lightSquareNotationStyle: {
+                    color: boardTheme.darkNotationColor,
+                    fontSize: 10,
+                    fontWeight: "600",
+                  },
                   squareStyles: squareStyles,
                   pieces: customPieces,
                   animationDurationInMs: 200,
@@ -321,11 +348,23 @@ export default function ChessAcademy() {
                 margin: "10px auto 0",
               }}
             >
-              <span>{isPracticing ? "Kéo thả quân cờ để giải bài tập" : "Quan sát thế cờ và đọc phân tích"}</span>
               <span>
                 {isPracticing
-                  ? "Chế độ: Thực hành"
-                  : `Bước ${currentStepIndex + 1} / ${activeLesson.steps.length}`}
+                  ? isVi
+                    ? "Kéo thả quân cờ để giải bài tập"
+                    : "Drag and drop pieces to solve exercise"
+                  : isVi
+                    ? "Quan sát thế cờ và đọc phân tích"
+                    : "Observe position and read analysis"}
+              </span>
+              <span>
+                {isPracticing
+                  ? isVi
+                    ? "Chế độ: Thực hành"
+                    : "Mode: Practice"
+                  : isVi
+                    ? `Bước ${currentStepIndex + 1} / ${activeLesson.steps.length}`
+                    : `Step ${currentStepIndex + 1} / ${activeLesson.steps.length}`}
               </span>
             </div>
           </div>
@@ -341,7 +380,9 @@ export default function ChessAcademy() {
           >
             {/* Header info */}
             <div style={{ marginBottom: 16 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}
+              >
                 <span
                   style={{
                     background: "var(--teal-bg)",
@@ -368,7 +409,8 @@ export default function ChessAcademy() {
                     gap: 4,
                   }}
                 >
-                  <Clock size={12} /> {activeLesson.estimatedMinutes} phút
+                  <Clock size={12} /> {activeLesson.estimatedMinutes}{" "}
+                  {isVi ? "phút" : "min"}
                 </span>
               </div>
 
@@ -412,7 +454,7 @@ export default function ChessAcademy() {
                   border: "none",
                 }}
               >
-                1. Bài Giảng & Phân Tích
+                {isVi ? "1. Bài Giảng & Phân Tích" : "1. Lesson & Analysis"}
               </button>
               <button
                 type="button"
@@ -431,7 +473,7 @@ export default function ChessAcademy() {
                   border: "none",
                 }}
               >
-                2. Bài Tập Thực Hành
+                {isVi ? "2. Bài Tập Thực Hành" : "2. Interactive Practice"}
               </button>
             </div>
 
@@ -476,7 +518,7 @@ export default function ChessAcademy() {
                       marginBottom: 24,
                     }}
                   >
-                    <span>Nước đi:</span>
+                    <span>{isVi ? "Nước đi:" : "Move:"}</span>
                     <span>{activeStep.keyMoveSan}</span>
                   </div>
                 )}
@@ -495,14 +537,17 @@ export default function ChessAcademy() {
                       borderRadius: 6,
                       background: "var(--bg-raised)",
                       border: "1px solid var(--divider)",
-                      color: currentStepIndex === 0 ? "var(--text-muted)" : "var(--text-secondary)",
+                      color:
+                        currentStepIndex === 0
+                          ? "var(--text-muted)"
+                          : "var(--text-secondary)",
                       fontSize: 13,
                       fontWeight: 600,
                       cursor: currentStepIndex === 0 ? "not-allowed" : "pointer",
                     }}
                   >
                     <ArrowLeft size={14} />
-                    <span>Bước Trước</span>
+                    <span>{isVi ? "Bước Trước" : "Previous Step"}</span>
                   </button>
 
                   <button
@@ -531,8 +576,12 @@ export default function ChessAcademy() {
                   >
                     <span>
                       {currentStepIndex < activeLesson.steps.length - 1
-                        ? "Bước Tiếp Theo"
-                        : "Bắt Đầu Thực Hành"}
+                        ? isVi
+                          ? "Bước Tiếp Theo"
+                          : "Next Step"
+                        : isVi
+                          ? "Bắt Đầu Thực Hành"
+                          : "Start Practice"}
                     </span>
                     <ArrowRight size={14} />
                   </button>
@@ -548,7 +597,8 @@ export default function ChessAcademy() {
                     marginBottom: 8,
                   }}
                 >
-                  Nhiệm vụ: {activeLesson.interactiveTask.prompt}
+                  {isVi ? "Nhiệm vụ: " : "Task: "}
+                  {activeLesson.interactiveTask.prompt}
                 </div>
 
                 {/* Feedback box */}
@@ -613,7 +663,7 @@ export default function ChessAcademy() {
                     }}
                   >
                     <RotateCcw size={14} />
-                    <span>Làm Lại</span>
+                    <span>{isVi ? "Làm Lại" : "Reset"}</span>
                   </button>
                 </div>
               </div>
@@ -632,7 +682,7 @@ export default function ChessAcademy() {
               marginBottom: 16,
             }}
           >
-            Danh Sách Tất Cả Bài Học
+            {isVi ? "Danh Sách Tất Cả Bài Học" : "All Available Lessons"}
           </h2>
 
           <div
@@ -659,7 +709,8 @@ export default function ChessAcademy() {
                     transition: "all 0.15s ease",
                   }}
                   onMouseEnter={(e) => {
-                    if (!isSelected) e.currentTarget.style.borderColor = "var(--border-medium)";
+                    if (!isSelected)
+                      e.currentTarget.style.borderColor = "var(--border-medium)";
                   }}
                   onMouseLeave={(e) => {
                     if (!isSelected) e.currentTarget.style.borderColor = "var(--divider)";
@@ -696,7 +747,7 @@ export default function ChessAcademy() {
                           gap: 3,
                         }}
                       >
-                        <CheckCircle2 size={12} /> Đã Đạt
+                        <CheckCircle2 size={12} /> {isVi ? "Đã Đạt" : "Passed"}
                       </span>
                     )}
                   </div>

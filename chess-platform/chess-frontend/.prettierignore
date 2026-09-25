@@ -1,0 +1,10 @@
+node_modules
+.next
+build
+dist
+public
+coverage
+*.min.js
+package-lock.json
+tsconfig.tsbuildinfo
+prisma/schema.prisma

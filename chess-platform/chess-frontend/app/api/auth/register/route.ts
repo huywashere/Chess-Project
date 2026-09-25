@@ -13,13 +13,20 @@ import { rateLimit } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    const body = await req.json();
+    const lang =
+      body.language === "en" || req.headers.get("x-language") === "en" ? "en" : "vi";
+    const isVi = lang === "vi";
+
     // 1. Rate Limiting Protection (Brute-force / spam accounts)
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
     const limiter = rateLimit(`register:${ip}`, { limit: 5, windowSeconds: 60 });
     if (!limiter.success) {
       return NextResponse.json(
         {
-          error: `Bạn thao tác quá nhanh. Vui lòng thử lại sau ${limiter.resetInSeconds} giây.`,
+          error: isVi
+            ? `Bạn thao tác quá nhanh. Vui lòng thử lại sau ${limiter.resetInSeconds} giây.`
+            : `Too many attempts. Please try again after ${limiter.resetInSeconds} seconds.`,
         },
         {
           status: 429,
@@ -31,11 +38,13 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Parse & Validate Payload
-    const body = await req.json();
-    const validation = validateRegisterInput(body);
+    const validation = validateRegisterInput(body, lang);
     if (!validation.isValid) {
       return NextResponse.json(
-        { error: "Dữ liệu đăng ký không hợp lệ", details: validation.errors },
+        {
+          error: isVi ? "Dữ liệu đăng ký không hợp lệ" : "Invalid registration data",
+          details: validation.errors,
+        },
         { status: 400 }
       );
     }
@@ -58,12 +67,20 @@ export async function POST(req: NextRequest) {
     if (existingUser) {
       if (existingUser.username.toLowerCase() === username.toLowerCase()) {
         return NextResponse.json(
-          { error: "Tên đăng nhập này đã được sử dụng. Vui lòng chọn tên khác." },
+          {
+            error: isVi
+              ? "Tên đăng nhập này đã được sử dụng. Vui lòng chọn tên khác."
+              : "This username is already taken. Please choose another one.",
+          },
           { status: 409 }
         );
       }
       return NextResponse.json(
-        { error: "Địa chỉ email này đã được đăng ký tài khoản." },
+        {
+          error: isVi
+            ? "Địa chỉ email này đã được đăng ký tài khoản."
+            : "This email address is already registered.",
+        },
         { status: 409 }
       );
     }
@@ -102,7 +119,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        message: "Đăng ký tài khoản thành công!",
+        message: isVi ? "Đăng ký tài khoản thành công!" : "Account created successfully!",
         user: safeUser,
       },
       { status: 201 }
@@ -110,7 +127,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { error: "Đã xảy ra lỗi hệ thống khi đăng ký. Vui lòng thử lại sau." },
+      {
+        error:
+          "Đã xảy ra lỗi hệ thống khi đăng ký. Vui lòng thử lại sau. / A system error occurred during registration. Please try again later.",
+      },
       { status: 500 }
     );
   }

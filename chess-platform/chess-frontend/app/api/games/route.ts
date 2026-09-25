@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import {
   checkRateLimit,
   createRateLimitResponse,
   getClientIp,
   getRateLimitHeaders,
-} from '@/lib/rateLimit';
+} from "@/lib/rateLimit";
 
 export async function GET(request: Request) {
   try {
     // Rate limit: 60 requests per minute for games query
     const ip = getClientIp(request);
-    const limiter = checkRateLimit(`games-get:${ip}`, 'API_READ');
+    const limiter = checkRateLimit(`games-get:${ip}`, "API_READ");
     if (!limiter.success) {
       return createRateLimitResponse(
         limiter,
@@ -20,11 +20,11 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 50);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50);
 
     const games = await prisma.game.findMany({
       take: limit,
-      orderBy: { playedAt: 'desc' },
+      orderBy: { playedAt: "desc" },
       include: {
         whitePlayer: {
           select: {
@@ -60,9 +60,9 @@ export async function GET(request: Request) {
       }
     );
   } catch (error) {
-    console.error('Error in GET /api/games:', error);
+    console.error("Error in GET /api/games:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch games' },
+      { success: false, error: "Failed to fetch games" },
       { status: 500 }
     );
   }
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
   try {
     // Rate limit: 15 game saves per minute per IP to prevent spam & DB flood
     const ip = getClientIp(request);
-    const limiter = checkRateLimit(`games-post:${ip}`, 'GAME_SUBMISSION');
+    const limiter = checkRateLimit(`games-post:${ip}`, "GAME_SUBMISSION");
     if (!limiter.success) {
       return createRateLimitResponse(
         limiter,
@@ -100,11 +100,11 @@ export async function POST(request: Request) {
       data: {
         whitePlayerId: whitePlayerId || null,
         blackPlayerId: blackPlayerId || null,
-        result: result || 'ONGOING',
+        result: result || "ONGOING",
         termination: termination || null,
         pgn: pgn || null,
         fenFinal: fenFinal || null,
-        timeControl: timeControl || '10+0',
+        timeControl: timeControl || "10+0",
         isRated: true,
         vsAi: vsAi ?? false,
         aiDifficulty: aiDifficulty || null,
@@ -145,9 +145,9 @@ export async function POST(request: Request) {
       }
     );
   } catch (error) {
-    console.error('Error in POST /api/games:', error);
+    console.error("Error in POST /api/games:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create game record' },
+      { success: false, error: "Failed to create game record" },
       { status: 500 }
     );
   }

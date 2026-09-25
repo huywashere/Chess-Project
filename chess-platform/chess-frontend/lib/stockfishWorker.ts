@@ -242,9 +242,7 @@ class StockfishWorkerService {
           this.worker?.postMessage(`setoption name Contempt value ${config.contempt}`);
         }
         this.worker?.postMessage(`position fen ${fen}`);
-        this.worker?.postMessage(
-          `go depth ${config.depth} movetime ${config.maxTimeMs}`
-        );
+        this.worker?.postMessage(`go depth ${config.depth} movetime ${config.maxTimeMs}`);
 
         // Safety timeout: 4s max
         this.timeoutTimer = setTimeout(() => {

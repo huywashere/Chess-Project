@@ -1,7 +1,9 @@
 package com.chess.ai;
 
+import com.chess.config.RedisCacheConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -28,8 +30,11 @@ public class StockfishClient {
 
     /**
      * Call FastAPI /ai/move endpoint to get Stockfish's best move.
+     * Cached in Redis by FEN and difficulty for 24 hours to accelerate repeated positions.
      */
+    @Cacheable(value = RedisCacheConfig.CACHE_AI_MOVES, key = "#fen + ':' + #difficulty", unless = "#result == null")
     public AiMoveResponse getAiMove(String fen, String difficulty) {
+        log.info("Requesting AI move from Stockfish Service (cache miss) for FEN: {} [difficulty: {}]", fen, difficulty);
         try {
             return webClient.post()
                 .uri("/ai/move")

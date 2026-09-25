@@ -46,7 +46,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()          // WebSocket handshake
                 .requestMatchers("/api/leaderboard").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/api/games/**").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/**").permitAll()
+                .requestMatchers("/actuator/**").permitAll()
                 // Protected
                 .anyRequest().authenticated()
             )

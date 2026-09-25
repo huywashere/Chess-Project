@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Copy, Check, Download, Upload, FileText } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface CustomFenModalProps {
   isOpen: boolean;
@@ -18,6 +19,9 @@ export default function CustomFenModal({
   onClose,
   onLoadFen,
 }: CustomFenModalProps) {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+
   const [fenInput, setFenInput] = useState(currentFen);
   const [copiedFen, setCopiedFen] = useState(false);
   const [copiedPgn, setCopiedPgn] = useState(false);
@@ -51,13 +55,19 @@ export default function CustomFenModal({
     try {
       setError(null);
       if (!fenInput.trim()) {
-        setError("Vui lòng nhập chuỗi FEN hợp lệ");
+        setError(
+          isVi ? "Vui lòng nhập chuỗi FEN hợp lệ" : "Please enter a valid FEN string"
+        );
         return;
       }
       onLoadFen(fenInput.trim());
       onClose();
     } catch {
-      setError("Chuỗi FEN không hợp lệ. Vui lòng kiểm tra lại cấu trúc cờ.");
+      setError(
+        isVi
+          ? "Chuỗi FEN không hợp lệ. Vui lòng kiểm tra lại cấu trúc cờ."
+          : "Invalid FEN string. Please check the chess board structure."
+      );
     }
   };
 
@@ -88,16 +98,28 @@ export default function CustomFenModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 16,
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <FileText size={20} style={{ color: "var(--blue-light)" }} />
             <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#fff" }}>
-              Nhập / Xuất PGN & FEN
+              {isVi ? "Nhập / Xuất PGN & FEN" : "Import / Export PGN & FEN"}
             </h3>
           </div>
           <button
             onClick={onClose}
-            style={{ background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+            }}
           >
             <X size={18} />
           </button>
@@ -105,8 +127,16 @@ export default function CustomFenModal({
 
         {/* FEN Section */}
         <div style={{ marginBottom: 20 }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
-            Chuỗi FEN Thế Cờ Hiện Tại
+          <label
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--text-secondary)",
+              display: "block",
+              marginBottom: 6,
+            }}
+          >
+            {isVi ? "Chuỗi FEN Thế Cờ Hiện Tại" : "Current Board FEN Position"}
           </label>
           <div style={{ display: "flex", gap: 8 }}>
             <input
@@ -128,14 +158,20 @@ export default function CustomFenModal({
             <button
               onClick={handleCopyFen}
               className="btn btn-secondary"
-              title="Sao chép FEN"
+              title={isVi ? "Sao chép FEN" : "Copy FEN"}
               style={{ padding: "8px 12px", fontSize: 12 }}
             >
-              {copiedFen ? <Check size={14} style={{ color: "var(--green-light)" }} /> : <Copy size={14} />}
+              {copiedFen ? (
+                <Check size={14} style={{ color: "var(--green-light)" }} />
+              ) : (
+                <Copy size={14} />
+              )}
             </button>
           </div>
 
-          {error && <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4 }}>{error}</div>}
+          {error && (
+            <div style={{ color: "#ef4444", fontSize: 12, marginTop: 4 }}>{error}</div>
+          )}
 
           <button
             onClick={handleApplyFen}
@@ -143,14 +179,24 @@ export default function CustomFenModal({
             style={{ width: "100%", marginTop: 10, padding: "8px 14px", fontSize: 13 }}
           >
             <Upload size={14} />
-            Tải Thế Cờ Này Để Đấu Tiếp Với AI
+            <span>
+              {isVi ? "Tải Thế Cờ Này Để Đấu Tiếp Với AI" : "Load Position to Play vs AI"}
+            </span>
           </button>
         </div>
 
         {/* PGN Section */}
         <div style={{ borderTop: "1px solid var(--border-subtle)", paddingTop: 16 }}>
-          <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>
-            Biên Bản Ván Đấu (PGN)
+          <label
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "var(--text-secondary)",
+              display: "block",
+              marginBottom: 6,
+            }}
+          >
+            {isVi ? "Biên Bản Ván Đấu (PGN)" : "Game Notation (PGN)"}
           </label>
           <div
             style={{
@@ -167,7 +213,7 @@ export default function CustomFenModal({
               whiteSpace: "pre-wrap",
             }}
           >
-            {pgn || "Chưa có nước đi nào"}
+            {pgn || (isVi ? "Chưa có nước đi nào" : "No moves recorded yet")}
           </div>
 
           <div style={{ display: "flex", gap: 10 }}>
@@ -176,8 +222,20 @@ export default function CustomFenModal({
               className="btn btn-secondary"
               style={{ flex: 1, padding: "8px 14px", fontSize: 13 }}
             >
-              {copiedPgn ? <Check size={14} style={{ color: "var(--green-light)" }} /> : <Copy size={14} />}
-              <span>{copiedPgn ? "Đã Sao Chép!" : "Sao Chép PGN"}</span>
+              {copiedPgn ? (
+                <Check size={14} style={{ color: "var(--green-light)" }} />
+              ) : (
+                <Copy size={14} />
+              )}
+              <span>
+                {copiedPgn
+                  ? isVi
+                    ? "Đã Sao Chép!"
+                    : "Copied!"
+                  : isVi
+                    ? "Sao Chép PGN"
+                    : "Copy PGN"}
+              </span>
             </button>
 
             <button
@@ -186,7 +244,7 @@ export default function CustomFenModal({
               style={{ flex: 1, padding: "8px 14px", fontSize: 13 }}
             >
               <Download size={14} />
-              <span>Tải File .PGN</span>
+              <span>{isVi ? "Tải File .PGN" : "Download .PGN"}</span>
             </button>
           </div>
         </div>

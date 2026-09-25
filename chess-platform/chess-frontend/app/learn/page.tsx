@@ -4,9 +4,9 @@ import ChessAcademy from "@/components/learn/ChessAcademy";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Học Viện Cờ Vua (Chess Academy) — ChessMaster",
+  title: "Interactive Chess Academy — ChessMaster | Học Viện Cờ Vua",
   description:
-    "Khóa học cờ vua tương tác từ Nhập Môn đến Kiện Tướng. Làm chủ nguyên tắc khai cuộc Ruy Lopez, Sicilian, chiến thuật chĩa đôi, ghim quân và kỹ thuật tàn cuộc.",
+    "Master openings, tactical motifs, and endgame strategies with interactive chess lessons. Khóa học cờ vua tương tác từ Nhập Môn đến Kiện Tướng.",
 };
 
 export default function LearnPage() {

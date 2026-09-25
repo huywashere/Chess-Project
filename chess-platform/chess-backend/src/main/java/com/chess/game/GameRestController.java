@@ -7,11 +7,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.*;
 
@@ -22,12 +22,15 @@ public class GameRestController {
 
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
+    private final GameQueryService gameQueryService;
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class GameDto {
+    public static class GameDto implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private UUID id;
         private PlayerSummary whitePlayer;
         private PlayerSummary blackPlayer;
@@ -49,7 +52,9 @@ public class GameRestController {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PlayerSummary {
+    public static class PlayerSummary implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private UUID id;
         private String username;
         private Integer eloRating;
@@ -77,17 +82,7 @@ public class GameRestController {
             @RequestParam(defaultValue = "20") int limit,
             @RequestParam(required = false) UUID userId
     ) {
-        int boundedLimit = Math.min(Math.max(limit, 1), 50);
-        PageRequest pageRequest = PageRequest.of(0, boundedLimit);
-
-        List<Game> games;
-        if (userId != null) {
-            games = gameRepository.findUserGames(userId, pageRequest);
-        } else {
-            games = gameRepository.findRecentGamesWithPlayers(pageRequest);
-        }
-
-        List<GameDto> dtos = games.stream().map(this::toDto).toList();
+        List<GameDto> dtos = gameQueryService.getRecentGames(limit, userId);
 
         return ResponseEntity.ok(Map.of(
                 "success", true,
@@ -98,8 +93,8 @@ public class GameRestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getGameById(@PathVariable UUID id) {
-        return gameRepository.findById(id)
-                .map(game -> ResponseEntity.ok(Map.of("success", true, "data", toDto(game))))
+        return gameQueryService.getGameById(id)
+                .map(dto -> ResponseEntity.ok(Map.of("success", true, "data", dto)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "Game not found")));
     }
@@ -147,11 +142,14 @@ public class GameRestController {
 
         game = gameRepository.save(game);
 
+        // Invalidate recent games and leaderboard caches in Redis
+        gameQueryService.evictGameAndLeaderboardCaches();
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("success", true, "data", toDto(game)));
     }
 
-    private GameDto toDto(Game g) {
+    public static GameDto toDto(Game g) {
         PlayerSummary whiteSummary = null;
         if (g.getWhitePlayer() != null) {
             whiteSummary = PlayerSummary.builder()

@@ -1,20 +1,13 @@
 "use client";
 
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-  useTransition,
-  useMemo,
-} from "react";
+import React, { useState, useEffect, useCallback, useTransition, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
 import { Chess, Square } from "chess.js";
 import {
   Bot,
   User,
-  RotateCcw,
   Undo2,
   Lightbulb,
   Flag,
@@ -29,8 +22,6 @@ import {
   FileText,
   Clock,
   Users,
-  Timer,
-  CheckCircle2,
   BarChart2,
   Cpu,
   Crown,
@@ -41,6 +32,7 @@ import {
   Palette,
   SlidersHorizontal,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 import { getAiMove, AiDifficulty, AiMoveResult } from "@/lib/chessAiEngine";
 import { soundManager } from "@/lib/soundEffects";
 import {
@@ -75,7 +67,7 @@ const Chessboard = dynamic(
           fontSize: 14,
         }}
       >
-        Đang khởi tạo bàn cờ...
+        Loading chessboard / Đang khởi tạo bàn cờ...
       </div>
     ),
   }
@@ -97,49 +89,107 @@ const ChessBoard3D = dynamic(() => import("./chess3d/ChessBoard3D"), {
         fontSize: 14,
       }}
     >
-      Đang tải bàn cờ 3D Three.js...
+      Loading 3D Chessboard / Đang tải bàn cờ 3D...
     </div>
   ),
 });
 
-export type TimeControlKey =
-  | "none"
-  | "1+0"
-  | "3+0"
-  | "3+2"
-  | "5+0"
-  | "10+0"
-  | "15+10";
+export type TimeControlKey = "none" | "1+0" | "3+0" | "3+2" | "5+0" | "10+0" | "15+10";
 
 export interface TimeControlConfig {
   id: TimeControlKey;
   label: string;
+  labelEn?: string;
   sub: string;
+  subEn?: string;
   initialSeconds: number;
   increment: number;
 }
 
 const TIME_CONTROLS: TimeControlConfig[] = [
-  { id: "none", label: "Vô Hạn", sub: "Không tính giờ", initialSeconds: 0, increment: 0 },
-  { id: "1+0", label: "1 min", sub: "Bullet 1+0", initialSeconds: 60, increment: 0 },
-  { id: "3+0", label: "3 min", sub: "Blitz 3+0", initialSeconds: 180, increment: 0 },
-  { id: "3+2", label: "3|2", sub: "Blitz 3+2", initialSeconds: 180, increment: 2 },
-  { id: "5+0", label: "5 min", sub: "Blitz 5+0", initialSeconds: 300, increment: 0 },
-  { id: "10+0", label: "10 min", sub: "Rapid 10+0", initialSeconds: 600, increment: 0 },
-  { id: "15+10", label: "15|10", sub: "Rapid 15+10", initialSeconds: 900, increment: 10 },
+  {
+    id: "none",
+    label: "Vô Hạn",
+    labelEn: "Unlimited",
+    sub: "Không tính giờ",
+    subEn: "No clock",
+    initialSeconds: 0,
+    increment: 0,
+  },
+  {
+    id: "1+0",
+    label: "1 min",
+    labelEn: "1 min",
+    sub: "Bullet 1+0",
+    subEn: "Bullet 1+0",
+    initialSeconds: 60,
+    increment: 0,
+  },
+  {
+    id: "3+0",
+    label: "3 min",
+    labelEn: "3 min",
+    sub: "Blitz 3+0",
+    subEn: "Blitz 3+0",
+    initialSeconds: 180,
+    increment: 0,
+  },
+  {
+    id: "3+2",
+    label: "3|2",
+    labelEn: "3|2",
+    sub: "Blitz 3+2",
+    subEn: "Blitz 3+2",
+    initialSeconds: 180,
+    increment: 2,
+  },
+  {
+    id: "5+0",
+    label: "5 min",
+    labelEn: "5 min",
+    sub: "Blitz 5+0",
+    subEn: "Blitz 5+0",
+    initialSeconds: 300,
+    increment: 0,
+  },
+  {
+    id: "10+0",
+    label: "10 min",
+    labelEn: "10 min",
+    sub: "Rapid 10+0",
+    subEn: "Rapid 10+0",
+    initialSeconds: 600,
+    increment: 0,
+  },
+  {
+    id: "15+10",
+    label: "15|10",
+    labelEn: "15|10",
+    sub: "Rapid 15+10",
+    subEn: "Rapid 15+10",
+    initialSeconds: 900,
+    increment: 10,
+  },
 ];
 
 interface BotProfile {
   id: AiDifficulty;
   name: string;
+  nameEn?: string;
   category: "standard" | "legend";
   elo: number;
   avatarColor: string;
+  avatarUrl?: string;
   desc: string;
+  descEn?: string;
   tag: string;
+  tagEn?: string;
   title?: string;
+  titleEn?: string;
   quote?: string;
+  quoteEn?: string;
   speechResponses?: string[];
+  speechResponsesEn?: string[];
   iconType: "bot" | "tal" | "petrosian" | "fischer" | "carlsen" | "morphy" | "mittens";
 }
 
@@ -148,51 +198,71 @@ const BOTS: BotProfile[] = [
   {
     id: "beginner",
     name: "Bảo (Người Mới)",
+    nameEn: "Bao (Beginner)",
     category: "standard",
     elo: 600,
     avatarColor: "#629924",
+    avatarUrl: "/avatars/user_2.jpg",
     desc: "Mới học luật cờ, thỉnh thoảng đi nước ngây thơ. Phù hợp cho người mới bắt đầu.",
+    descEn: "Learning chess basics, occasionally blunders. Great for new beginners.",
     tag: "Tập Sự",
+    tagEn: "Novice",
     iconType: "bot",
   },
   {
     id: "easy",
     name: "Minh (Học Viên)",
+    nameEn: "Minh (Apprentice)",
     category: "standard",
     elo: 1000,
     avatarColor: "#3d8bc9",
+    avatarUrl: "/avatars/user_5.jpg",
     desc: "Nắm vững phát triển quân cơ bản, ít mắc lỗi ăn nhầm quân. Phù hợp luyện tập cơ bản.",
+    descEn:
+      "Understands piece development, rarely hangs pieces. Ideal for fundamentals practice.",
     tag: "Sơ Cấp",
+    tagEn: "Casual",
     iconType: "bot",
   },
   {
     id: "medium",
     name: "Tuấn (Kỳ Thủ CLB)",
+    nameEn: "Tuan (Club Player)",
     category: "standard",
     elo: 1400,
     avatarColor: "#c97c2a",
+    avatarUrl: "/avatars/user_7.jpg",
     desc: "Biết tận dụng thế ghim quân, bắt đôi và kiểm soát trung tâm. Đối thủ đáng gờm.",
+    descEn: "Knows pins, forks, and center control. A challenging club opponent.",
     tag: "Trung Cấp",
+    tagEn: "Intermediate",
     iconType: "bot",
   },
   {
     id: "hard",
     name: "Hải (Kiện Tướng)",
+    nameEn: "Hai (Master)",
     category: "standard",
     elo: 1800,
     avatarColor: "#b8960c",
+    avatarUrl: "/avatars/user_4.jpg",
     desc: "Tính toán chiến thuật sâu 4-5 nước đi, khai thác triệt để các sai sót vị trí.",
+    descEn: "Calculates tactics 4-5 moves deep, punishes positional mistakes ruthlessly.",
     tag: "Cao Cấp",
+    tagEn: "Advanced",
     iconType: "bot",
   },
   {
     id: "master",
     name: "Stockfish 17 (Siêu AI)",
+    nameEn: "Stockfish 17 (Super AI)",
     category: "standard",
     elo: 2500,
     avatarColor: "#c84b3a",
     desc: "Động cơ cờ vua mạnh nhất thế giới. Đánh giá vị trí centipawn tối ưu tuyệt đối.",
+    descEn: "World's strongest chess engine. Absolute optimal centipawn evaluation.",
     tag: "Bất Khả Chiến Bại",
+    tagEn: "Invincible",
     iconType: "bot",
   },
 
@@ -200,108 +270,183 @@ const BOTS: BotProfile[] = [
   {
     id: "tal",
     name: "Mikhail Tal",
+    nameEn: "Mikhail Tal",
     category: "legend",
     title: "Vua Cờ Thứ 8 — Phù Thủy Riga",
+    titleEn: "8th World Champion — The Magician from Riga",
     elo: 2400,
     avatarColor: "#e11d48",
+    avatarUrl: "/avatars/mikhail_tal.jpg",
     desc: "Lối chơi cuồng phong bão táp, sẵn sàng hy sinh quân để mở toang thành đối phương.",
+    descEn: "Ferocious attacking style, sacrifices pieces to rip open king shelters.",
     tag: "Thí Quân Tấn Công",
+    tagEn: "Sacrificial Attack",
     quote: "Có hai loại thí quân: một loại là chính xác, và một loại là của tôi.",
+    quoteEn: "There are two types of sacrifices: correct ones, and mine.",
     speechResponses: [
       "Chào bạn! Hãy chuẩn bị bước vào một khu rừng rậm chiến thuật!",
       "Tôi không quan tâm mất quân, chỉ cần Vua bạn đang run sợ!",
       "Một đòn thí quân đẹp mắt đáng giá hơn cả một rổ tốt!",
       "Nước đi táo bạo đấy, nhưng liệu có chịu nổi đợt bão táp tiếp theo?",
     ],
+    speechResponsesEn: [
+      "Welcome! Prepare to step into a tactical jungle!",
+      "I don't care about lost pieces, as long as your King trembles!",
+      "A beautiful sacrifice is worth more than a wagon full of pawns!",
+      "A bold move, but can you survive the coming tempest?",
+    ],
     iconType: "tal",
   },
   {
     id: "petrosian",
     name: "Tigran Petrosian",
+    nameEn: "Tigran Petrosian",
     category: "legend",
     title: "Vua Cờ Thứ 9 — Bức Tường Thép",
+    titleEn: "9th World Champion — Iron Petrosian",
     elo: 2300,
     avatarColor: "#0d9488",
+    avatarUrl: "/avatars/tigran_petrosian.jpg",
     desc: "Bậc thầy phòng thủ dự phòng, phong tỏa triệt để mọi đòn tấn công từ xa.",
+    descEn: "Master of prophylaxis, neutralizes all threats before they materialize.",
     tag: "Phòng Ngự Bê Tông",
+    tagEn: "Iron Defense",
     quote: "Phòng thủ là nghệ thuật tước đoạt hy vọng của đối thủ.",
+    quoteEn: "Defense is the art of depriving your opponent of all hope.",
     speechResponses: [
       "Bạn muốn tấn công? Cứ thử tìm xem có kẽ hở nào không nhé.",
       "Tôi đã thấy trước ý đồ của bạn từ 5 nước cờ rồi.",
       "Kiên nhẫn là vũ khí sắc bén nhất trên bàn cờ.",
       "Từng ô cờ đều được bảo vệ kiên cố. Đừng nóng vội!",
     ],
+    speechResponsesEn: [
+      "Seeking an attack? Good luck finding any crack in my armor.",
+      "I saw your plan five moves ago.",
+      "Patience is the sharpest weapon on the chessboard.",
+      "Every square is fortified. Do not rush!",
+    ],
     iconType: "petrosian",
   },
   {
     id: "fischer",
     name: "Bobby Fischer",
+    nameEn: "Bobby Fischer",
     category: "legend",
     title: "Vua Cờ Thứ 11 — Kỳ Tài Sát Thủ",
+    titleEn: "11th World Champion — The Chess Prodigy",
     elo: 2500,
     avatarColor: "#d97706",
+    avatarUrl: "/avatars/bobby_fischer.jpg",
     desc: "Đòn đánh sấm sét, tính toán chính xác như dao cạo, quyết liệt tới cùng.",
+    descEn:
+      "Razor-sharp precision, crystal-clear tactics, relentlessly aiming for victory.",
     tag: "Sát Thủ Sắc Bén",
+    tagEn: "Razor Tactician",
     quote: "Tôi không tin vào tâm lý học, tôi chỉ tin vào những nước cờ tốt.",
+    quoteEn: "I don't believe in psychology, I believe in good moves.",
     speechResponses: [
       "Tôi đến đây để chiến thắng, không phải để bắt tay hòa.",
       "Mỗi nước cờ đều phải là một lưỡi kiếm găm vào thế trận!",
       "Bạn vừa để lộ một điểm yếu ở trung tâm rồi.",
       "Chơi cờ là sự tập trung tuyệt đối. Hãy cố gắng hết sức!",
     ],
+    speechResponsesEn: [
+      "I came here to win, not to shake hands for a draw.",
+      "Every move must be a blade striking into the position!",
+      "You just created a structural weakness in the center.",
+      "Chess demands total concentration. Give it your absolute best!",
+    ],
     iconType: "fischer",
   },
   {
     id: "carlsen",
     name: "Magnus Carlsen",
+    nameEn: "Magnus Carlsen",
     category: "legend",
     title: "Vua Cờ Thứ 16 — Bậc Thầy Tàn Cuộc",
+    titleEn: "16th World Champion — Endgame Wizard",
     elo: 2850,
     avatarColor: "#2563eb",
+    avatarUrl: "/avatars/magnus_carlsen.jpg",
     desc: "Kỳ thủ số 1 hành tinh. Lối chơi siêu toàn diện, bóp nghẹt đối thủ tới cùng ở cờ tàn.",
+    descEn:
+      "World #1. Universal mastery, grinding out wins from the slightest advantages.",
     tag: "Vua Tàn Cuộc",
+    tagEn: "Endgame Maestro",
     quote: "Khi cờ bắt đầu đơn giản hóa, đó là lúc tôi cảm thấy mình mạnh nhất.",
+    quoteEn: "When the board simplifies, that's when I feel the strongest.",
     speechResponses: [
       "Chào bạn! Cùng tạo nên một ván cờ chất lượng nhé.",
       "Cờ tàn là nơi chân lý được phơi bày.",
       "Tôi sẽ mài mòn từng lợi thế nhỏ nhất trên bàn cờ.",
       "Bạn phòng thủ rất cừ, nhưng ván cờ này còn rất dài!",
     ],
+    speechResponsesEn: [
+      "Hello! Let's craft a masterpiece of a game together.",
+      "The endgame is where absolute truth reveals itself.",
+      "I will squeeze every micro-advantage on this board.",
+      "Tenacious defense! But this game is still very long.",
+    ],
     iconType: "carlsen",
   },
   {
     id: "morphy",
     name: "Paul Morphy",
+    nameEn: "Paul Morphy",
     category: "legend",
     title: "Huyền Thoại 1858 — Lãng Tử Khai Cuộc",
+    titleEn: "1858 Legend — The Romantic Virtuoso",
     elo: 2200,
     avatarColor: "#059669",
+    avatarUrl: "/avatars/paul_morphy.jpg",
     desc: "Thiên tài thế kỷ 19. Phát triển toàn bộ quân nhẹ thần tốc, mở toang trung tâm công thành.",
+    descEn:
+      "19th-century genius. Rapid piece development, blowing open lines toward the king.",
     tag: "Tốc Chiến 1858",
+    tagEn: "Open Assault",
     quote: "Hãy phát triển toàn bộ lực lượng, trung tâm thuộc về kẻ dũng cảm.",
+    quoteEn: "Mobilize all your forces, the center belongs to the brave.",
     speechResponses: [
       "Tiến lên! Mọi quân cờ đều phải tham chiến!",
       "Không có thời gian để chần chừ, trung tâm đã mở toang!",
       "Tốc độ phát triển quân chính là sinh mệnh của ván cờ.",
       "Một đòn phối hợp tấn công kinh điển từ thế kỷ 19!",
     ],
+    speechResponsesEn: [
+      "Forward! Every piece must join the battle!",
+      "No time to hesitate, the center is blown wide open!",
+      "Speed of development is the lifeblood of chess.",
+      "A classical mating combination from 1858!",
+    ],
     iconType: "morphy",
   },
   {
     id: "mittens",
     name: "Mèo Mittens",
+    nameEn: "Mittens the Cat",
     category: "legend",
     title: "Quàng Thượng Tinh Quái — 3000 ELO",
+    titleEn: "The Menacing Kitten — 3000 ELO",
     elo: 3000,
     avatarColor: "#9333ea",
+    avatarUrl: "/avatars/mittens_cat.jpg",
     desc: "Vẻ ngoài mèo con ngây thơ nhưng ẩn chứa trí tuệ 3000+ ELO bất khả chiến bại.",
+    descEn: "An innocent kitty appearance concealing an invincible 3000+ ELO engine.",
     tag: "Trêu Ngươi Siêu Cấp",
+    tagEn: "Cheeky Boss",
     quote: "Meo meo... Bạn vừa thả quân đó cho trẫm ăn sao? Meo~",
+    quoteEn: "Meow... Did you just give that piece to me? Meow~",
     speechResponses: [
       "Meo meo~ Chào bạn nhỏ, sẵn sàng bị cào nát thế cờ chưa? Meo~",
       "Nước đi đó cute đấy, nhưng trẫm đã tính trước 20 nước rồi! Meo~",
       "Meo... Bạn nghĩ trẫm là một chú mèo bình thường sao? Ngây thơ quá!",
       "Gừ gừ... Nước cờ hay đấy! Nhưng trẫm vẫn sẽ thắng thôi, meo meo~",
+    ],
+    speechResponsesEn: [
+      "Meow~ Hello tiny human, ready to get your board scratched? Meow~",
+      "Cute move, but I calculated 20 moves ahead already! Meow~",
+      "Meow... Did you really think I'm just an ordinary kitty? So innocent!",
+      "Purr... Nice try! But victory belongs to me anyway, meow meow~",
     ],
     iconType: "mittens",
   },
@@ -334,6 +479,9 @@ function formatClockTime(sec: number): string {
 }
 
 export default function PlayAiGame() {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+
   const [game, setGame] = useState<Chess>(() => new Chess());
   const [fen, setFen] = useState(game.fen());
   const [playMode, setPlayMode] = useState<"ai" | "pass_and_play">("ai");
@@ -349,13 +497,13 @@ export default function PlayAiGame() {
   const [lastMoveSquares, setLastMoveSquares] = useState<
     Record<string, { background: string }>
   >({});
-  const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(
-    null
-  );
+  const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null);
   const [moveFrom, setMoveFrom] = useState<string | null>(null);
   const [possibleMoves, setPossibleMoves] = useState<string[]>([]);
   const [hint, setHint] = useState<string | null>(null);
-  const [gameStatus, setGameStatus] = useState<string>("Đang thi đấu");
+  const [gameStatus, setGameStatus] = useState<string>(
+    isVi ? "Đang thi đấu" : "In Progress"
+  );
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [engineInfo, setEngineInfo] = useState<string>("Stockfish Engine");
 
@@ -404,25 +552,49 @@ export default function PlayAiGame() {
         const winner =
           g.turn() === "w"
             ? playMode === "ai"
-              ? "Đen (AI)"
-              : "Đen (Người chơi 2)"
+              ? isVi
+                ? "Đen (AI)"
+                : "Black (AI)"
+              : isVi
+                ? "Đen (Người chơi 2)"
+                : "Black (Player 2)"
             : playMode === "ai"
-            ? "Trắng (Bạn)"
-            : "Trắng (Người chơi 1)";
-        setGameStatus(`Chiếu bí! ${winner} giành chiến thắng! 🏆`);
+              ? isVi
+                ? "Trắng (Bạn)"
+                : "White (You)"
+              : isVi
+                ? "Trắng (Người chơi 1)"
+                : "White (Player 1)";
+        setGameStatus(
+          isVi
+            ? `Chiếu bí! ${winner} giành chiến thắng! 🏆`
+            : `Checkmate! ${winner} wins! 🏆`
+        );
         setIsClockRunning(false);
         if (soundEnabled) soundManager.playVictory();
       } else if (g.isDraw()) {
-        setGameStatus("Hòa cờ (Hòa do hết nước đi hoặc lặp lại nước) 🤝");
+        setGameStatus(
+          isVi
+            ? "Hòa cờ (Hòa do hết nước đi hoặc lặp lại nước) 🤝"
+            : "Draw (Stalemate or repetition) 🤝"
+        );
         setIsClockRunning(false);
       } else if (g.inCheck()) {
-        setGameStatus(`Chiếu tướng! Đến lượt ${g.turn() === "w" ? "Trắng" : "Đen"}`);
+        setGameStatus(
+          isVi
+            ? `Chiếu tướng! Đến lượt ${g.turn() === "w" ? "Trắng" : "Đen"}`
+            : `Check! ${g.turn() === "w" ? "White" : "Black"}'s turn`
+        );
         if (soundEnabled) soundManager.playCheck();
       } else {
-        setGameStatus(`Lượt đi: ${g.turn() === "w" ? "Trắng" : "Đen"}`);
+        setGameStatus(
+          isVi
+            ? `Lượt đi: ${g.turn() === "w" ? "Trắng" : "Đen"}`
+            : `Turn: ${g.turn() === "w" ? "White" : "Black"}`
+        );
       }
     },
-    [soundEnabled, playMode]
+    [soundEnabled, playMode, isVi]
   );
 
   // AI Response Function
@@ -432,10 +604,7 @@ export default function PlayAiGame() {
       setIsAiThinking(true);
 
       try {
-        const result: AiMoveResult = await getAiMove(
-          currentGame.fen(),
-          difficulty
-        );
+        const result: AiMoveResult = await getAiMove(currentGame.fen(), difficulty);
         const move = currentGame.move({
           from: result.from,
           to: result.to,
@@ -472,7 +641,9 @@ export default function PlayAiGame() {
               currentBot.speechResponses.length > 0 &&
               Math.random() < 0.5
             ) {
-              const quotes = currentBot.speechResponses;
+              const quotes = isVi
+                ? currentBot.speechResponses
+                : currentBot.speechResponsesEn || currentBot.speechResponses;
               const pick = quotes[Math.floor(Math.random() * quotes.length)];
               setBotSpeech(pick);
             }
@@ -485,7 +656,15 @@ export default function PlayAiGame() {
         setIsAiThinking(false);
       }
     },
-    [difficulty, soundEnabled, updateGameStatus, playMode, currentTcConfig.increment]
+    [
+      difficulty,
+      soundEnabled,
+      updateGameStatus,
+      playMode,
+      currentTcConfig.increment,
+      currentBot,
+      isVi,
+    ]
   );
 
   // Clock Countdown Timer Interval
@@ -499,7 +678,11 @@ export default function PlayAiGame() {
           if (t <= 1) {
             clearInterval(interval);
             setIsClockRunning(false);
-            setGameStatus("Hết giờ! Bên Đen giành chiến thắng theo thời gian ⏱️");
+            setGameStatus(
+              isVi
+                ? "Hết giờ! Bên Đen giành chiến thắng theo thời gian ⏱️"
+                : "Time out! Black wins on time ⏱️"
+            );
             if (soundEnabled) soundManager.playVictory();
             return 0;
           }
@@ -510,7 +693,11 @@ export default function PlayAiGame() {
           if (t <= 1) {
             clearInterval(interval);
             setIsClockRunning(false);
-            setGameStatus("Hết giờ! Bên Trắng giành chiến thắng theo thời gian ⏱️");
+            setGameStatus(
+              isVi
+                ? "Hết giờ! Bên Trắng giành chiến thắng theo thời gian ⏱️"
+                : "Time out! White wins on time ⏱️"
+            );
             if (soundEnabled) soundManager.playVictory();
             return 0;
           }
@@ -520,7 +707,7 @@ export default function PlayAiGame() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isClockRunning, timeControl, game, soundEnabled]);
+  }, [isClockRunning, timeControl, game, soundEnabled, isVi]);
 
   // Execute Move Helper
   const executePlayerMove = useCallback(
@@ -757,20 +944,24 @@ export default function PlayAiGame() {
     setPossibleMoves([]);
     setHint(null);
     setEvalScore(0);
-    setGameStatus("Đang thi đấu");
+    setGameStatus(isVi ? "Đang thi đấu" : "In Progress");
     setIsAiThinking(false);
     setCustomArrows([]);
     setRightClickSquares({});
     setArrowStartSquare(null);
     if (currentBot.quote) {
-      setBotSpeech(currentBot.quote);
+      setBotSpeech(isVi ? currentBot.quote : currentBot.quoteEn || currentBot.quote);
     } else if (currentBot.speechResponses && currentBot.speechResponses.length > 0) {
-      setBotSpeech(currentBot.speechResponses[0]);
+      setBotSpeech(
+        isVi
+          ? currentBot.speechResponses[0]
+          : (currentBot.speechResponsesEn && currentBot.speechResponsesEn[0]) ||
+              currentBot.speechResponses[0]
+      );
     } else {
       setBotSpeech("");
     }
-    const config =
-      TIME_CONTROLS.find((t) => t.id === timeControl) || TIME_CONTROLS[5];
+    const config = TIME_CONTROLS.find((t) => t.id === timeControl) || TIME_CONTROLS[5];
     setWhiteTime(config.initialSeconds);
     setBlackTime(config.initialSeconds);
     setIsClockRunning(false);
@@ -809,11 +1000,19 @@ export default function PlayAiGame() {
   function handleResign() {
     setIsClockRunning(false);
     if (playMode === "ai") {
-      setGameStatus("Bạn đã đầu hàng. AI giành chiến thắng!");
+      setGameStatus(
+        isVi ? "Bạn đã đầu hàng. AI giành chiến thắng!" : "You resigned. AI wins!"
+      );
     } else {
-      const loser = game.turn() === "w" ? "Trắng" : "Đen";
-      const winner = game.turn() === "w" ? "Đen" : "Trắng";
-      setGameStatus(`${loser} đã đầu hàng. ${winner} giành chiến thắng!`);
+      const loser =
+        game.turn() === "w" ? (isVi ? "Trắng" : "White") : isVi ? "Đen" : "Black";
+      const winner =
+        game.turn() === "w" ? (isVi ? "Đen" : "Black") : isVi ? "Trắng" : "White";
+      setGameStatus(
+        isVi
+          ? `${loser} đã đầu hàng. ${winner} giành chiến thắng!`
+          : `${loser} resigned. ${winner} wins!`
+      );
     }
   }
 
@@ -823,7 +1022,9 @@ export default function PlayAiGame() {
     try {
       const res = await getAiMove(game.fen(), "master");
       setHint(
-        `Gợi ý: Đi từ ô ${res.from.toUpperCase()} đến ${res.to.toUpperCase()} (${res.san || ""})`
+        isVi
+          ? `Gợi ý: Đi từ ô ${res.from.toUpperCase()} đến ${res.to.toUpperCase()} (${res.san || ""})`
+          : `Hint: Move from ${res.from.toUpperCase()} to ${res.to.toUpperCase()} (${res.san || ""})`
       );
       setLastMoveSquares({
         [res.from]: { background: "rgba(61, 139, 201, 0.5)" },
@@ -869,7 +1070,9 @@ export default function PlayAiGame() {
       setMoveFrom(null);
       setPossibleMoves([]);
       setHint(null);
-      setGameStatus("Đang thi đấu (Thế cờ tùy chỉnh)");
+      setGameStatus(
+        isVi ? "Đang thi đấu (Thế cờ tùy chỉnh)" : "In Progress (Custom Position)"
+      );
       updateGameStatus(newG);
     } catch (e) {
       console.error("Invalid FEN:", e);
@@ -890,8 +1093,7 @@ export default function PlayAiGame() {
 
   possibleMoves.forEach((sq) => {
     squareStyles[sq] = {
-      background:
-        "radial-gradient(circle, rgba(0,0,0,0.35) 24%, transparent 26%)",
+      background: "radial-gradient(circle, rgba(0,0,0,0.35) 24%, transparent 26%)",
       borderRadius: "50%",
     };
   });
@@ -908,8 +1110,11 @@ export default function PlayAiGame() {
   const isGameOver =
     game.isGameOver() ||
     gameStatus.includes("Chiếu bí") ||
+    gameStatus.includes("Checkmate") ||
     gameStatus.includes("đầu hàng") ||
-    gameStatus.includes("Hết giờ");
+    gameStatus.includes("resigned") ||
+    gameStatus.includes("Hết giờ") ||
+    gameStatus.includes("Time out");
 
   return (
     <div className="game-arena-container" style={{ paddingTop: 74, paddingBottom: 40 }}>
@@ -925,12 +1130,21 @@ export default function PlayAiGame() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13 }}>
-          <Link href="/" style={{ color: "var(--text-secondary)", textDecoration: "none" }}>
-            Trang Chủ
+          <Link
+            href="/"
+            style={{ color: "var(--text-secondary)", textDecoration: "none" }}
+          >
+            {isVi ? "Trang Chủ" : "Home"}
           </Link>
           <ChevronRight size={14} color="var(--text-muted)" />
           <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>
-            {playMode === "ai" ? "Chơi Với Máy (AI)" : "Chơi 2 Người (Pass & Play)"}
+            {playMode === "ai"
+              ? isVi
+                ? "Chơi Với Máy (AI)"
+                : "Play vs Computer (AI)"
+              : isVi
+                ? "Chơi 2 Người (Pass & Play)"
+                : "2 Players (Pass & Play)"}
           </span>
         </div>
 
@@ -966,7 +1180,7 @@ export default function PlayAiGame() {
               }}
             >
               <Bot size={13} />
-              Đấu Với Máy (AI)
+              {isVi ? "Đấu Với Máy (AI)" : "Vs Computer (AI)"}
             </button>
 
             <button
@@ -984,12 +1198,16 @@ export default function PlayAiGame() {
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
-                background: playMode === "pass_and_play" ? "var(--gold-bg)" : "transparent",
-                color: playMode === "pass_and_play" ? "var(--gold-light)" : "var(--text-secondary)",
+                background:
+                  playMode === "pass_and_play" ? "var(--gold-bg)" : "transparent",
+                color:
+                  playMode === "pass_and_play"
+                    ? "var(--gold-light)"
+                    : "var(--text-secondary)",
               }}
             >
               <Users size={13} />
-              Chơi 2 Người (Pass & Play)
+              {isVi ? "Chơi 2 Người (Pass & Play)" : "Pass & Play"}
             </button>
           </div>
 
@@ -1012,7 +1230,8 @@ export default function PlayAiGame() {
             >
               {TIME_CONTROLS.map((tc) => (
                 <option key={tc.id} value={tc.id}>
-                  {tc.label} — {tc.sub}
+                  {isVi ? tc.label : tc.labelEn || tc.label} —{" "}
+                  {isVi ? tc.sub : tc.subEn || tc.sub}
                 </option>
               ))}
             </select>
@@ -1042,7 +1261,15 @@ export default function PlayAiGame() {
           <button
             type="button"
             onClick={() => setSoundEnabled((v) => !v)}
-            title={soundEnabled ? "Tắt âm thanh" : "Bật âm thanh"}
+            title={
+              soundEnabled
+                ? isVi
+                  ? "Tắt âm thanh"
+                  : "Mute Sound"
+                : isVi
+                  ? "Bật âm thanh"
+                  : "Unmute Sound"
+            }
             style={{
               background: "var(--bg-surface)",
               border: "1px solid var(--border-subtle)",
@@ -1062,7 +1289,7 @@ export default function PlayAiGame() {
             onClick={() => setIsFenModalOpen(true)}
             className="btn btn-secondary"
             style={{ padding: "5px 12px", fontSize: 12 }}
-            title="Nhập / Xuất PGN & FEN"
+            title={isVi ? "Nhập / Xuất PGN & FEN" : "Import / Export PGN & FEN"}
           >
             <FileText size={13} />
             <span>PGN / FEN</span>
@@ -1098,10 +1325,23 @@ export default function PlayAiGame() {
                   alignItems: "center",
                   justifyContent: "center",
                   color: "#fff",
+                  overflow: "hidden",
+                  position: "relative",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
                 }}
               >
                 {playMode === "ai" ? (
-                  renderBotIcon(currentBot.iconType, 22)
+                  currentBot.avatarUrl ? (
+                    <Image
+                      src={currentBot.avatarUrl}
+                      alt={currentBot.name}
+                      width={38}
+                      height={38}
+                      style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                    />
+                  ) : (
+                    renderBotIcon(currentBot.iconType, 22)
+                  )
                 ) : (
                   <Users size={20} />
                 )}
@@ -1116,7 +1356,13 @@ export default function PlayAiGame() {
                       color: "var(--text-primary)",
                     }}
                   >
-                    {playMode === "ai" ? currentBot.name : "Người Chơi 2 (Đen)"}
+                    {playMode === "ai"
+                      ? isVi
+                        ? currentBot.name
+                        : currentBot.nameEn || currentBot.name
+                      : isVi
+                        ? "Người Chơi 2 (Đen)"
+                        : "Player 2 (Black)"}
                   </span>
                   {playMode === "ai" && (
                     <span
@@ -1144,12 +1390,14 @@ export default function PlayAiGame() {
                         border: `1px solid ${currentBot.avatarColor}44`,
                       }}
                     >
-                      {currentBot.tag}
+                      {isVi ? currentBot.tag : currentBot.tagEn || currentBot.tag}
                     </span>
                   )}
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}
+                >
                   <CapturedPieces fen={fen} forColor="b" />
                   {isAiThinking && (
                     <span
@@ -1162,7 +1410,7 @@ export default function PlayAiGame() {
                         gap: 4,
                       }}
                     >
-                      <Cpu size={11} /> Đang tính nước cờ...
+                      <Cpu size={11} /> {isVi ? "Đang tính nước cờ..." : "Thinking..."}
                     </span>
                   )}
                 </div>
@@ -1198,7 +1446,7 @@ export default function PlayAiGame() {
                     whiteSpace: "nowrap",
                   }}
                 >
-                  "{botSpeech}"
+                  &ldquo;{botSpeech}&rdquo;
                 </span>
               </div>
             )}
@@ -1235,7 +1483,7 @@ export default function PlayAiGame() {
           <div style={{ display: "flex", gap: 8, alignItems: "stretch" }}>
             {/* Realtime Evaluation Bar */}
             <div
-              title={`Đánh giá thế cờ: ${evalScore > 0 ? `+${evalScore}` : evalScore}`}
+              title={`${isVi ? "Đánh giá thế cờ" : "Evaluation"}: ${evalScore > 0 ? `+${evalScore}` : evalScore}`}
               style={{
                 width: 14,
                 borderRadius: 3,
@@ -1274,7 +1522,11 @@ export default function PlayAiGame() {
                     transform: "rotate(180deg)",
                   }}
                 >
-                  {Math.abs(evalScore) > 0.4 ? (evalScore > 0 ? `+${evalScore.toFixed(1)}` : evalScore.toFixed(1)) : ""}
+                  {Math.abs(evalScore) > 0.4
+                    ? evalScore > 0
+                      ? `+${evalScore.toFixed(1)}`
+                      : evalScore.toFixed(1)
+                    : ""}
                 </span>
               </div>
             </div>
@@ -1308,8 +1560,7 @@ export default function PlayAiGame() {
                       boardOrientation: playerColor,
                       onPieceDrop: handlePieceDrop,
                       onSquareClick: handleSquareClick,
-                      onSquareRightClick: ({ square }) =>
-                        handleSquareRightClick(square),
+                      onSquareRightClick: ({ square }) => handleSquareRightClick(square),
                       showNotation: true,
                       darkSquareStyle: { backgroundColor: currentThemeConfig.dark },
                       lightSquareStyle: { backgroundColor: currentThemeConfig.light },
@@ -1375,7 +1626,13 @@ export default function PlayAiGame() {
                       color: "var(--text-primary)",
                     }}
                   >
-                    {playMode === "ai" ? "Bạn (Người Chơi)" : "Người Chơi 1 (Trắng)"}
+                    {playMode === "ai"
+                      ? isVi
+                        ? "Bạn (Người Chơi)"
+                        : "You (Player)"
+                      : isVi
+                        ? "Người Chơi 1 (Trắng)"
+                        : "Player 1 (White)"}
                   </span>
                   <span
                     style={{
@@ -1391,7 +1648,9 @@ export default function PlayAiGame() {
                   </span>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}
+                >
                   <CapturedPieces fen={fen} forColor="w" />
                 </div>
               </div>
@@ -1440,16 +1699,29 @@ export default function PlayAiGame() {
               flexWrap: "wrap",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}
+            >
+              <span
+                style={{
+                  fontSize: 12,
+                  color: "var(--text-muted)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
                 <Palette size={13} />
-                Bàn cờ:
+                {isVi ? "Bàn cờ:" : "Board:"}
               </span>
               <button
                 type="button"
                 onClick={() => setBoardTheme("listudy")}
                 style={{
-                  background: boardTheme === "listudy" ? "rgba(140, 162, 173, 0.25)" : "transparent",
+                  background:
+                    boardTheme === "listudy"
+                      ? "rgba(140, 162, 173, 0.25)"
+                      : "transparent",
                   border: `1px solid ${boardTheme === "listudy" ? "#8ca2ad" : "var(--border-subtle)"}`,
                   color: boardTheme === "listudy" ? "#dee3e6" : "var(--text-secondary)",
                   borderRadius: 4,
@@ -1461,7 +1733,11 @@ export default function PlayAiGame() {
                   alignItems: "center",
                   gap: 5,
                 }}
-                title="Bàn cờ xanh chuẩn Listudy / Lichess Blue"
+                title={
+                  isVi
+                    ? "Bàn cờ xanh chuẩn Listudy / Lichess Blue"
+                    : "Standard Listudy / Lichess Blue"
+                }
               >
                 <span
                   style={{
@@ -1480,7 +1756,10 @@ export default function PlayAiGame() {
                 style={{
                   background: boardTheme === "green" ? "var(--green-bg)" : "transparent",
                   border: `1px solid ${boardTheme === "green" ? "var(--green-border)" : "var(--border-subtle)"}`,
-                  color: boardTheme === "green" ? "var(--green-light)" : "var(--text-secondary)",
+                  color:
+                    boardTheme === "green"
+                      ? "var(--green-light)"
+                      : "var(--text-secondary)",
                   borderRadius: 4,
                   padding: "3px 8px",
                   fontSize: 12,
@@ -1500,7 +1779,7 @@ export default function PlayAiGame() {
                     border: "1px solid #edeed1",
                   }}
                 />
-                Xanh Lá
+                {isVi ? "Xanh Lá" : "Green"}
               </button>
               <button
                 type="button"
@@ -1508,7 +1787,8 @@ export default function PlayAiGame() {
                 style={{
                   background: boardTheme === "wood" ? "var(--gold-bg)" : "transparent",
                   border: `1px solid ${boardTheme === "wood" ? "var(--gold-border)" : "var(--border-subtle)"}`,
-                  color: boardTheme === "wood" ? "var(--gold-light)" : "var(--text-secondary)",
+                  color:
+                    boardTheme === "wood" ? "var(--gold-light)" : "var(--text-secondary)",
                   borderRadius: 4,
                   padding: "3px 8px",
                   fontSize: 12,
@@ -1528,13 +1808,14 @@ export default function PlayAiGame() {
                     border: "1px solid #f0d9b5",
                   }}
                 />
-                Gỗ Walnut
+                {isVi ? "Gỗ Walnut" : "Walnut"}
               </button>
               <button
                 type="button"
                 onClick={() => setIsCustomizerOpen(true)}
                 style={{
-                  background: "linear-gradient(135deg, rgba(129, 182, 76, 0.15), rgba(59, 130, 246, 0.15))",
+                  background:
+                    "linear-gradient(135deg, rgba(129, 182, 76, 0.15), rgba(59, 130, 246, 0.15))",
                   border: "1px solid rgba(129, 182, 76, 0.4)",
                   color: "var(--gold-light)",
                   borderRadius: 4,
@@ -1547,10 +1828,14 @@ export default function PlayAiGame() {
                   gap: 5,
                   transition: "all 0.2s",
                 }}
-                title="Mở bảng đổi toàn bộ màu sắc, kiểu quân cờ và âm thanh"
+                title={
+                  isVi
+                    ? "Mở bảng đổi toàn bộ màu sắc, kiểu quân cờ và âm thanh"
+                    : "Customize board colors, piece styles, and sounds"
+                }
               >
                 <SlidersHorizontal size={12} />
-                <span>Đổi Màu & Kiểu Quân...</span>
+                <span>{isVi ? "Đổi Màu & Kiểu Quân..." : "Customize Board..."}</span>
               </button>
             </div>
 
@@ -1574,7 +1859,15 @@ export default function PlayAiGame() {
               }}
             >
               <Layers size={13} />
-              <span>{is3D ? "Chuyển Sang 2D" : "Bàn Cờ 3D Staunton"}</span>
+              <span>
+                {is3D
+                  ? isVi
+                    ? "Chuyển Sang 2D"
+                    : "Switch to 2D"
+                  : isVi
+                    ? "Bàn Cờ 3D Staunton"
+                    : "3D Staunton Board"}
+              </span>
             </button>
           </div>
         </div>
@@ -1585,17 +1878,23 @@ export default function PlayAiGame() {
           <div
             style={{
               background:
-                gameStatus.includes("Chiếu bí") || gameStatus.includes("Hết giờ")
+                gameStatus.includes("Chiếu bí") ||
+                gameStatus.includes("Hết giờ") ||
+                gameStatus.includes("Checkmate") ||
+                gameStatus.includes("Timeout")
                   ? "var(--gold-bg)"
-                  : gameStatus.includes("Chiếu")
-                  ? "rgba(200, 75, 58, 0.15)"
-                  : "var(--bg-surface)",
+                  : gameStatus.includes("Chiếu") || gameStatus.includes("Check")
+                    ? "rgba(200, 75, 58, 0.15)"
+                    : "var(--bg-surface)",
               border: `1px solid ${
-                gameStatus.includes("Chiếu bí") || gameStatus.includes("Hết giờ")
+                gameStatus.includes("Chiếu bí") ||
+                gameStatus.includes("Hết giờ") ||
+                gameStatus.includes("Checkmate") ||
+                gameStatus.includes("Timeout")
                   ? "var(--gold-border)"
-                  : gameStatus.includes("Chiếu")
-                  ? "rgba(200, 75, 58, 0.3)"
-                  : "var(--border-subtle)"
+                  : gameStatus.includes("Chiếu") || gameStatus.includes("Check")
+                    ? "rgba(200, 75, 58, 0.3)"
+                    : "var(--border-subtle)"
               }`,
               borderRadius: 8,
               padding: "14px 18px",
@@ -1614,9 +1913,16 @@ export default function PlayAiGame() {
                   textTransform: "uppercase",
                 }}
               >
-                Trạng Thái Trận Đấu
+                {isVi ? "Trạng Thái Trận Đấu" : "Match Status"}
               </div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", marginTop: 2 }}>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                  marginTop: 2,
+                }}
+              >
                 {gameStatus}
               </div>
             </div>
@@ -1647,12 +1953,25 @@ export default function PlayAiGame() {
               }}
             >
               <div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: "#fff", display: "flex", alignItems: "center", gap: 6 }}>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 14,
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
                   <Award size={16} color="var(--gold-light)" />
-                  Ván cờ đã kết thúc!
+                  {isVi ? "Ván cờ đã kết thúc!" : "Game has ended!"}
                 </div>
-                <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}>
-                  Xem phân tích độ chính xác & các sai lầm của ván cờ này.
+                <div
+                  style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2 }}
+                >
+                  {isVi
+                    ? "Xem phân tích độ chính xác & các sai lầm của ván cờ này."
+                    : "Review accuracy & mistakes for this game."}
                 </div>
               </div>
 
@@ -1663,7 +1982,15 @@ export default function PlayAiGame() {
                 style={{ padding: "8px 16px", fontSize: 13, whiteSpace: "nowrap" }}
               >
                 <BarChart2 size={14} />
-                <span>{isAnalyzing ? "Đang Phân Tích..." : "Xem Review Ván Đấu"}</span>
+                <span>
+                  {isAnalyzing
+                    ? isVi
+                      ? "Đang Phân Tích..."
+                      : "Analyzing..."
+                    : isVi
+                      ? "Xem Review Ván Đấu"
+                      : "Game Review"}
+                </span>
               </button>
             </div>
           )}
@@ -1700,10 +2027,16 @@ export default function PlayAiGame() {
               type="button"
               onClick={handleNewGame}
               className="btn btn-green"
-              style={{ padding: "9px 4px", fontSize: 12, display: "flex", flexDirection: "column", gap: 3 }}
+              style={{
+                padding: "9px 4px",
+                fontSize: 12,
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
             >
               <Play size={15} />
-              <span>Ván Mới</span>
+              <span>{isVi ? "Ván Mới" : "New Game"}</span>
             </button>
 
             <button
@@ -1721,7 +2054,7 @@ export default function PlayAiGame() {
               }}
             >
               <Undo2 size={15} />
-              <span>Đi Lại</span>
+              <span>{isVi ? "Đi Lại" : "Undo"}</span>
             </button>
 
             <button
@@ -1729,10 +2062,16 @@ export default function PlayAiGame() {
               onClick={handleGetHint}
               disabled={game.isGameOver() || isAiThinking}
               className="btn btn-ghost"
-              style={{ padding: "9px 4px", fontSize: 12, display: "flex", flexDirection: "column", gap: 3 }}
+              style={{
+                padding: "9px 4px",
+                fontSize: 12,
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
             >
               <Lightbulb size={15} />
-              <span>Gợi Ý</span>
+              <span>{isVi ? "Gợi Ý" : "Hint"}</span>
             </button>
 
             <button
@@ -1740,10 +2079,16 @@ export default function PlayAiGame() {
               onClick={handleOpenReview}
               disabled={moveHistory.length === 0 || isAnalyzing}
               className="btn btn-ghost"
-              style={{ padding: "9px 4px", fontSize: 12, display: "flex", flexDirection: "column", gap: 3 }}
+              style={{
+                padding: "9px 4px",
+                fontSize: 12,
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
             >
               <Award size={15} />
-              <span>{isAnalyzing ? "..." : "Review"}</span>
+              <span>{isAnalyzing ? "..." : isVi ? "Review" : "Review"}</span>
             </button>
 
             <button
@@ -1751,10 +2096,16 @@ export default function PlayAiGame() {
               onClick={handleResign}
               disabled={game.isGameOver()}
               className="btn btn-ghost"
-              style={{ padding: "9px 4px", fontSize: 12, display: "flex", flexDirection: "column", gap: 3 }}
+              style={{
+                padding: "9px 4px",
+                fontSize: 12,
+                display: "flex",
+                flexDirection: "column",
+                gap: 3,
+              }}
             >
               <Flag size={15} />
-              <span>Đầu Hàng</span>
+              <span>{isVi ? "Đầu Hàng" : "Resign"}</span>
             </button>
           </div>
 
@@ -1785,7 +2136,7 @@ export default function PlayAiGame() {
                     letterSpacing: "1px",
                   }}
                 >
-                  Đối Thủ Máy (AI Bots)
+                  {isVi ? "Đối Thủ Máy (AI Bots)" : "AI Opponents"}
                 </div>
 
                 {/* Tab Switcher: Standard vs Legendary */}
@@ -1817,7 +2168,7 @@ export default function PlayAiGame() {
                       transition: "all 0.15s ease",
                     }}
                   >
-                    Tiêu Chuẩn (5)
+                    {isVi ? "Tiêu Chuẩn (5)" : "Standard (5)"}
                   </button>
                   <button
                     type="button"
@@ -1839,7 +2190,7 @@ export default function PlayAiGame() {
                       transition: "all 0.15s ease",
                     }}
                   >
-                    <Crown size={11} /> Huyền Thoại (6)
+                    <Crown size={11} /> {isVi ? "Huyền Thoại (6)" : "Legends (6)"}
                   </button>
                 </div>
               </div>
@@ -1848,28 +2199,23 @@ export default function PlayAiGame() {
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {BOTS.filter((b) => b.category === botTab).map((bot) => {
                   const isSelected = difficulty === bot.id;
+                  const currentSpeech = isVi
+                    ? bot.quote || (bot.speechResponses && bot.speechResponses[0]) || ""
+                    : bot.quoteEn ||
+                      (bot.speechResponsesEn && bot.speechResponsesEn[0]) ||
+                      bot.quote ||
+                      "";
                   return (
                     <button
                       key={bot.id}
                       type="button"
                       onClick={() => {
                         setDifficulty(bot.id);
-                        if (bot.quote) {
-                          setBotSpeech(bot.quote);
-                        } else if (
-                          bot.speechResponses &&
-                          bot.speechResponses.length > 0
-                        ) {
-                          setBotSpeech(bot.speechResponses[0]);
-                        } else {
-                          setBotSpeech("");
-                        }
+                        setBotSpeech(currentSpeech);
                         handleNewGame();
                       }}
                       style={{
-                        background: isSelected
-                          ? "var(--bg-overlay)"
-                          : "var(--bg-raised)",
+                        background: isSelected ? "var(--bg-overlay)" : "var(--bg-raised)",
                         border: `1px solid ${
                           isSelected ? bot.avatarColor : "var(--border-subtle)"
                         }`,
@@ -1895,9 +2241,25 @@ export default function PlayAiGame() {
                             alignItems: "center",
                             justifyContent: "center",
                             flexShrink: 0,
+                            overflow: "hidden",
+                            position: "relative",
                           }}
                         >
-                          {renderBotIcon(bot.iconType, 16)}
+                          {bot.avatarUrl ? (
+                            <Image
+                              src={bot.avatarUrl}
+                              alt={bot.name}
+                              width={28}
+                              height={28}
+                              style={{
+                                objectFit: "cover",
+                                width: "100%",
+                                height: "100%",
+                              }}
+                            />
+                          ) : (
+                            renderBotIcon(bot.iconType, 16)
+                          )}
                         </div>
                         <div>
                           <div
@@ -1910,8 +2272,8 @@ export default function PlayAiGame() {
                               gap: 6,
                             }}
                           >
-                            <span>{bot.name}</span>
-                            {bot.title && (
+                            <span>{isVi ? bot.name : bot.nameEn || bot.name}</span>
+                            {(bot.title || bot.titleEn) && (
                               <span
                                 style={{
                                   fontSize: 10,
@@ -1919,12 +2281,23 @@ export default function PlayAiGame() {
                                   color: "var(--text-muted)",
                                 }}
                               >
-                                • {bot.title.split("—")[1]?.trim() || bot.title}
+                                •{" "}
+                                {isVi
+                                  ? bot.title?.split("—")[1]?.trim() || bot.title
+                                  : bot.titleEn?.split("—")[1]?.trim() ||
+                                    bot.titleEn ||
+                                    bot.title}
                               </span>
                             )}
                           </div>
-                          <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>
-                            {bot.desc}
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "var(--text-muted)",
+                              marginTop: 1,
+                            }}
+                          >
+                            {isVi ? bot.desc : bot.descEn || bot.desc}
                           </div>
                         </div>
                       </div>
@@ -1946,7 +2319,7 @@ export default function PlayAiGame() {
                             fontWeight: 600,
                           }}
                         >
-                          {bot.tag}
+                          {isVi ? bot.tag : bot.tagEn || bot.tag}
                         </div>
                       </div>
                     </button>
@@ -1977,8 +2350,10 @@ export default function PlayAiGame() {
                 justifyContent: "space-between",
               }}
             >
-              <span>Biên Bản Ván Đấu (PGN)</span>
-              <span>{moveHistory.length} nước</span>
+              <span>{isVi ? "Biên Bản Ván Đấu (PGN)" : "Game Moves (PGN)"}</span>
+              <span>
+                {moveHistory.length} {isVi ? "nước" : "moves"}
+              </span>
             </div>
 
             <div
@@ -2005,24 +2380,24 @@ export default function PlayAiGame() {
                     padding: "16px 0",
                   }}
                 >
-                  Chưa có nước đi nào. Hãy bắt đầu ván cờ!
+                  {isVi
+                    ? "Chưa có nước đi nào. Hãy bắt đầu ván cờ!"
+                    : "No moves yet. Make your first move!"}
                 </div>
               ) : (
-                Array.from({ length: Math.ceil(moveHistory.length / 2) }).map(
-                  (_, i) => (
-                    <React.Fragment key={i}>
-                      <span style={{ color: "var(--text-muted)", fontWeight: 700 }}>
-                        {i + 1}.
-                      </span>
-                      <span style={{ color: "var(--text-primary)" }}>
-                        {moveHistory[i * 2] || ""}
-                      </span>
-                      <span style={{ color: "var(--gold-light)" }}>
-                        {moveHistory[i * 2 + 1] || ""}
-                      </span>
-                    </React.Fragment>
-                  )
-                )
+                Array.from({ length: Math.ceil(moveHistory.length / 2) }).map((_, i) => (
+                  <React.Fragment key={i}>
+                    <span style={{ color: "var(--text-muted)", fontWeight: 700 }}>
+                      {i + 1}.
+                    </span>
+                    <span style={{ color: "var(--text-primary)" }}>
+                      {moveHistory[i * 2] || ""}
+                    </span>
+                    <span style={{ color: "var(--gold-light)" }}>
+                      {moveHistory[i * 2 + 1] || ""}
+                    </span>
+                  </React.Fragment>
+                ))
               )}
             </div>
 
@@ -2038,7 +2413,9 @@ export default function PlayAiGame() {
               }}
             >
               <Sparkles size={11} color="var(--gold-light)" />
-              Mẹo: Bấm chuột phải để bôi đỏ ô cờ • Giữ chuột phải kéo để vẽ mũi tên chiến thuật
+              {isVi
+                ? "Mẹo: Bấm chuột phải để bôi đỏ ô cờ • Giữ chuột phải kéo để vẽ mũi tên chiến thuật"
+                : "Tip: Right-click to highlight square • Right-click & drag to draw tactical arrows"}
             </div>
           </div>
         </div>

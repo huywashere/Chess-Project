@@ -1,8 +1,17 @@
 -- V2: Create games and rating_history tables
-CREATE TYPE game_result AS ENUM ('WHITE_WIN', 'BLACK_WIN', 'DRAW', 'ONGOING', 'ABORTED');
-CREATE TYPE termination_type AS ENUM ('CHECKMATE', 'RESIGNATION', 'TIMEOUT', 'STALEMATE', 'AGREEMENT', 'INSUFFICIENT_MATERIAL', 'REPETITION', 'FIFTY_MOVE');
+DO $$ BEGIN
+    CREATE TYPE game_result AS ENUM ('WHITE_WIN', 'BLACK_WIN', 'DRAW', 'ONGOING', 'ABORTED');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
-CREATE TABLE games (
+DO $$ BEGIN
+    CREATE TYPE termination_type AS ENUM ('CHECKMATE', 'RESIGNATION', 'TIMEOUT', 'STALEMATE', 'AGREEMENT', 'INSUFFICIENT_MATERIAL', 'REPETITION', 'FIFTY_MOVE');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
+
+CREATE TABLE IF NOT EXISTS games (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     white_player_id UUID REFERENCES users(id) ON DELETE SET NULL,
     black_player_id UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -20,13 +29,13 @@ CREATE TABLE games (
     ended_at        TIMESTAMPTZ
 );
 
-CREATE INDEX idx_games_white_player ON games(white_player_id);
-CREATE INDEX idx_games_black_player ON games(black_player_id);
-CREATE INDEX idx_games_played_at   ON games(played_at DESC);
-CREATE INDEX idx_games_result      ON games(result);
+CREATE INDEX IF NOT EXISTS idx_games_white_player ON games(white_player_id);
+CREATE INDEX IF NOT EXISTS idx_games_black_player ON games(black_player_id);
+CREATE INDEX IF NOT EXISTS idx_games_played_at   ON games(played_at DESC);
+CREATE INDEX IF NOT EXISTS idx_games_result      ON games(result);
 
 -- Rating history
-CREATE TABLE rating_history (
+CREATE TABLE IF NOT EXISTS rating_history (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     game_id     UUID REFERENCES games(id) ON DELETE SET NULL,
@@ -36,5 +45,5 @@ CREATE TABLE rating_history (
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_rating_history_user_id ON rating_history(user_id);
-CREATE INDEX idx_rating_history_created_at ON rating_history(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_rating_history_user_id ON rating_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_rating_history_created_at ON rating_history(created_at DESC);

@@ -87,7 +87,10 @@ export default function CapturedPieces({
       }
 
       const whiteUpper = type.toUpperCase();
-      const whiteLost = Math.max(0, initialCounts[whiteUpper] - remainingCounts[whiteUpper]);
+      const whiteLost = Math.max(
+        0,
+        initialCounts[whiteUpper] - remainingCounts[whiteUpper]
+      );
       if (whiteLost > 0) {
         blackCapturedList.push({ type, count: whiteLost });
         blackTotalValue += whiteLost * PIECE_VALUES[type];
@@ -113,7 +116,9 @@ export default function CapturedPieces({
   const pieceSymbols = forColor === "w" ? PIECE_SYMBOLS_BLACK : PIECE_SYMBOLS_WHITE;
 
   return (
-    <div style={{ display: "inline-flex", alignItems: "center", gap: 3, flexWrap: "wrap" }}>
+    <div
+      style={{ display: "inline-flex", alignItems: "center", gap: 3, flexWrap: "wrap" }}
+    >
       {captured.map(({ type, count }) => (
         <span
           key={type}

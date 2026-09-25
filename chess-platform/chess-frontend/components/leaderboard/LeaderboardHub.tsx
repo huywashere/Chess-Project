@@ -18,8 +18,29 @@ import {
   LeaderboardCategory,
   LeaderboardPlayer,
 } from "@/lib/leaderboardData";
+import { useLanguage } from "@/context/LanguageContext";
+
+function getCountryName(country: string, isVi: boolean): string {
+  const map: Record<string, { vi: string; en: string }> = {
+    "Việt Nam": { vi: "Việt Nam", en: "Vietnam" },
+    "Na Uy": { vi: "Na Uy", en: "Norway" },
+    "Hoa Kỳ": { vi: "Hoa Kỳ", en: "United States" },
+    "Ấn Độ": { vi: "Ấn Độ", en: "India" },
+    Pháp: { vi: "Pháp", en: "France" },
+    Nga: { vi: "Nga", en: "Russia" },
+    "Trung Quốc": { vi: "Trung Quốc", en: "China" },
+    "Nhật Bản": { vi: "Nhật Bản", en: "Japan" },
+    Đức: { vi: "Đức", en: "Germany" },
+  };
+  if (map[country]) {
+    return isVi ? map[country].vi : map[country].en;
+  }
+  return country;
+}
 
 export default function LeaderboardHub() {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
   const [category, setCategory] = useState<LeaderboardCategory>("blitz");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -41,11 +62,27 @@ export default function LeaderboardHub() {
   const top2 = filteredPlayers[1];
   const top3 = filteredPlayers[2];
 
-  const categoryTabs: { id: LeaderboardCategory; label: string; icon: React.ReactNode }[] = [
-    { id: "blitz", label: "Cờ Chớp (Blitz)", icon: <Zap size={14} /> },
-    { id: "rapid", label: "Cờ Nhanh (Rapid)", icon: <Clock size={14} /> },
-    { id: "bullet", label: "Siêu Chớp (Bullet)", icon: <Rocket size={14} /> },
-    { id: "puzzles", label: "Chiến Thuật (Puzzles)", icon: <Puzzle size={14} /> },
+  const categoryTabs: {
+    id: LeaderboardCategory;
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
+    { id: "blitz", label: isVi ? "Cờ Chớp (Blitz)" : "Blitz", icon: <Zap size={14} /> },
+    {
+      id: "rapid",
+      label: isVi ? "Cờ Nhanh (Rapid)" : "Rapid",
+      icon: <Clock size={14} />,
+    },
+    {
+      id: "bullet",
+      label: isVi ? "Siêu Chớp (Bullet)" : "Bullet",
+      icon: <Rocket size={14} />,
+    },
+    {
+      id: "puzzles",
+      label: isVi ? "Chiến Thuật (Puzzles)" : "Tactics (Puzzles)",
+      icon: <Puzzle size={14} />,
+    },
   ];
 
   return (
@@ -73,7 +110,7 @@ export default function LeaderboardHub() {
             }}
           >
             <Trophy size={14} />
-            <span>BẢNG XẾP HẠNG KỲ THỦ</span>
+            <span>{isVi ? "BẢNG XẾP HẠNG KỲ THỦ" : "PLAYERS LEADERBOARD"}</span>
           </div>
 
           <div
@@ -96,7 +133,7 @@ export default function LeaderboardHub() {
                   letterSpacing: "-0.5px",
                 }}
               >
-                Top Kỳ Thủ Xuất Sắc Nhất
+                {isVi ? "Top Kỳ Thủ Xuất Sắc Nhất" : "Top Grandmasters & Leaders"}
               </h1>
               <p
                 style={{
@@ -106,7 +143,9 @@ export default function LeaderboardHub() {
                   marginBottom: 0,
                 }}
               >
-                Xếp hạng hệ số ELO chính thức của các Đại Kiện Tướng và người chơi hàng đầu
+                {isVi
+                  ? "Xếp hạng hệ số ELO chính thức của các Đại Kiện Tướng và người chơi hàng đầu"
+                  : "Official ELO rankings of Grandmasters and top competitive players"}
               </p>
             </div>
 
@@ -132,7 +171,9 @@ export default function LeaderboardHub() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Tìm kỳ thủ, quốc gia..."
+                placeholder={
+                  isVi ? "Tìm kỳ thủ, quốc gia..." : "Search players, country..."
+                }
                 style={{
                   width: "100%",
                   padding: "9px 12px 9px 36px",
@@ -232,7 +273,7 @@ export default function LeaderboardHub() {
                     gap: 4,
                   }}
                 >
-                  <Crown size={12} /> HẠNG 1
+                  <Crown size={12} /> {isVi ? "HẠNG 1" : "RANK 1"}
                 </div>
 
                 <div
@@ -271,19 +312,44 @@ export default function LeaderboardHub() {
                         {top1.title}
                       </span>
                     )}
-                    <span style={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)" }}>
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 15,
+                        color: "var(--text-primary)",
+                      }}
+                    >
                       {top1.name}
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
-                    @{top1.username} • {top1.country}
+                    @{top1.username} • {getCountryName(top1.country, isVi)}
                   </div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 6 }}>
-                    <span style={{ fontSize: 20, fontWeight: 800, color: "var(--gold-light)" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "baseline",
+                      gap: 6,
+                      marginTop: 6,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 800,
+                        color: "var(--gold-light)",
+                      }}
+                    >
                       {top1.rating}
                     </span>
-                    <span style={{ fontSize: 11, color: "var(--green-light)", fontWeight: 600 }}>
-                      {top1.winRate}% Thắng
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "var(--green-light)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {top1.winRate}% {isVi ? "Thắng" : "Win"}
                     </span>
                   </div>
                 </div>
@@ -320,7 +386,7 @@ export default function LeaderboardHub() {
                     gap: 4,
                   }}
                 >
-                  <Medal size={12} /> HẠNG 2
+                  <Medal size={12} /> {isVi ? "HẠNG 2" : "RANK 2"}
                 </div>
 
                 <div
@@ -359,19 +425,44 @@ export default function LeaderboardHub() {
                         {top2.title}
                       </span>
                     )}
-                    <span style={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)" }}>
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 15,
+                        color: "var(--text-primary)",
+                      }}
+                    >
                       {top2.name}
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
-                    @{top2.username} • {top2.country}
+                    @{top2.username} • {getCountryName(top2.country, isVi)}
                   </div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 6 }}>
-                    <span style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "baseline",
+                      gap: 6,
+                      marginTop: 6,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 800,
+                        color: "var(--text-primary)",
+                      }}
+                    >
                       {top2.rating}
                     </span>
-                    <span style={{ fontSize: 11, color: "var(--green-light)", fontWeight: 600 }}>
-                      {top2.winRate}% Thắng
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "var(--green-light)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {top2.winRate}% {isVi ? "Thắng" : "Win"}
                     </span>
                   </div>
                 </div>
@@ -408,7 +499,7 @@ export default function LeaderboardHub() {
                     gap: 4,
                   }}
                 >
-                  <Medal size={12} /> HẠNG 3
+                  <Medal size={12} /> {isVi ? "HẠNG 3" : "RANK 3"}
                 </div>
 
                 <div
@@ -447,19 +538,44 @@ export default function LeaderboardHub() {
                         {top3.title}
                       </span>
                     )}
-                    <span style={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)" }}>
+                    <span
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 15,
+                        color: "var(--text-primary)",
+                      }}
+                    >
                       {top3.name}
                     </span>
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
-                    @{top3.username} • {top3.country}
+                    @{top3.username} • {getCountryName(top3.country, isVi)}
                   </div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginTop: 6 }}>
-                    <span style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "baseline",
+                      gap: 6,
+                      marginTop: 6,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 800,
+                        color: "var(--text-primary)",
+                      }}
+                    >
                       {top3.rating}
                     </span>
-                    <span style={{ fontSize: 11, color: "var(--green-light)", fontWeight: 600 }}>
-                      {top3.winRate}% Thắng
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "var(--green-light)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {top3.winRate}% {isVi ? "Thắng" : "Win"}
                     </span>
                   </div>
                 </div>
@@ -490,11 +606,17 @@ export default function LeaderboardHub() {
               color: "var(--text-muted)",
             }}
           >
-            <span>Hạng</span>
-            <span>Kỳ Thủ</span>
-            <span style={{ textAlign: "right" }}>Hệ Số ELO</span>
-            <span className="hide-on-mobile" style={{ textAlign: "right" }}>Tỷ Lệ Thắng</span>
-            <span className="hide-on-mobile" style={{ textAlign: "right" }}>Phong Độ</span>
+            <span>{isVi ? "Hạng" : "Rank"}</span>
+            <span>{isVi ? "Kỳ Thủ" : "Player"}</span>
+            <span style={{ textAlign: "right" }}>
+              {isVi ? "Hệ Số ELO" : "Rating ELO"}
+            </span>
+            <span className="hide-on-mobile" style={{ textAlign: "right" }}>
+              {isVi ? "Tỷ Lệ Thắng" : "Win Rate"}
+            </span>
+            <span className="hide-on-mobile" style={{ textAlign: "right" }}>
+              {isVi ? "Phong Độ" : "Form"}
+            </span>
           </div>
 
           {/* Table Rows */}
@@ -507,7 +629,9 @@ export default function LeaderboardHub() {
                 fontSize: 14,
               }}
             >
-              Không tìm thấy kỳ thủ nào phù hợp với từ khóa &ldquo;{searchQuery}&rdquo;.
+              {isVi
+                ? `Không tìm thấy kỳ thủ nào phù hợp với từ khóa "${searchQuery}".`
+                : `No players found matching "${searchQuery}".`}
             </div>
           ) : (
             filteredPlayers.map((player, idx) => {
@@ -522,11 +646,15 @@ export default function LeaderboardHub() {
                   className="leaderboard-row"
                   style={{
                     borderBottom:
-                      idx < filteredPlayers.length - 1 ? "1px solid var(--divider)" : "none",
+                      idx < filteredPlayers.length - 1
+                        ? "1px solid var(--divider)"
+                        : "none",
                     background: idx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
                     transition: "background 0.15s ease",
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-raised)")}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "var(--bg-raised)")
+                  }
                   onMouseLeave={(e) =>
                     (e.currentTarget.style.background =
                       idx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)")
@@ -548,25 +676,25 @@ export default function LeaderboardHub() {
                           rank === 1
                             ? "var(--gold-bg)"
                             : rank === 2
-                            ? "var(--bg-overlay)"
-                            : rank === 3
-                            ? "rgba(180, 83, 9, 0.15)"
-                            : "transparent",
+                              ? "var(--bg-overlay)"
+                              : rank === 3
+                                ? "rgba(180, 83, 9, 0.15)"
+                                : "transparent",
                         color:
                           rank === 1
                             ? "var(--gold-light)"
                             : rank === 2
-                            ? "var(--text-secondary)"
-                            : rank === 3
-                            ? "#d97706"
-                            : "var(--text-muted)",
+                              ? "var(--text-secondary)"
+                              : rank === 3
+                                ? "#d97706"
+                                : "var(--text-muted)",
                         border: isTop3
                           ? `1px solid ${
                               rank === 1
                                 ? "var(--gold-border)"
                                 : rank === 2
-                                ? "var(--border-medium)"
-                                : "rgba(180, 83, 9, 0.3)"
+                                  ? "var(--border-medium)"
+                                  : "rgba(180, 83, 9, 0.3)"
                             }`
                           : "none",
                       }}
@@ -624,8 +752,10 @@ export default function LeaderboardHub() {
                           {player.name}
                         </span>
                       </div>
-                      <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
-                        @{player.username} • {player.country}
+                      <div
+                        style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}
+                      >
+                        @{player.username} • {getCountryName(player.country, isVi)}
                       </div>
                     </div>
                   </div>
@@ -644,11 +774,20 @@ export default function LeaderboardHub() {
                   </div>
 
                   {/* Win rate */}
-                  <div className="hide-on-mobile" style={{ textAlign: "right", fontSize: 13, color: "var(--text-secondary)" }}>
+                  <div
+                    className="hide-on-mobile"
+                    style={{
+                      textAlign: "right",
+                      fontSize: 13,
+                      color: "var(--text-secondary)",
+                    }}
+                  >
                     <span style={{ color: "var(--green-light)", fontWeight: 600 }}>
                       {player.winRate}%
                     </span>
-                    <span style={{ fontSize: 11, color: "var(--text-muted)", marginLeft: 4 }}>
+                    <span
+                      style={{ fontSize: 11, color: "var(--text-muted)", marginLeft: 4 }}
+                    >
                       ({gamesTotal})
                     </span>
                   </div>
@@ -664,7 +803,8 @@ export default function LeaderboardHub() {
                       gap: 4,
                       fontSize: 12,
                       fontWeight: 700,
-                      color: winsInForm >= 3 ? "var(--orange-light)" : "var(--text-muted)",
+                      color:
+                        winsInForm >= 3 ? "var(--orange-light)" : "var(--text-muted)",
                     }}
                   >
                     {winsInForm >= 3 && <Flame size={13} />}

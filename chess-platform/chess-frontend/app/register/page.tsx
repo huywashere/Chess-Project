@@ -19,14 +19,14 @@ import {
   Check,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import {
-  calculatePasswordStrength,
-  validateRegisterInput,
-} from "@/lib/authValidation";
+import { useLanguage } from "@/context/LanguageContext";
+import { calculatePasswordStrength, validateRegisterInput } from "@/lib/authValidation";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { register } = useAuth();
+  const { language } = useLanguage();
+  const isVi = language === "vi";
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -44,21 +44,24 @@ export default function RegisterPage() {
 
   // Real-time password strength calculation
   const passwordStrength = useMemo(() => {
-    return calculatePasswordStrength(password);
-  }, [password]);
+    return calculatePasswordStrength(password, language);
+  }, [password, language]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setFieldErrors({});
 
-    const validation = validateRegisterInput({
-      username,
-      email,
-      password,
-      confirmPassword,
-      acceptTerms,
-    });
+    const validation = validateRegisterInput(
+      {
+        username,
+        email,
+        password,
+        confirmPassword,
+        acceptTerms,
+      },
+      language
+    );
 
     if (!validation.isValid) {
       setFieldErrors(validation.errors);
@@ -78,16 +81,29 @@ export default function RegisterPage() {
       });
 
       if (res.success) {
-        setSuccessMessage("Đăng ký thành công! Đang chuyển hướng vào bàn cờ...");
+        setSuccessMessage(
+          isVi
+            ? "Đăng ký thành công! Đang chuyển hướng vào bàn cờ..."
+            : "Registration successful! Redirecting to board..."
+        );
         setTimeout(() => {
           router.push("/");
           router.refresh();
         }, 800);
       } else {
-        setErrorMessage(res.error || "Đăng ký không thành công. Vui lòng thử lại.");
+        setErrorMessage(
+          res.error ||
+            (isVi
+              ? "Đăng ký không thành công. Vui lòng thử lại."
+              : "Registration failed. Please try again.")
+        );
       }
     } catch {
-      setErrorMessage("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
+      setErrorMessage(
+        isVi
+          ? "Không thể kết nối đến máy chủ. Vui lòng thử lại sau."
+          : "Could not connect to server. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
@@ -164,7 +180,7 @@ export default function RegisterPage() {
           }}
         >
           <ArrowLeft size={14} />
-          <span>Về trang chủ</span>
+          <span>{isVi ? "Về trang chủ" : "Back to Home"}</span>
         </Link>
       </div>
 
@@ -201,7 +217,7 @@ export default function RegisterPage() {
             }}
           >
             <Sparkles size={12} />
-            <span>100% Miễn Phí • Không Quảng Cáo</span>
+            <span>{isVi ? "100% Miễn Phí • Không Quảng Cáo" : "100% Free • No Ads"}</span>
           </div>
 
           <h1
@@ -213,7 +229,7 @@ export default function RegisterPage() {
               margin: "0 0 8px 0",
             }}
           >
-            Tạo Tài Khoản Kỳ Thủ
+            {isVi ? "Tạo Tài Khoản Kỳ Thủ" : "Create Chess Account"}
           </h1>
           <p
             style={{
@@ -223,7 +239,9 @@ export default function RegisterPage() {
               lineHeight: 1.5,
             }}
           >
-            Gia nhập cộng đồng cờ vua Việt Nam, nhận ELO khởi điểm 1200 và lưu lại lịch sử mọi ván đấu.
+            {isVi
+              ? "Gia nhập cộng đồng cờ vua Việt Nam, nhận ELO khởi điểm 1200 và lưu lại lịch sử mọi ván đấu."
+              : "Join the chess community, start with 1200 ELO, and keep track of all your matches."}
           </p>
         </div>
 
@@ -271,7 +289,10 @@ export default function RegisterPage() {
         )}
 
         {/* Registration Form */}
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: 16 }}
+        >
           {/* Username */}
           <div>
             <label
@@ -286,7 +307,7 @@ export default function RegisterPage() {
                 letterSpacing: "0.5px",
               }}
             >
-              Tên đăng nhập
+              {isVi ? "Tên đăng nhập" : "Username"}
             </label>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <div
@@ -307,7 +328,11 @@ export default function RegisterPage() {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="vd: grandmaster_vn (3-20 ký tự)"
+                placeholder={
+                  isVi
+                    ? "vd: grandmaster_vn (3-20 ký tự)"
+                    : "e.g. grandmaster_vn (3-20 characters)"
+                }
                 required
                 style={{
                   width: "100%",
@@ -321,7 +346,11 @@ export default function RegisterPage() {
                   transition: "border-color 0.15s ease",
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "var(--green-light)")}
-                onBlur={(e) => (e.target.style.borderColor = fieldErrors.username ? "#ef4444" : "var(--border-subtle)")}
+                onBlur={(e) =>
+                  (e.target.style.borderColor = fieldErrors.username
+                    ? "#ef4444"
+                    : "var(--border-subtle)")
+                }
               />
             </div>
             {fieldErrors.username && (
@@ -345,7 +374,7 @@ export default function RegisterPage() {
                 letterSpacing: "0.5px",
               }}
             >
-              Địa chỉ Email
+              {isVi ? "Địa chỉ Email" : "Email Address"}
             </label>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <div
@@ -380,7 +409,11 @@ export default function RegisterPage() {
                   transition: "border-color 0.15s ease",
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "var(--green-light)")}
-                onBlur={(e) => (e.target.style.borderColor = fieldErrors.email ? "#ef4444" : "var(--border-subtle)")}
+                onBlur={(e) =>
+                  (e.target.style.borderColor = fieldErrors.email
+                    ? "#ef4444"
+                    : "var(--border-subtle)")
+                }
               />
             </div>
             {fieldErrors.email && (
@@ -404,7 +437,7 @@ export default function RegisterPage() {
                 letterSpacing: "0.5px",
               }}
             >
-              Mật khẩu bảo mật
+              {isVi ? "Mật khẩu bảo mật" : "Password"}
             </label>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <div
@@ -425,7 +458,11 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Tối thiểu 8 ký tự, kết hợp chữ & số"
+                placeholder={
+                  isVi
+                    ? "Tối thiểu 8 ký tự, kết hợp chữ & số"
+                    : "At least 8 characters, letters & numbers"
+                }
                 required
                 style={{
                   width: "100%",
@@ -439,7 +476,11 @@ export default function RegisterPage() {
                   transition: "border-color 0.15s ease",
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "var(--green-light)")}
-                onBlur={(e) => (e.target.style.borderColor = fieldErrors.password ? "#ef4444" : "var(--border-subtle)")}
+                onBlur={(e) =>
+                  (e.target.style.borderColor = fieldErrors.password
+                    ? "#ef4444"
+                    : "var(--border-subtle)")
+                }
               />
               <button
                 type="button"
@@ -455,7 +496,15 @@ export default function RegisterPage() {
                   alignItems: "center",
                   padding: 2,
                 }}
-                title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                title={
+                  showPassword
+                    ? isVi
+                      ? "Ẩn mật khẩu"
+                      : "Hide password"
+                    : isVi
+                      ? "Hiện mật khẩu"
+                      : "Show password"
+                }
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -464,14 +513,36 @@ export default function RegisterPage() {
             {/* Password Strength Meter */}
             {password.length > 0 && (
               <div style={{ marginTop: 8 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Độ an toàn mật khẩu:</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: passwordStrength.color }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 4,
+                  }}
+                >
+                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                    {isVi ? "Độ an toàn mật khẩu:" : "Password strength:"}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: passwordStrength.color,
+                    }}
+                  >
                     {passwordStrength.label}
                   </span>
                 </div>
                 {/* 4-segment visual bar */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 4, height: 4 }}>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(4, 1fr)",
+                    gap: 4,
+                    height: 4,
+                  }}
+                >
                   {[1, 2, 3, 4].map((seg) => (
                     <div
                       key={seg}
@@ -490,7 +561,8 @@ export default function RegisterPage() {
                 {/* Realtime hints */}
                 {passwordStrength.feedback.length > 0 && (
                   <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
-                    Gợi ý: {passwordStrength.feedback.join(" • ")}
+                    {isVi ? "Gợi ý: " : "Hint: "}
+                    {passwordStrength.feedback.join(" • ")}
                   </div>
                 )}
               </div>
@@ -511,7 +583,7 @@ export default function RegisterPage() {
                 letterSpacing: "0.5px",
               }}
             >
-              Xác nhận mật khẩu
+              {isVi ? "Xác nhận mật khẩu" : "Confirm Password"}
             </label>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <div
@@ -532,18 +604,19 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Nhập lại mật khẩu"
+                placeholder={isVi ? "Nhập lại mật khẩu" : "Re-enter your password"}
                 required
                 style={{
                   width: "100%",
                   padding: "11px 40px 11px 38px",
                   background: "var(--bg-raised)",
                   border: `1px solid ${
-                    fieldErrors.confirmPassword || (confirmPassword && confirmPassword !== password)
+                    fieldErrors.confirmPassword ||
+                    (confirmPassword && confirmPassword !== password)
                       ? "#ef4444"
                       : confirmPassword && confirmPassword === password
-                      ? "#22c55e"
-                      : "var(--border-subtle)"
+                        ? "#22c55e"
+                        : "var(--border-subtle)"
                   }`,
                   borderRadius: 6,
                   color: "var(--text-primary)",
@@ -554,7 +627,8 @@ export default function RegisterPage() {
                 onFocus={(e) => (e.target.style.borderColor = "var(--green-light)")}
                 onBlur={(e) =>
                   (e.target.style.borderColor =
-                    fieldErrors.confirmPassword || (confirmPassword && confirmPassword !== password)
+                    fieldErrors.confirmPassword ||
+                    (confirmPassword && confirmPassword !== password)
                       ? "#ef4444"
                       : "var(--border-subtle)")
                 }
@@ -573,20 +647,40 @@ export default function RegisterPage() {
                   alignItems: "center",
                   padding: 2,
                 }}
-                title={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                title={
+                  showConfirmPassword
+                    ? isVi
+                      ? "Ẩn mật khẩu"
+                      : "Hide password"
+                    : isVi
+                      ? "Hiện mật khẩu"
+                      : "Show password"
+                }
               >
                 {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {confirmPassword && confirmPassword === password && (
-              <div style={{ fontSize: 11, color: "#22c55e", marginTop: 4, display: "flex", alignItems: "center", gap: 4 }}>
-                <Check size={12} strokeWidth={3} /> Mật khẩu xác nhận đã khớp
+              <div
+                style={{
+                  fontSize: 11,
+                  color: "#22c55e",
+                  marginTop: 4,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
+                <Check size={12} strokeWidth={3} />{" "}
+                {isVi ? "Mật khẩu xác nhận đã khớp" : "Passwords match"}
               </div>
             )}
           </div>
 
           {/* Terms and Privacy Policy Checkbox */}
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginTop: 4 }}>
+          <div
+            style={{ display: "flex", alignItems: "flex-start", gap: 10, marginTop: 4 }}
+          >
             <input
               id="terms"
               type="checkbox"
@@ -609,15 +703,21 @@ export default function RegisterPage() {
                 lineHeight: 1.4,
               }}
             >
-              Tôi đồng ý với{" "}
-              <Link href="/terms" style={{ color: "var(--gold-light)", textDecoration: "none" }}>
-                Điều khoản sử dụng
+              {isVi ? "Tôi đồng ý với " : "I agree to the "}
+              <Link
+                href="/terms"
+                style={{ color: "var(--gold-light)", textDecoration: "none" }}
+              >
+                {isVi ? "Điều khoản sử dụng" : "Terms of Service"}
               </Link>{" "}
-              và{" "}
-              <Link href="/privacy" style={{ color: "var(--gold-light)", textDecoration: "none" }}>
-                Chính sách bảo mật
+              {isVi ? "và " : "and "}
+              <Link
+                href="/privacy"
+                style={{ color: "var(--gold-light)", textDecoration: "none" }}
+              >
+                {isVi ? "Chính sách bảo mật" : "Privacy Policy"}
               </Link>{" "}
-              của ChessMaster.
+              {isVi ? "của ChessMaster." : "of ChessMaster."}
             </label>
           </div>
 
@@ -636,11 +736,13 @@ export default function RegisterPage() {
             }}
           >
             {loading ? (
-              <span>Đang tạo tài khoản an toàn...</span>
+              <span>
+                {isVi ? "Đang tạo tài khoản an toàn..." : "Creating secure account..."}
+              </span>
             ) : (
               <>
                 <UserPlus size={16} />
-                <span>Hoàn Tất Đăng Ký</span>
+                <span>{isVi ? "Hoàn Tất Đăng Ký" : "Create Account"}</span>
               </>
             )}
           </button>
@@ -649,7 +751,9 @@ export default function RegisterPage() {
         {/* Footer Redirect to Login */}
         <div style={{ marginTop: 22, textAlign: "center" }}>
           <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-            Đã có tài khoản ChessMaster?{" "}
+            {isVi
+              ? "Đã có tài khoản ChessMaster? "
+              : "Already have a ChessMaster account? "}
             <Link
               href="/login"
               style={{
@@ -658,7 +762,7 @@ export default function RegisterPage() {
                 textDecoration: "none",
               }}
             >
-              Đăng nhập ngay
+              {isVi ? "Đăng nhập ngay" : "Sign in now"}
             </Link>
           </div>
         </div>
@@ -680,17 +784,17 @@ export default function RegisterPage() {
       >
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <ShieldCheck size={14} color="var(--green-light)" />
-          Chuẩn bảo mật SSL 256-bit
+          {isVi ? "Chuẩn bảo mật SSL 256-bit" : "256-bit SSL Security"}
         </span>
         <span>•</span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <Lock size={13} color="var(--gold-light)" />
-          Không bán dữ liệu người dùng
+          {isVi ? "Không bán dữ liệu người dùng" : "No User Data Selling"}
         </span>
         <span>•</span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <Sparkles size={13} color="var(--blue-light)" />
-          Miễn phí trọn đời
+          {isVi ? "Miễn phí trọn đời" : "Free Forever"}
         </span>
       </div>
     </div>

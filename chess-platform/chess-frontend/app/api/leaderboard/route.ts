@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import {
   checkRateLimit,
   createRateLimitResponse,
   getClientIp,
   getRateLimitHeaders,
-} from '@/lib/rateLimit';
+} from "@/lib/rateLimit";
 
 export async function GET(request: Request) {
   try {
     // Rate limit: 60 requests per minute to prevent leaderboard scraping / DB overload
     const ip = getClientIp(request);
-    const limiter = checkRateLimit(`leaderboard:${ip}`, 'API_READ');
+    const limiter = checkRateLimit(`leaderboard:${ip}`, "API_READ");
     if (!limiter.success) {
       return createRateLimitResponse(
         limiter,
@@ -20,18 +20,18 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category') || 'blitz';
-    const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
+    const category = searchParams.get("category") || "blitz";
+    const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
 
-    let orderByField = 'ratingBlitz';
-    if (category === 'rapid') orderByField = 'ratingRapid';
-    else if (category === 'bullet') orderByField = 'ratingBullet';
-    else if (category === 'puzzle') orderByField = 'ratingPuzzle';
-    else if (category === 'overall') orderByField = 'eloRating';
+    let orderByField = "ratingBlitz";
+    if (category === "rapid") orderByField = "ratingRapid";
+    else if (category === "bullet") orderByField = "ratingBullet";
+    else if (category === "puzzle") orderByField = "ratingPuzzle";
+    else if (category === "overall") orderByField = "eloRating";
 
     const users = await prisma.user.findMany({
       where: { isActive: true },
-      orderBy: { [orderByField]: 'desc' },
+      orderBy: { [orderByField]: "desc" },
       take: limit,
       select: {
         id: true,
@@ -53,13 +53,13 @@ export async function GET(request: Request) {
       rank: idx + 1,
       ...u,
       displayElo:
-        category === 'rapid'
+        category === "rapid"
           ? u.ratingRapid
-          : category === 'bullet'
-          ? u.ratingBullet
-          : category === 'puzzle'
-          ? u.ratingPuzzle
-          : u.ratingBlitz,
+          : category === "bullet"
+            ? u.ratingBullet
+            : category === "puzzle"
+              ? u.ratingPuzzle
+              : u.ratingBlitz,
     }));
 
     return NextResponse.json(
@@ -75,9 +75,9 @@ export async function GET(request: Request) {
       }
     );
   } catch (error) {
-    console.error('Error in /api/leaderboard:', error);
+    console.error("Error in /api/leaderboard:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch leaderboard from database' },
+      { success: false, error: "Failed to fetch leaderboard from database" },
       { status: 500 }
     );
   }

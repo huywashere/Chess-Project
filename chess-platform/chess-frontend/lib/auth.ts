@@ -4,7 +4,8 @@ import { cookies } from "next/headers";
 import { User, UserRole } from "@prisma/client";
 
 export const AUTH_COOKIE_NAME = "chess_session";
-const JWT_SECRET = process.env.JWT_SECRET || "chess_master_jwt_secret_dev_32_characters_random_key_2026";
+const JWT_SECRET =
+  process.env.JWT_SECRET || "chess_master_jwt_secret_dev_32_characters_random_key_2026";
 const key = new TextEncoder().encode(JWT_SECRET);
 
 export interface AuthTokenPayload {

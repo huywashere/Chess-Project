@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif:wght@400;700&family=Source+Code+Pro:wght@400;600&display=swap");
 
 /* ============================================================
    CHESSMASTER — DESIGN SYSTEM v2
@@ -9,135 +9,143 @@
 
 :root {
   /* ─── Base (Lichess-inspired dark brown-black) ─── */
-  --bg-base:      #161512;
-  --bg-surface:   #1e1c19;
-  --bg-raised:    #262421;
-  --bg-overlay:   #302e2b;
-  --bg-input:     #2c2a27;
+  --bg-base: #161512;
+  --bg-surface: #1e1c19;
+  --bg-raised: #262421;
+  --bg-overlay: #302e2b;
+  --bg-input: #2c2a27;
 
   /* ─── Text ─── */
-  --text-primary:   #e8e6e3;
+  --text-primary: #e8e6e3;
   --text-secondary: #b0a99f;
-  --text-muted:     #7a7269;
-  --text-inverse:   #1a1816;
+  --text-muted: #7a7269;
+  --text-inverse: #1a1816;
 
   /* ─── Context Colors ─── */
   /* Play / Online PvP → Forest Green */
-  --green-vivid:  #629924;
-  --green-dark:   #4a7a1a;
-  --green-light:  #7ab530;
-  --green-bg:     #1e2916;
+  --green-vivid: #629924;
+  --green-dark: #4a7a1a;
+  --green-light: #7ab530;
+  --green-bg: #1e2916;
   --green-border: #3a5a18;
 
   /* AI / Machine → Steel Blue */
-  --blue-vivid:   #3d8bc9;
-  --blue-dark:    #2c6fa0;
-  --blue-light:   #5aa3dc;
-  --blue-bg:      #152030;
-  --blue-border:  #1e3a52;
+  --blue-vivid: #3d8bc9;
+  --blue-dark: #2c6fa0;
+  --blue-light: #5aa3dc;
+  --blue-bg: #152030;
+  --blue-border: #1e3a52;
 
   /* Puzzles → Amber/Orange */
   --orange-vivid: #c97c2a;
-  --orange-dark:  #a5601a;
+  --orange-dark: #a5601a;
   --orange-light: #e09040;
-  --orange-bg:    #2a1e0e;
-  --orange-border:#4a3010;
+  --orange-bg: #2a1e0e;
+  --orange-border: #4a3010;
 
   /* Tournament → Gold */
-  --gold-vivid:   #b8960c;
-  --gold-dark:    #8f7208;
-  --gold-light:   #d4ae1a;
-  --gold-bg:      #221e08;
-  --gold-border:  #3a3206;
+  --gold-vivid: #b8960c;
+  --gold-dark: #8f7208;
+  --gold-light: #d4ae1a;
+  --gold-bg: #221e08;
+  --gold-border: #3a3206;
 
   /* Learn → Teal */
-  --teal-vivid:   #2a9d8f;
-  --teal-dark:    #1f7a6e;
-  --teal-light:   #3dbcac;
-  --teal-bg:      #0d2422;
-  --teal-border:  #184038;
+  --teal-vivid: #2a9d8f;
+  --teal-dark: #1f7a6e;
+  --teal-light: #3dbcac;
+  --teal-bg: #0d2422;
+  --teal-border: #184038;
 
   /* Danger / Check → Red */
-  --red-vivid:    #c84b3a;
-  --red-dark:     #a83828;
+  --red-vivid: #c84b3a;
+  --red-dark: #a83828;
 
   /* ─── Board Colors (Wood) ─── */
-  --board-light:  #f0d9b5;
-  --board-dark:   #b58863;
-  --board-coord:  #a07850;
+  --board-light: #f0d9b5;
+  --board-dark: #b58863;
+  --board-coord: #a07850;
 
   /* ─── Neutrals ─── */
-  --border-subtle: rgba(255,255,255,0.06);
-  --border-medium: rgba(255,255,255,0.12);
-  --divider:       #2a2825;
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --divider: #2a2825;
 
   /* ─── Typography ─── */
-  --font-ui:      'Noto Sans', system-ui, sans-serif;
-  --font-serif:   'Noto Serif', Georgia, serif;
-  --font-mono:    'Source Code Pro', monospace;
+  --font-ui: "Noto Sans", system-ui, sans-serif;
+  --font-serif: "Noto Serif", Georgia, serif;
+  --font-mono: "Source Code Pro", monospace;
 }
 
 /* ─── Light Mode Theme ─── */
 [data-theme="light"] {
   /* ─── Base (Lichess/Chess.com-inspired warm, crisp light mode) ─── */
-  --bg-base:      #f0ece6;
-  --bg-surface:   #ffffff;
-  --bg-raised:    #f8f6f2;
-  --bg-overlay:   #ebe6dc;
-  --bg-input:     #ffffff;
+  --bg-base: #f0ece6;
+  --bg-surface: #ffffff;
+  --bg-raised: #f8f6f2;
+  --bg-overlay: #ebe6dc;
+  --bg-input: #ffffff;
 
   /* ─── Text ─── */
-  --text-primary:   #23211e;
+  --text-primary: #23211e;
   --text-secondary: #57524b;
-  --text-muted:     #888176;
-  --text-inverse:   #ffffff;
+  --text-muted: #888176;
+  --text-inverse: #ffffff;
 
   /* ─── Context Colors (Light Mode) ─── */
-  --green-vivid:  #53891d;
-  --green-dark:   #3e6815;
-  --green-light:  #68a825;
-  --green-bg:     #edf7e2;
+  --green-vivid: #53891d;
+  --green-dark: #3e6815;
+  --green-light: #68a825;
+  --green-bg: #edf7e2;
   --green-border: #b8e09f;
 
-  --blue-vivid:   #2d7ab8;
-  --blue-dark:    #215c8c;
-  --blue-light:   #4094d4;
-  --blue-bg:      #e9f3fd;
-  --blue-border:  #b0d4f5;
+  --blue-vivid: #2d7ab8;
+  --blue-dark: #215c8c;
+  --blue-light: #4094d4;
+  --blue-bg: #e9f3fd;
+  --blue-border: #b0d4f5;
 
   --orange-vivid: #b86e20;
-  --orange-dark:  #945415;
+  --orange-dark: #945415;
   --orange-light: #d1822b;
-  --orange-bg:    #fef2e2;
-  --orange-border:#f4cca0;
+  --orange-bg: #fef2e2;
+  --orange-border: #f4cca0;
 
-  --gold-vivid:   #a88708;
-  --gold-dark:    #7e6405;
-  --gold-light:   #b8960c;
-  --gold-bg:      #fcf7df;
-  --gold-border:  #ecd570;
+  --gold-vivid: #a88708;
+  --gold-dark: #7e6405;
+  --gold-light: #b8960c;
+  --gold-bg: #fcf7df;
+  --gold-border: #ecd570;
 
-  --teal-vivid:   #208b7e;
-  --teal-dark:    #166a60;
-  --teal-light:   #2ea697;
-  --teal-bg:      #e4f6f4;
-  --teal-border:  #9adcd4;
+  --teal-vivid: #208b7e;
+  --teal-dark: #166a60;
+  --teal-light: #2ea697;
+  --teal-bg: #e4f6f4;
+  --teal-border: #9adcd4;
 
-  --red-vivid:    #c43c29;
-  --red-dark:     #9e2c1c;
+  --red-vivid: #c43c29;
+  --red-dark: #9e2c1c;
 
-  --board-light:  #f0d9b5;
-  --board-dark:   #b58863;
-  --board-coord:  #8b6540;
+  --board-light: #f0d9b5;
+  --board-dark: #b58863;
+  --board-coord: #8b6540;
 
   --border-subtle: rgba(0, 0, 0, 0.08);
   --border-medium: rgba(0, 0, 0, 0.15);
-  --divider:       #ded8ce;
+  --divider: #ded8ce;
 }
 
 /* ─── Reset ─── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   font-family: var(--font-ui);
@@ -146,12 +154,21 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
 }
 
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-base); }
-::-webkit-scrollbar-thumb { background: var(--bg-overlay); border-radius: 3px; }
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-overlay);
+  border-radius: 3px;
+}
 
 /* ─── Layout ─── */
 .container {
@@ -337,24 +354,47 @@ body {
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: filter 0.15s ease, transform 0.1s ease;
+  transition:
+    filter 0.15s ease,
+    transform 0.1s ease;
   text-decoration: none;
   line-height: 1;
   white-space: nowrap;
 }
-.btn:hover  { filter: brightness(1.12); }
-.btn:active { transform: translateY(1px); filter: brightness(0.95); }
+.btn:hover {
+  filter: brightness(1.12);
+}
+.btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
 
-.btn-green  { background: var(--green-vivid);  color: #fff; }
-.btn-blue   { background: var(--blue-vivid);   color: #fff; }
-.btn-orange { background: var(--orange-vivid); color: #fff; }
-.btn-gold   { background: var(--gold-vivid);   color: #1a1a0a; }
-.btn-ghost  {
+.btn-green {
+  background: var(--green-vivid);
+  color: #fff;
+}
+.btn-blue {
+  background: var(--blue-vivid);
+  color: #fff;
+}
+.btn-orange {
+  background: var(--orange-vivid);
+  color: #fff;
+}
+.btn-gold {
+  background: var(--gold-vivid);
+  color: #1a1a0a;
+}
+.btn-ghost {
   background: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border-medium);
 }
-.btn-ghost:hover { background: var(--bg-raised); color: var(--text-primary); filter: none; }
+.btn-ghost:hover {
+  background: var(--bg-raised);
+  color: var(--text-primary);
+  filter: none;
+}
 
 /* ─── Card ─── */
 .card {
@@ -382,8 +422,12 @@ body {
   overflow: hidden;
 }
 
-.chess-square-light { background: var(--board-light); }
-.chess-square-dark  { background: var(--board-dark); }
+.chess-square-light {
+  background: var(--board-light);
+}
+.chess-square-dark {
+  background: var(--board-dark);
+}
 .chess-square {
   aspect-ratio: 1;
   display: flex;
@@ -393,7 +437,10 @@ body {
   line-height: 1;
   transition: background 0.1s ease;
 }
-.chess-square:hover { filter: brightness(1.15); cursor: pointer; }
+.chess-square:hover {
+  filter: brightness(1.15);
+  cursor: pointer;
+}
 
 /* ─── Rank/file labels ─── */
 .board-coords {
@@ -407,22 +454,54 @@ body {
 
 /* ─── Animations (subtle, no flash) ─── */
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-6px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 /* ─── Divider ─── */
 hr {
   border: none;
   border-top: 1px solid var(--divider);
+}
+
+/* ─── Floating Isometric Matrix Ambient Decoration ─── */
+@keyframes float-matrix {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(1.2deg);
+  }
+}
+
+.floating-matrix-decoration {
+  animation: float-matrix 9s ease-in-out infinite;
+  pointer-events: none;
+  user-select: none;
 }

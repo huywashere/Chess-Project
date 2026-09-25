@@ -4,9 +4,9 @@ import LeaderboardHub from "@/components/leaderboard/LeaderboardHub";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Bảng Xếp Hạng Kỳ Thủ (Leaderboard) — ChessMaster",
+  title: "Global Chess Leaderboard — ChessMaster | Bảng Xếp Hạng Kỳ Thủ",
   description:
-    "Bảng vàng vinh danh các Đại Kiện Tướng cờ vua hàng đầu. Xếp hạng ELO cờ chớp Blitz, cờ nhanh Rapid, cờ siêu chớp Bullet, giải đố và thợ săn AI.",
+    "Global chess rankings for Blitz, Rapid, Bullet, Tactics, and AI Slayers. Bảng vàng vinh danh các Đại Kiện Tướng và kỳ thủ hàng đầu thế giới.",
 };
 
 export default function LeaderboardPage() {

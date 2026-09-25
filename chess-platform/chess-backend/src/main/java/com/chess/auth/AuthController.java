@@ -6,6 +6,7 @@ import com.chess.auth.dto.RegisterRequest;
 import com.chess.auth.dto.UserDto;
 import com.chess.user.User;
 import com.chess.user.UserRepository;
+import com.chess.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class AuthController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
@@ -49,6 +51,7 @@ public class AuthController {
                 .build();
 
         user = userRepository.save(user);
+        userService.evictUserCache(user.getUsername());
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId().toString());
@@ -125,7 +128,7 @@ public class AuthController {
         }
 
         String username = auth.getName();
-        User user = userRepository.findByUsername(username)
+        User user = userService.findByUsername(username)
                 .orElse(null);
 
         if (user == null) {

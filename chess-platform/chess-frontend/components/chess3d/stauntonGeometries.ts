@@ -52,7 +52,7 @@ function createPawnGeometry(): THREE.BufferGeometry {
     new THREE.Vector2(0.27, 0.14),
     new THREE.Vector2(0.22, 0.18),
     new THREE.Vector2(0.17, 0.24),
-    new THREE.Vector2(0.14, 0.40),
+    new THREE.Vector2(0.14, 0.4),
     new THREE.Vector2(0.13, 0.52),
     new THREE.Vector2(0.19, 0.56),
     new THREE.Vector2(0.18, 0.61),
@@ -76,15 +76,15 @@ function createRookGeometry(): THREE.BufferGeometry {
     new THREE.Vector2(0, 0),
     new THREE.Vector2(0.34, 0),
     new THREE.Vector2(0.34, 0.08),
-    new THREE.Vector2(0.30, 0.12),
+    new THREE.Vector2(0.3, 0.12),
     new THREE.Vector2(0.28, 0.16),
     new THREE.Vector2(0.22, 0.22),
-    new THREE.Vector2(0.19, 0.60),
+    new THREE.Vector2(0.19, 0.6),
     new THREE.Vector2(0.21, 0.85),
-    new THREE.Vector2(0.26, 0.90),
+    new THREE.Vector2(0.26, 0.9),
     new THREE.Vector2(0.29, 0.95),
-    new THREE.Vector2(0.29, 1.20),
-    new THREE.Vector2(0.22, 1.20),
+    new THREE.Vector2(0.29, 1.2),
+    new THREE.Vector2(0.22, 1.2),
     new THREE.Vector2(0.22, 1.05),
     new THREE.Vector2(0, 1.05),
   ];
@@ -116,7 +116,7 @@ function createKnightGeometry(): THREE.BufferGeometry {
     new THREE.Vector2(0.29, 0.12),
     new THREE.Vector2(0.27, 0.18),
     new THREE.Vector2(0.22, 0.26),
-    new THREE.Vector2(0.20, 0.40),
+    new THREE.Vector2(0.2, 0.4),
     new THREE.Vector2(0.22, 0.44),
     new THREE.Vector2(0, 0.44),
   ];
@@ -141,7 +141,7 @@ function createKnightGeometry(): THREE.BufferGeometry {
   horseShape.lineTo(-0.04, 1.34);
   // Arched mane
   horseShape.quadraticCurveTo(-0.18, 1.15, -0.22, 0.85);
-  horseShape.quadraticCurveTo(-0.24, 0.60, -0.16, 0.42);
+  horseShape.quadraticCurveTo(-0.24, 0.6, -0.16, 0.42);
 
   const extrudeSettings = {
     steps: 1,
@@ -180,7 +180,7 @@ function createBishopGeometry(): THREE.BufferGeometry {
     new THREE.Vector2(0.24, 1.18),
     new THREE.Vector2(0.16, 1.38),
     new THREE.Vector2(0.06, 1.48),
-    new THREE.Vector2(0, 1.50),
+    new THREE.Vector2(0, 1.5),
   ];
 
   const bodyGeom = new THREE.LatheGeometry(points, 32);
@@ -212,7 +212,7 @@ function createQueenGeometry(): THREE.BufferGeometry {
     new THREE.Vector2(0.28, 1.36),
     new THREE.Vector2(0.31, 1.52),
     new THREE.Vector2(0.26, 1.55),
-    new THREE.Vector2(0.12, 1.50),
+    new THREE.Vector2(0.12, 1.5),
     new THREE.Vector2(0, 1.48),
   ];
 
@@ -220,7 +220,7 @@ function createQueenGeometry(): THREE.BufferGeometry {
 
   // Queen coronet sphere
   const crownBall = new THREE.SphereGeometry(0.09, 20, 20);
-  crownBall.translate(0, 1.60, 0);
+  crownBall.translate(0, 1.6, 0);
 
   // Subtle coronet pearls (mini spheres around rim)
   const pearls: THREE.BufferGeometry[] = [];
@@ -246,8 +246,8 @@ function createKingGeometry(): THREE.BufferGeometry {
     new THREE.Vector2(0.39, 0.09),
     new THREE.Vector2(0.34, 0.14),
     new THREE.Vector2(0.31, 0.19),
-    new THREE.Vector2(0.24, 0.30),
-    new THREE.Vector2(0.18, 0.70),
+    new THREE.Vector2(0.24, 0.3),
+    new THREE.Vector2(0.18, 0.7),
     new THREE.Vector2(0.17, 1.05),
     new THREE.Vector2(0.26, 1.13),
     new THREE.Vector2(0.25, 1.21),

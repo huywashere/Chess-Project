@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { getAiMove, AiDifficulty, AiMoveResult } from "@/lib/chessAiEngine";
 import { soundManager } from "@/lib/soundEffects";
+import { useLanguage } from "@/context/LanguageContext";
 
 const ChessBoard3D = dynamic(() => import("./chess3d/ChessBoard3D"), {
   ssr: false,
@@ -43,7 +44,7 @@ const ChessBoard3D = dynamic(() => import("./chess3d/ChessBoard3D"), {
         fontSize: 14,
       }}
     >
-      Đang tải bàn cờ 3D Three.js WebGL...
+      Loading 3D Three.js WebGL board...
     </div>
   ),
 });
@@ -54,6 +55,7 @@ interface PieceInfo {
   nameEn: string;
   points: number;
   desc: string;
+  descEn: string;
 }
 
 const STAUNTON_PIECES: PieceInfo[] = [
@@ -63,6 +65,7 @@ const STAUNTON_PIECES: PieceInfo[] = [
     nameEn: "King",
     points: 0,
     desc: "Quân cờ tối cao với thiết kế vương miện hoàng gia và chữ thập thánh giá trên đỉnh. Chiều cao 1.95 đơn vị.",
+    descEn: "Supreme piece featuring a royal crown and cross finial. Height: 1.95 units.",
   },
   {
     type: "q",
@@ -70,6 +73,7 @@ const STAUNTON_PIECES: PieceInfo[] = [
     nameEn: "Queen",
     points: 9,
     desc: "Quân cờ mạnh nhất với vương miện 8 cánh xòe mềm mại đính ngọc trai nhân tạo và quả cầu vương quyền.",
+    descEn: "Most powerful piece with a soft 8-pointed coronet and orb finial.",
   },
   {
     type: "r",
@@ -77,6 +81,7 @@ const STAUNTON_PIECES: PieceInfo[] = [
     nameEn: "Rook",
     points: 5,
     desc: "Tượng trưng cho lâu đài thành trì kiên cố với 4 lỗ châu mai (crenellations) cổ điển phong cách Norman.",
+    descEn: "Represents a fortress tower with 4 Norman-style battlements.",
   },
   {
     type: "b",
@@ -84,6 +89,7 @@ const STAUNTON_PIECES: PieceInfo[] = [
     nameEn: "Bishop",
     points: 3,
     desc: "Mũ giám mục giọt nước duyên dáng với quả cầu finial trên đỉnh, thể hiện sự cơ động theo đường chéo.",
+    descEn: "Graceful teardrop mitre with a top finial, highlighting diagonal mobility.",
   },
   {
     type: "n",
@@ -91,6 +97,7 @@ const STAUNTON_PIECES: PieceInfo[] = [
     nameEn: "Knight",
     points: 3,
     desc: "Khắc họa đầu chiến mã dũng mãnh lấy cảm hứng từ tác phẩm điêu khắc Parthenon cổ đại của Hy Lạp.",
+    descEn: "Fierce steed head inspired by the ancient Parthenon sculptures of Greece.",
   },
   {
     type: "p",
@@ -98,15 +105,21 @@ const STAUNTON_PIECES: PieceInfo[] = [
     nameEn: "Pawn",
     points: 1,
     desc: "Trụ cột quân đội với đầu tròn biểu tượng mũ sắt lính bộ binh thế kỷ 19, cổ áo tiện nhiều tầng sắc nét.",
+    descEn: "Backbone of the army with a spherical head and sharp multi-tier collar.",
   },
 ];
 
 export default function Play3DExperience() {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+
   const [game, setGame] = useState<Chess>(() => new Chess());
   const [fen, setFen] = useState(game.fen());
   const [difficulty, setDifficulty] = useState<AiDifficulty>("medium");
   const [playerColor, setPlayerColor] = useState<"white" | "black">("white");
-  const [boardTheme, setBoardTheme] = useState<"green" | "wood" | "blue" | "dark">("green");
+  const [boardTheme, setBoardTheme] = useState<"green" | "wood" | "blue" | "dark">(
+    "green"
+  );
   const [isAiThinking, setIsAiThinking] = useState(false);
   const [evalScore, setEvalScore] = useState<number>(0);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
@@ -114,10 +127,14 @@ export default function Play3DExperience() {
   const [moveFrom, setMoveFrom] = useState<string | null>(null);
   const [possibleMoves, setPossibleMoves] = useState<string[]>([]);
   const [hint, setHint] = useState<string | null>(null);
-  const [gameStatus, setGameStatus] = useState<string>("Đang thi đấu");
+  const [gameStatus, setGameStatus] = useState<string>(
+    isVi ? "Đang thi đấu" : "In Progress"
+  );
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [engineInfo, setEngineInfo] = useState<string>("Stockfish Engine");
-  const [selectedPieceInfo, setSelectedPieceInfo] = useState<PieceInfo>(STAUNTON_PIECES[4]); // default Knight
+  const [selectedPieceInfo, setSelectedPieceInfo] = useState<PieceInfo>(
+    STAUNTON_PIECES[4]
+  ); // default Knight
 
   const [, startTransition] = useTransition();
 
@@ -125,19 +142,38 @@ export default function Play3DExperience() {
   const updateGameStatus = useCallback(
     (g: Chess) => {
       if (g.isCheckmate()) {
-        const winner = g.turn() === "w" ? "Đen (AI)" : "Trắng (Bạn)";
-        setGameStatus(`Chiếu bí! ${winner} giành chiến thắng! 🏆`);
+        const winner =
+          g.turn() === "w"
+            ? isVi
+              ? "Đen (AI)"
+              : "Black (AI)"
+            : isVi
+              ? "Trắng (Bạn)"
+              : "White (You)";
+        setGameStatus(
+          isVi
+            ? `Chiếu bí! ${winner} giành chiến thắng! 🏆`
+            : `Checkmate! ${winner} wins! 🏆`
+        );
         if (soundEnabled) soundManager.playVictory();
       } else if (g.isDraw()) {
-        setGameStatus("Hòa cờ 🤝");
+        setGameStatus(isVi ? "Hòa cờ 🤝" : "Draw 🤝");
       } else if (g.inCheck()) {
-        setGameStatus(`Chiếu tướng! Đến lượt ${g.turn() === "w" ? "Trắng" : "Đen"}`);
+        setGameStatus(
+          isVi
+            ? `Chiếu tướng! Đến lượt ${g.turn() === "w" ? "Trắng" : "Đen"}`
+            : `Check! ${g.turn() === "w" ? "White" : "Black"}'s turn`
+        );
         if (soundEnabled) soundManager.playCheck();
       } else {
-        setGameStatus(`Lượt đi: ${g.turn() === "w" ? "Trắng" : "Đen"}`);
+        setGameStatus(
+          isVi
+            ? `Lượt đi: ${g.turn() === "w" ? "Trắng" : "Đen"}`
+            : `Turn: ${g.turn() === "w" ? "White" : "Black"}`
+        );
       }
     },
-    [soundEnabled]
+    [soundEnabled, isVi]
   );
 
   // AI Move
@@ -259,7 +295,7 @@ export default function Play3DExperience() {
     setPossibleMoves([]);
     setHint(null);
     setEvalScore(0);
-    setGameStatus("Đang thi đấu");
+    setGameStatus(isVi ? "Đang thi đấu" : "In Progress");
     setIsAiThinking(false);
   }
 
@@ -282,7 +318,11 @@ export default function Play3DExperience() {
     if (game.isGameOver() || isAiThinking) return;
     try {
       const res = await getAiMove(game.fen(), "master");
-      setHint(`Gợi ý AI: Đi ${res.from.toUpperCase()} ➔ ${res.to.toUpperCase()} (${res.san})`);
+      setHint(
+        isVi
+          ? `Gợi ý AI: Đi ${res.from.toUpperCase()} ➔ ${res.to.toUpperCase()} (${res.san})`
+          : `AI Hint: Move ${res.from.toUpperCase()} ➔ ${res.to.toUpperCase()} (${res.san})`
+      );
       setLastMove({ from: res.from, to: res.to });
     } catch (e) {
       console.error(e);
@@ -290,7 +330,13 @@ export default function Play3DExperience() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg-main)", color: "var(--text-primary)" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "var(--bg-main)",
+        color: "var(--text-primary)",
+      }}
+    >
       {/* Header Bar */}
       <div
         style={{
@@ -310,20 +356,48 @@ export default function Play3DExperience() {
           }}
         >
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-muted)", marginBottom: 4 }}>
-              <Link href="/" style={{ color: "var(--text-muted)", textDecoration: "none" }}>
-                Trang Chủ
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 13,
+                color: "var(--text-muted)",
+                marginBottom: 4,
+              }}
+            >
+              <Link
+                href="/"
+                style={{ color: "var(--text-muted)", textDecoration: "none" }}
+              >
+                {isVi ? "Trang Chủ" : "Home"}
               </Link>
               <span>/</span>
-              <Link href="/play/ai" style={{ color: "var(--text-muted)", textDecoration: "none" }}>
-                Đấu Cờ
+              <Link
+                href="/play/ai"
+                style={{ color: "var(--text-muted)", textDecoration: "none" }}
+              >
+                {isVi ? "Đấu Cờ" : "Play"}
               </Link>
               <span>/</span>
-              <span style={{ color: "var(--green-light)" }}>Bàn Cờ 3D Staunton (WebGL)</span>
+              <span style={{ color: "var(--green-light)" }}>
+                {isVi ? "Bàn Cờ 3D Staunton (WebGL)" : "3D Staunton Chess Board"}
+              </span>
             </div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
+            <h1
+              style={{
+                fontSize: 24,
+                fontWeight: 700,
+                margin: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
               <Layers style={{ color: "var(--green-primary)" }} size={24} />
-              Bàn Cờ 3D Staunton Chuẩn Chess.com
+              {isVi
+                ? "Bàn Cờ 3D Staunton Chuẩn Chess.com"
+                : "3D Staunton Chess Board — Chess.com Style"}
             </h1>
           </div>
 
@@ -354,8 +428,12 @@ export default function Play3DExperience() {
               {soundEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
             </button>
 
-            <Link href="/play/ai" className="btn btn-secondary" style={{ padding: "6px 14px", fontSize: 12 }}>
-              Về Chế Độ 2D
+            <Link
+              href="/play/ai"
+              className="btn btn-secondary"
+              style={{ padding: "6px 14px", fontSize: 12 }}
+            >
+              {isVi ? "Về Chế Độ 2D" : "Switch to 2D"}
             </Link>
           </div>
         </div>
@@ -398,13 +476,15 @@ export default function Play3DExperience() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Màu Bàn Cờ 3D:</span>
+                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                  {isVi ? "Màu Bàn Cờ 3D:" : "3D Board Theme:"}
+                </span>
                 {(
                   [
-                    { id: "green", label: "Xanh Thi Đấu" },
-                    { id: "wood", label: "Gỗ Óc Chó" },
-                    { id: "blue", label: "Xanh Biển" },
-                    { id: "dark", label: "Đá Đen" },
+                    { id: "green", label: isVi ? "Xanh Thi Đấu" : "Tournament Green" },
+                    { id: "wood", label: isVi ? "Gỗ Óc Chó" : "Walnut Wood" },
+                    { id: "blue", label: isVi ? "Xanh Biển" : "Ocean Blue" },
+                    { id: "dark", label: isVi ? "Đá Đen" : "Dark Slate" },
                   ] as const
                 ).map((t) => (
                   <button
@@ -413,7 +493,10 @@ export default function Play3DExperience() {
                     style={{
                       background: boardTheme === t.id ? "var(--green-bg)" : "transparent",
                       border: `1px solid ${boardTheme === t.id ? "var(--green-border)" : "transparent"}`,
-                      color: boardTheme === t.id ? "var(--green-light)" : "var(--text-secondary)",
+                      color:
+                        boardTheme === t.id
+                          ? "var(--green-light)"
+                          : "var(--text-secondary)",
                       borderRadius: 4,
                       padding: "4px 10px",
                       fontSize: 12,
@@ -427,7 +510,8 @@ export default function Play3DExperience() {
               </div>
 
               <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                Động cơ: <strong style={{ color: "#fff" }}>{engineInfo}</strong>
+                {isVi ? "Động cơ: " : "Engine: "}
+                <strong style={{ color: "#fff" }}>{engineInfo}</strong>
               </div>
             </div>
 
@@ -441,16 +525,31 @@ export default function Play3DExperience() {
                 border: "1px solid var(--border-subtle)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 12,
+                }}
+              >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Crown size={18} style={{ color: "var(--gold-primary)" }} />
-                  <span style={{ fontWeight: 700, fontSize: 14 }}>Bộ Quân Cờ Staunton 3D Nghệ Thuật</span>
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>
+                    {isVi
+                      ? "Bộ Quân Cờ Staunton 3D Nghệ Thuật"
+                      : "Artistic 3D Staunton Chessmen"}
+                  </span>
                 </div>
-                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Thiết kế chuẩn Quốc Tế 1849</span>
+                <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  {isVi ? "Thiết kế chuẩn Quốc Tế 1849" : "International 1849 Standard"}
+                </span>
               </div>
 
               {/* Piece Selector Chips */}
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+              <div
+                style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}
+              >
                 {STAUNTON_PIECES.map((p) => {
                   const isCur = selectedPieceInfo.type === p.type;
                   return (
@@ -458,7 +557,9 @@ export default function Play3DExperience() {
                       key={p.type}
                       onClick={() => setSelectedPieceInfo(p)}
                       style={{
-                        background: isCur ? "rgba(129, 182, 76, 0.2)" : "rgba(255,255,255,0.04)",
+                        background: isCur
+                          ? "rgba(129, 182, 76, 0.2)"
+                          : "rgba(255,255,255,0.04)",
                         border: `1px solid ${isCur ? "var(--green-primary)" : "var(--border-subtle)"}`,
                         color: isCur ? "var(--green-light)" : "var(--text-primary)",
                         padding: "6px 12px",
@@ -469,7 +570,7 @@ export default function Play3DExperience() {
                         transition: "all 0.15s",
                       }}
                     >
-                      {p.name}
+                      {isVi ? p.name : p.nameEn}
                     </button>
                   );
                 })}
@@ -484,11 +585,26 @@ export default function Play3DExperience() {
                   borderLeft: "3px solid var(--green-primary)",
                 }}
               >
-                <div style={{ fontWeight: 700, fontSize: 14, color: "#fff", marginBottom: 4 }}>
-                  {selectedPieceInfo.name} — Điểm: {selectedPieceInfo.points || "Vô Giá"}
+                <div
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 14,
+                    color: "#fff",
+                    marginBottom: 4,
+                  }}
+                >
+                  {isVi ? selectedPieceInfo.name : selectedPieceInfo.nameEn} —{" "}
+                  {isVi ? "Điểm: " : "Points: "}
+                  {selectedPieceInfo.points || (isVi ? "Vô Giá" : "Invaluable")}
                 </div>
-                <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                  {selectedPieceInfo.desc}
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {isVi ? selectedPieceInfo.desc : selectedPieceInfo.descEn}
                 </div>
               </div>
             </div>
@@ -509,10 +625,19 @@ export default function Play3DExperience() {
               }}
             >
               <div>
-                <div style={{ fontSize: 12, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 0.8 }}>
-                  Trạng Thái 3D
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: 0.8,
+                  }}
+                >
+                  {isVi ? "Trạng Thái 3D" : "3D Game Status"}
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 700, marginTop: 2, color: "#fff" }}>
+                <div
+                  style={{ fontSize: 16, fontWeight: 700, marginTop: 2, color: "#fff" }}
+                >
                   {gameStatus}
                 </div>
               </div>
@@ -556,7 +681,7 @@ export default function Play3DExperience() {
                 style={{ justifyContent: "center", padding: "10px 14px", fontSize: 13 }}
               >
                 <Play size={14} />
-                Ván Mới
+                <span>{isVi ? "Ván Mới" : "New Game"}</span>
               </button>
               <button
                 onClick={handleUndo}
@@ -570,7 +695,7 @@ export default function Play3DExperience() {
                 }}
               >
                 <Undo2 size={14} />
-                Đi Lại
+                <span>{isVi ? "Đi Lại" : "Undo"}</span>
               </button>
               <button
                 onClick={handleGetHint}
@@ -579,15 +704,19 @@ export default function Play3DExperience() {
                 style={{ justifyContent: "center", padding: "10px 14px", fontSize: 13 }}
               >
                 <Lightbulb size={14} />
-                Gợi Ý AI
+                <span>{isVi ? "Gợi Ý AI" : "AI Hint"}</span>
               </button>
               <button
-                onClick={() => setGameStatus("Bạn đã đầu hàng. AI thắng!")}
+                onClick={() =>
+                  setGameStatus(
+                    isVi ? "Bạn đã đầu hàng. AI thắng!" : "You resigned. AI wins!"
+                  )
+                }
                 className="btn btn-secondary"
                 style={{ justifyContent: "center", padding: "10px 14px", fontSize: 13 }}
               >
                 <Flag size={14} />
-                Đầu Hàng
+                <span>{isVi ? "Đầu Hàng" : "Resign"}</span>
               </button>
             </div>
 
@@ -600,17 +729,50 @@ export default function Play3DExperience() {
                 border: "1px solid var(--border-subtle)",
               }}
             >
-              <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", marginBottom: 10, textTransform: "uppercase" }}>
-                Chọn Trình Độ Đối Thủ Máy
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "var(--text-muted)",
+                  marginBottom: 10,
+                  textTransform: "uppercase",
+                }}
+              >
+                {isVi ? "Chọn Trình Độ Đối Thủ Máy" : "Select AI Bot Difficulty"}
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {[
-                  { id: "beginner", name: "Bảo (Người Mới)", elo: 600, color: "#629924" },
-                  { id: "easy", name: "Minh (Học Viên)", elo: 1000, color: "#38bdf8" },
-                  { id: "medium", name: "Tuấn (Kỳ Thủ CLB)", elo: 1400, color: "#f59e0b" },
-                  { id: "hard", name: "Hải (Kiện Tướng)", elo: 1800, color: "#eab308" },
-                  { id: "master", name: "Stockfish 17 (Siêu AI)", elo: 2500, color: "#ef4444" },
+                  {
+                    id: "beginner",
+                    name: isVi ? "Bảo (Người Mới)" : "Bao (Beginner)",
+                    elo: 600,
+                    color: "#629924",
+                  },
+                  {
+                    id: "easy",
+                    name: isVi ? "Minh (Học Viên)" : "Minh (Novice)",
+                    elo: 1000,
+                    color: "#38bdf8",
+                  },
+                  {
+                    id: "medium",
+                    name: isVi ? "Tuấn (Kỳ Thủ CLB)" : "Tuan (Club Player)",
+                    elo: 1400,
+                    color: "#f59e0b",
+                  },
+                  {
+                    id: "hard",
+                    name: isVi ? "Hải (Kiện Tướng)" : "Hai (Master)",
+                    elo: 1800,
+                    color: "#eab308",
+                  },
+                  {
+                    id: "master",
+                    name: isVi ? "Stockfish 17 (Siêu AI)" : "Stockfish 17 (Super AI)",
+                    elo: 2500,
+                    color: "#ef4444",
+                  },
                 ].map((b) => {
                   const isCur = difficulty === b.id;
                   return (
@@ -631,8 +793,17 @@ export default function Play3DExperience() {
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: b.color }} />
-                        <span style={{ fontSize: 13, fontWeight: isCur ? 700 : 500 }}>{b.name}</span>
+                        <div
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: "50%",
+                            background: b.color,
+                          }}
+                        />
+                        <span style={{ fontSize: 13, fontWeight: isCur ? 700 : 500 }}>
+                          {b.name}
+                        </span>
                       </div>
                       <span style={{ fontSize: 12, fontWeight: 700, color: b.color }}>
                         {b.elo} ELO
@@ -652,12 +823,26 @@ export default function Play3DExperience() {
                 border: "1px solid var(--border-subtle)",
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
-                  Biên Bản Nước Đi
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 10,
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {isVi ? "Biên Bản Nước Đi" : "Move Notation"}
                 </span>
                 <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                  {moveHistory.length} nước
+                  {isVi ? `${moveHistory.length} nước` : `${moveHistory.length} moves`}
                 </span>
               </div>
 
@@ -672,18 +857,39 @@ export default function Play3DExperience() {
                 }}
               >
                 {moveHistory.length === 0 ? (
-                  <div style={{ color: "var(--text-muted)", fontStyle: "italic", textAlign: "center", padding: "12px 0" }}>
-                    Chưa có nước đi nào. Bấm quân cờ trên bàn 3D để bắt đầu!
+                  <div
+                    style={{
+                      color: "var(--text-muted)",
+                      fontStyle: "italic",
+                      textAlign: "center",
+                      padding: "12px 0",
+                    }}
+                  >
+                    {isVi
+                      ? "Chưa có nước đi nào. Bấm quân cờ trên bàn 3D để bắt đầu!"
+                      : "No moves yet. Click a piece on the 3D board to start!"}
                   </div>
                 ) : (
-                  <div style={{ display: "grid", gridTemplateColumns: "40px 1fr 1fr", gap: "2px 8px" }}>
-                    {Array.from({ length: Math.ceil(moveHistory.length / 2) }).map((_, i) => (
-                      <React.Fragment key={i}>
-                        <span style={{ color: "var(--text-muted)" }}>{i + 1}.</span>
-                        <span style={{ color: "#fff", fontWeight: 600 }}>{moveHistory[i * 2]}</span>
-                        <span style={{ color: "var(--gold-light)" }}>{moveHistory[i * 2 + 1] || ""}</span>
-                      </React.Fragment>
-                    ))}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "40px 1fr 1fr",
+                      gap: "2px 8px",
+                    }}
+                  >
+                    {Array.from({ length: Math.ceil(moveHistory.length / 2) }).map(
+                      (_, i) => (
+                        <React.Fragment key={i}>
+                          <span style={{ color: "var(--text-muted)" }}>{i + 1}.</span>
+                          <span style={{ color: "#fff", fontWeight: 600 }}>
+                            {moveHistory[i * 2]}
+                          </span>
+                          <span style={{ color: "var(--gold-light)" }}>
+                            {moveHistory[i * 2 + 1] || ""}
+                          </span>
+                        </React.Fragment>
+                      )
+                    )}
                   </div>
                 )}
               </div>

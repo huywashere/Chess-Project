@@ -13,13 +13,20 @@ import { rateLimit } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    const body = await req.json();
+    const lang =
+      body.language === "en" || req.headers.get("x-language") === "en" ? "en" : "vi";
+    const isVi = lang === "vi";
+
     // 1. Rate Limiting (Defense against Brute-Force & Credential Stuffing)
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "127.0.0.1";
     const limiter = rateLimit(`login:${ip}`, { limit: 5, windowSeconds: 60 });
     if (!limiter.success) {
       return NextResponse.json(
         {
-          error: `Bạn đã thử đăng nhập sai quá nhiều lần. Vui lòng thử lại sau ${limiter.resetInSeconds} giây.`,
+          error: isVi
+            ? `Bạn đã thử đăng nhập sai quá nhiều lần. Vui lòng thử lại sau ${limiter.resetInSeconds} giây.`
+            : `Too many login attempts. Please try again after ${limiter.resetInSeconds} seconds.`,
         },
         {
           status: 429,
@@ -31,11 +38,15 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Validate Inputs
-    const body = await req.json();
-    const validation = validateLoginInput(body);
+    const validation = validateLoginInput(body, lang);
     if (!validation.isValid) {
       return NextResponse.json(
-        { error: "Vui lòng nhập đầy đủ thông tin", details: validation.errors },
+        {
+          error: isVi
+            ? "Vui lòng nhập đầy đủ thông tin"
+            : "Please fill in all required fields",
+          details: validation.errors,
+        },
         { status: 400 }
       );
     }
@@ -57,9 +68,16 @@ export async function POST(req: NextRequest) {
     // 4. Verify Credentials
     if (!user || !user.passwordHash) {
       // Timing safe dummy comparison if user not found to prevent timing attacks
-      await verifyPassword("dummy_password_timing_defense", "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy");
+      await verifyPassword(
+        "dummy_password_timing_defense",
+        "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy"
+      );
       return NextResponse.json(
-        { error: "Tên đăng nhập hoặc mật khẩu không chính xác." },
+        {
+          error: isVi
+            ? "Tên đăng nhập hoặc mật khẩu không chính xác."
+            : "Invalid username or password.",
+        },
         { status: 401 }
       );
     }
@@ -67,7 +85,11 @@ export async function POST(req: NextRequest) {
     const isMatch = await verifyPassword(password, user.passwordHash);
     if (!isMatch) {
       return NextResponse.json(
-        { error: "Tên đăng nhập hoặc mật khẩu không chính xác." },
+        {
+          error: isVi
+            ? "Tên đăng nhập hoặc mật khẩu không chính xác."
+            : "Invalid username or password.",
+        },
         { status: 401 }
       );
     }
@@ -75,7 +97,11 @@ export async function POST(req: NextRequest) {
     // Check account status
     if (!user.isActive) {
       return NextResponse.json(
-        { error: "Tài khoản của bạn đã bị vô hiệu hóa hoặc tạm khóa. Vui lòng liên hệ hỗ trợ." },
+        {
+          error: isVi
+            ? "Tài khoản của bạn đã bị vô hiệu hóa hoặc tạm khóa. Vui lòng liên hệ hỗ trợ."
+            : "Your account has been deactivated or suspended. Please contact support.",
+        },
         { status: 403 }
       );
     }
@@ -104,7 +130,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        message: "Đăng nhập thành công!",
+        message: isVi ? "Đăng nhập thành công!" : "Login successful!",
         user: safeUser,
       },
       { status: 200 }
@@ -112,7 +138,10 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
-      { error: "Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau." },
+      {
+        error:
+          "Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại sau. / An error occurred during login. Please try again later.",
+      },
       { status: 500 }
     );
   }

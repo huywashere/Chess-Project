@@ -196,7 +196,8 @@ export function ChessBoard3DScene({
         {squares.map((sq) => {
           const isSelected = selectedSquare === sq.square;
           const isPossibleMove = possibleMoves.includes(sq.square);
-          const isLastMove = lastMove && (lastMove.from === sq.square || lastMove.to === sq.square);
+          const isLastMove =
+            lastMove && (lastMove.from === sq.square || lastMove.to === sq.square);
 
           let squareColor = sq.isLight ? lightColor : darkColor;
 

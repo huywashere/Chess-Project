@@ -44,13 +44,17 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Game Modes Section
     "modes.title": "Chế Độ Chơi Đa Dạng",
-    "modes.subtitle": "Từ luyện tập với AI Stockfish, so tài PvP đến các giải đấu quốc tế",
+    "modes.subtitle":
+      "Từ luyện tập với AI Stockfish, so tài PvP đến các giải đấu quốc tế",
     "modes.aiTitle": "Đấu Với Máy (AI)",
-    "modes.aiDesc": "Tập luyện với Stockfish AI từ cấp độ Nhập môn đến Kiện tướng Đại sư.",
+    "modes.aiDesc":
+      "Tập luyện với Stockfish AI từ cấp độ Nhập môn đến Kiện tướng Đại sư.",
     "modes.pvpTitle": "Đấu Người Chơi (PvP)",
-    "modes.pvpDesc": "Ghép trận tự động theo ELO với kỳ thủ trên toàn thế giới qua WebSocket Golang.",
+    "modes.pvpDesc":
+      "Ghép trận tự động theo ELO với kỳ thủ trên toàn thế giới qua WebSocket Golang.",
     "modes.puzzlesTitle": "Giải Bài Toán Thế Cờ",
-    "modes.puzzlesDesc": "Hàng ngàn thế cờ chiến thuật giúp bạn rèn giũa nhãn quan sát thương đỉnh cao.",
+    "modes.puzzlesDesc":
+      "Hàng ngàn thế cờ chiến thuật giúp bạn rèn giũa nhãn quan sát thương đỉnh cao.",
     "modes.playNow": "Bắt Đầu Chơi",
     "modes.solveNow": "Giải Ngay",
 
@@ -58,13 +62,17 @@ export const translations: Record<Language, Record<string, string>> = {
     "features.title": "Công Nghệ Đột Phá Cho Trải Nghiệm Hoàn Hảo",
     "features.subtitle": "Kiến trúc microservices chuyên nghiệp kết hợp Golang và Rust",
     "features.f1Title": "Đồng Hồ Thời Gian Thực Golang",
-    "features.f1Desc": "Độ chính xác milisecond, không lag, không mất kết nối giữa các nước đi nghẹt thở.",
+    "features.f1Desc":
+      "Độ chính xác milisecond, không lag, không mất kết nối giữa các nước đi nghẹt thở.",
     "features.f2Title": "Phân Tích Nước Đi Siêu Tốc (Rust)",
-    "features.f2Desc": "Chấm điểm nước đi Thiên tài (Brilliant), Nước tốt, Sai lầm chỉ trong 10 microseconds.",
+    "features.f2Desc":
+      "Chấm điểm nước đi Thiên tài (Brilliant), Nước tốt, Sai lầm chỉ trong 10 microseconds.",
     "features.f3Title": "Chống Gian Lận Đa Tầng",
-    "features.f3Desc": "Thuật toán Entropy và Phương sai nhịp độ nước đi bảo vệ tính công bằng tuyệt đối.",
+    "features.f3Desc":
+      "Thuật toán Entropy và Phương sai nhịp độ nước đi bảo vệ tính công bằng tuyệt đối.",
     "features.f4Title": "Đồ Họa 3D WebGL",
-    "features.f4Desc": "Bàn cờ gỗ mun và ánh sáng tự nhiên cho cảm giác thi đấu thực tế sống động.",
+    "features.f4Desc":
+      "Bàn cờ gỗ mun và ánh sáng tự nhiên cho cảm giác thi đấu thực tế sống động.",
 
     // Daily Puzzle
     "puzzle.sectionTitle": "Bài Toán Chiến Thuật Hôm Nay",
@@ -76,7 +84,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Call to Action
     "cta.title": "Sẵn Sàng Trở Thành Kiện Tướng?",
-    "cta.subtitle": "Tham gia cùng hàng nghìn kỳ thủ, thi đấu xếp hạng và ghi tên mình lên bảng vàng thế giới.",
+    "cta.subtitle":
+      "Tham gia cùng hàng nghìn kỳ thủ, thi đấu xếp hạng và ghi tên mình lên bảng vàng thế giới.",
     "cta.joinFree": "Tạo Tài Khoản Miễn Phí",
     "cta.exploreTournaments": "Xem Lịch Giải Đấu",
 
@@ -93,9 +102,11 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Auth Pages
     "auth.loginTitle": "Đăng Nhập ChessMaster",
-    "auth.loginSubtitle": "Chào mừng bạn quay lại! Hãy tiếp tục hành trình kỳ thủ của bạn.",
+    "auth.loginSubtitle":
+      "Chào mừng bạn quay lại! Hãy tiếp tục hành trình kỳ thủ của bạn.",
     "auth.registerTitle": "Tạo Tài Khoản Kỳ Thủ",
-    "auth.registerSubtitle": "Tham gia miễn phí chỉ trong 30 giây để lưu trữ ELO và lịch sử đấu.",
+    "auth.registerSubtitle":
+      "Tham gia miễn phí chỉ trong 30 giây để lưu trữ ELO và lịch sử đấu.",
     "auth.usernameOrEmail": "Tên đăng nhập hoặc Email",
     "auth.username": "Tên người dùng",
     "auth.email": "Địa chỉ Email",
@@ -166,25 +177,33 @@ export const translations: Record<Language, Record<string, string>> = {
     "modes.title": "Diverse Game Modes",
     "modes.subtitle": "From Stockfish AI sparring and ranked PvP to global tournaments",
     "modes.aiTitle": "Play vs Computer",
-    "modes.aiDesc": "Spar with Stockfish AI ranging from Beginner level up to Grandmaster.",
+    "modes.aiDesc":
+      "Spar with Stockfish AI ranging from Beginner level up to Grandmaster.",
     "modes.pvpTitle": "Play Online (PvP)",
-    "modes.pvpDesc": "Dynamic ELO-based matchmaking with chess players worldwide via Golang WebSocket.",
+    "modes.pvpDesc":
+      "Dynamic ELO-based matchmaking with chess players worldwide via Golang WebSocket.",
     "modes.puzzlesTitle": "Tactical Puzzles",
-    "modes.puzzlesDesc": "Sharpen your pattern recognition with thousands of rated tactical puzzles.",
+    "modes.puzzlesDesc":
+      "Sharpen your pattern recognition with thousands of rated tactical puzzles.",
     "modes.playNow": "Play Now",
     "modes.solveNow": "Solve Now",
 
     // Features Section
     "features.title": "Cutting-Edge Technology Built for Performance",
-    "features.subtitle": "Professional microservices architecture uniting Golang and Rust",
+    "features.subtitle":
+      "Professional microservices architecture uniting Golang and Rust",
     "features.f1Title": "Golang Realtime Clocks",
-    "features.f1Desc": "Millisecond precision, zero lag, and synchronized timers during intense blitz games.",
+    "features.f1Desc":
+      "Millisecond precision, zero lag, and synchronized timers during intense blitz games.",
     "features.f2Title": "Microsecond Move Analysis (Rust)",
-    "features.f2Desc": "Classify Brilliant, Best, Mistake, and Blunder moves in just 10 microseconds.",
+    "features.f2Desc":
+      "Classify Brilliant, Best, Mistake, and Blunder moves in just 10 microseconds.",
     "features.f3Title": "Multi-Layer Anti-Cheat",
-    "features.f3Desc": "Timing entropy and standard deviation heuristics ensure absolute fair play.",
+    "features.f3Desc":
+      "Timing entropy and standard deviation heuristics ensure absolute fair play.",
     "features.f4Title": "Photorealistic 3D Graphics",
-    "features.f4Desc": "Rich wood textures and natural lighting bring the authentic over-the-board feel.",
+    "features.f4Desc":
+      "Rich wood textures and natural lighting bring the authentic over-the-board feel.",
 
     // Daily Puzzle
     "puzzle.sectionTitle": "Daily Tactical Puzzle",
@@ -196,7 +215,8 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Call to Action
     "cta.title": "Ready to Become a Grandmaster?",
-    "cta.subtitle": "Join thousands of players, compete in ranked matches, and claim your place on the global leaderboard.",
+    "cta.subtitle":
+      "Join thousands of players, compete in ranked matches, and claim your place on the global leaderboard.",
     "cta.joinFree": "Create Free Account",
     "cta.exploreTournaments": "View Tournament Schedule",
 
@@ -213,9 +233,11 @@ export const translations: Record<Language, Record<string, string>> = {
 
     // Auth Pages
     "auth.loginTitle": "Sign In to ChessMaster",
-    "auth.loginSubtitle": "Welcome back! Continue your chess journey and track your rating.",
+    "auth.loginSubtitle":
+      "Welcome back! Continue your chess journey and track your rating.",
     "auth.registerTitle": "Create Chess Account",
-    "auth.registerSubtitle": "Join for free in 30 seconds to track your ELO and full game review history.",
+    "auth.registerSubtitle":
+      "Join for free in 30 seconds to track your ELO and full game review history.",
     "auth.usernameOrEmail": "Username or Email",
     "auth.username": "Username",
     "auth.email": "Email Address",

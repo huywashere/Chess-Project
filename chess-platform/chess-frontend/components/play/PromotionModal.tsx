@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export type PromotionPiece = "q" | "r" | "b" | "n";
 
@@ -11,11 +12,11 @@ export interface PromotionModalProps {
   onCancel: () => void;
 }
 
-const PIECES: { id: PromotionPiece; name: string; symbol: string }[] = [
-  { id: "q", name: "Hậu (Queen)", symbol: "♛" },
-  { id: "n", name: "Mã (Knight)", symbol: "♞" },
-  { id: "r", name: "Xe (Rook)", symbol: "♜" },
-  { id: "b", name: "Tượng (Bishop)", symbol: "♝" },
+const PIECES: { id: PromotionPiece; nameVi: string; nameEn: string; symbol: string }[] = [
+  { id: "q", nameVi: "Hậu", nameEn: "Queen", symbol: "♛" },
+  { id: "n", nameVi: "Mã", nameEn: "Knight", symbol: "♞" },
+  { id: "r", nameVi: "Xe", nameEn: "Rook", symbol: "♜" },
+  { id: "b", nameVi: "Tượng", nameEn: "Bishop", symbol: "♝" },
 ];
 
 export default function PromotionModal({
@@ -24,6 +25,9 @@ export default function PromotionModal({
   onSelect,
   onCancel,
 }: PromotionModalProps) {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+
   if (!isOpen) return null;
 
   return (
@@ -61,13 +65,22 @@ export default function PromotionModal({
             color: "var(--text-primary)",
           }}
         >
-          Phong Cấp Tốt (Pawn Promotion)
+          {isVi ? "Phong Cấp Tốt (Pawn Promotion)" : "Pawn Promotion"}
         </h3>
         <p style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 20 }}>
-          Chọn quân cờ bạn muốn biến đổi tốt thành:
+          {isVi
+            ? "Chọn quân cờ bạn muốn biến đổi tốt thành:"
+            : "Select the piece to promote your pawn to:"}
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 16 }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gap: 12,
+            marginBottom: 16,
+          }}
+        >
           {PIECES.map((p) => (
             <button
               key={p.id}
@@ -98,13 +111,16 @@ export default function PromotionModal({
                   fontSize: 38,
                   lineHeight: 1,
                   color: color === "w" ? "#ffffff" : "#b0a99f",
-                  filter: color === "w" ? "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" : "none",
+                  filter:
+                    color === "w" ? "drop-shadow(0 2px 4px rgba(0,0,0,0.5))" : "none",
                 }}
               >
                 {p.symbol}
               </span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>
-                {p.name.split(" ")[0]}
+              <span
+                style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}
+              >
+                {isVi ? p.nameVi : p.nameEn}
               </span>
             </button>
           ))}
@@ -121,7 +137,7 @@ export default function PromotionModal({
             textDecoration: "underline",
           }}
         >
-          Hủy bỏ nước đi
+          {isVi ? "Hủy bỏ nước đi" : "Cancel move"}
         </button>
       </div>
     </div>

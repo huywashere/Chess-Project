@@ -90,7 +90,13 @@ export default function CTASection() {
               <Link
                 href="/register"
                 className="btn btn-green"
-                style={{ fontSize: 15, padding: "12px 24px", display: "inline-flex", alignItems: "center", gap: 8 }}
+                style={{
+                  fontSize: 15,
+                  padding: "12px 24px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
               >
                 <UserPlus size={16} />
                 <span>{t("cta.joinFree")}</span>
@@ -98,15 +104,30 @@ export default function CTASection() {
               <Link
                 href="/play"
                 className="btn btn-ghost"
-                style={{ fontSize: 15, padding: "12px 24px", display: "inline-flex", alignItems: "center", gap: 8 }}
+                style={{
+                  fontSize: 15,
+                  padding: "12px 24px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
               >
                 <Sparkles size={16} />
-                <span>{language === "vi" ? "Chơi Ngay Không Cần Đăng Ký" : "Play as Guest"}</span>
+                <span>
+                  {language === "vi" ? "Chơi Ngay Không Cần Đăng Ký" : "Play as Guest"}
+                </span>
               </Link>
             </div>
 
             {/* Checklist */}
-            <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
+            <ul
+              style={{
+                listStyle: "none",
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+              }}
+            >
               {checklist.map((item) => (
                 <li
                   key={item}
@@ -148,13 +169,39 @@ export default function CTASection() {
               justifyContent: "center",
               padding: "40px 32px",
               gap: 24,
+              position: "relative",
+              overflow: "hidden",
             }}
           >
+            {/* Ambient isometric matrix accent */}
+            <div
+              className="floating-matrix-decoration"
+              style={{
+                position: "absolute",
+                top: -20,
+                right: -20,
+                width: 220,
+                height: 220,
+                opacity: 0.18,
+                pointerEvents: "none",
+                filter: "drop-shadow(0 0 30px rgba(225, 29, 130, 0.25))",
+              }}
+            >
+              <Image
+                src="/geometric_matrix_pink.png"
+                alt=""
+                width={220}
+                height={220}
+                style={{ objectFit: "contain" }}
+              />
+            </div>
             {/* Chess pieces image */}
             <div style={{ position: "relative", width: "100%", height: 220 }}>
               <Image
                 src="/home-dark-900.webp"
-                alt="Bộ quân cờ ChessMaster"
+                alt={
+                  language === "vi" ? "Bộ quân cờ ChessMaster" : "ChessMaster chess set"
+                }
                 fill
                 sizes="(max-width: 768px) 100vw, 480px"
                 style={{ objectFit: "contain" }}
@@ -173,9 +220,21 @@ export default function CTASection() {
               }}
             >
               {[
-                { n: "2.4M", label: language === "vi" ? "Người chơi" : "Players", icon: Users },
-                { n: "14K+", label: language === "vi" ? "Đang online" : "Online now", icon: Radio },
-                { n: "150K", label: language === "vi" ? "Ván hôm nay" : "Games today", icon: Swords },
+                {
+                  n: "2.4M",
+                  label: language === "vi" ? "Người chơi" : "Players",
+                  icon: Users,
+                },
+                {
+                  n: "14K+",
+                  label: language === "vi" ? "Đang online" : "Online now",
+                  icon: Radio,
+                },
+                {
+                  n: "150K",
+                  label: language === "vi" ? "Ván hôm nay" : "Games today",
+                  icon: Swords,
+                },
               ].map((s, i) => {
                 const Icon = s.icon;
                 return (
@@ -191,7 +250,11 @@ export default function CTASection() {
                       gap: 2,
                     }}
                   >
-                    <Icon size={14} color="var(--green-light)" style={{ marginBottom: 2 }} />
+                    <Icon
+                      size={14}
+                      color="var(--green-light)"
+                      style={{ marginBottom: 2 }}
+                    />
                     <div
                       style={{
                         fontFamily: "var(--font-serif)",
@@ -202,7 +265,9 @@ export default function CTASection() {
                     >
                       {s.n}
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{s.label}</div>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                      {s.label}
+                    </div>
                   </div>
                 );
               })}

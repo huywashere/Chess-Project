@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import {
   checkRateLimit,
   createRateLimitResponse,
   getClientIp,
   getRateLimitHeaders,
-} from '@/lib/rateLimit';
+} from "@/lib/rateLimit";
 
 export async function GET(request: Request) {
   try {
     // Rate limit: 60 requests per minute
     const ip = getClientIp(request);
-    const limiter = checkRateLimit(`tournaments:${ip}`, 'API_READ');
+    const limiter = checkRateLimit(`tournaments:${ip}`, "API_READ");
     if (!limiter.success) {
       return createRateLimitResponse(
         limiter,
@@ -20,10 +20,13 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status'); // 'LIVE' | 'UPCOMING' | 'COMPLETED'
+    const status = searchParams.get("status"); // 'LIVE' | 'UPCOMING' | 'COMPLETED'
 
     const whereClause: Record<string, unknown> = {};
-    if (status && ['LIVE', 'UPCOMING', 'COMPLETED', 'CANCELLED'].includes(status.toUpperCase())) {
+    if (
+      status &&
+      ["LIVE", "UPCOMING", "COMPLETED", "CANCELLED"].includes(status.toUpperCase())
+    ) {
       whereClause.status = status.toUpperCase();
     }
 
@@ -42,11 +45,11 @@ export async function GET(request: Request) {
               },
             },
           },
-          orderBy: { score: 'desc' },
+          orderBy: { score: "desc" },
           take: 10,
         },
       },
-      orderBy: { startsAt: 'asc' },
+      orderBy: { startsAt: "asc" },
     });
 
     return NextResponse.json(
@@ -61,9 +64,9 @@ export async function GET(request: Request) {
       }
     );
   } catch (error) {
-    console.error('Error in /api/tournaments:', error);
+    console.error("Error in /api/tournaments:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch tournaments' },
+      { success: false, error: "Failed to fetch tournaments" },
       { status: 500 }
     );
   }

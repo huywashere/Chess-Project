@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 import {
   checkRateLimit,
   createRateLimitResponse,
   getClientIp,
   getRateLimitHeaders,
-} from '@/lib/rateLimit';
+} from "@/lib/rateLimit";
 
 export async function GET(request: Request) {
   try {
     // Rate limit: 60 requests per minute
     const ip = getClientIp(request);
-    const limiter = checkRateLimit(`puzzles:${ip}`, 'API_READ');
+    const limiter = checkRateLimit(`puzzles:${ip}`, "API_READ");
     if (!limiter.success) {
       return createRateLimitResponse(
         limiter,
@@ -20,10 +20,10 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const theme = searchParams.get('theme');
-    const minRating = parseInt(searchParams.get('minRating') || '0', 10);
-    const maxRating = parseInt(searchParams.get('maxRating') || '4000', 10);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 50);
+    const theme = searchParams.get("theme");
+    const minRating = parseInt(searchParams.get("minRating") || "0", 10);
+    const maxRating = parseInt(searchParams.get("maxRating") || "4000", 10);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "20", 10), 50);
 
     const whereClause: Record<string, unknown> = {
       rating: {
@@ -35,13 +35,13 @@ export async function GET(request: Request) {
     if (theme) {
       whereClause.theme = {
         contains: theme,
-        mode: 'insensitive',
+        mode: "insensitive",
       };
     }
 
     const puzzles = await prisma.puzzle.findMany({
       where: whereClause,
-      orderBy: { rating: 'asc' },
+      orderBy: { rating: "asc" },
       take: limit,
     });
 
@@ -57,9 +57,9 @@ export async function GET(request: Request) {
       }
     );
   } catch (error) {
-    console.error('Error in /api/puzzles:', error);
+    console.error("Error in /api/puzzles:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch puzzles' },
+      { success: false, error: "Failed to fetch puzzles" },
       { status: 500 }
     );
   }

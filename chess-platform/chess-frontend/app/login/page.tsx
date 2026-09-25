@@ -18,6 +18,7 @@ import {
   Bot,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,6 +26,8 @@ export default function LoginPage() {
   const redirectUrl = searchParams.get("redirect") || "/";
 
   const { login } = useAuth();
+  const { language } = useLanguage();
+  const isVi = language === "vi";
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -40,11 +43,15 @@ export default function LoginPage() {
     setErrorMessage(null);
 
     if (!identifier.trim()) {
-      setErrorMessage("Vui lòng nhập Email hoặc Tên đăng nhập");
+      setErrorMessage(
+        isVi
+          ? "Vui lòng nhập Email hoặc Tên đăng nhập"
+          : "Please enter your Email or Username"
+      );
       return;
     }
     if (!password) {
-      setErrorMessage("Vui lòng nhập mật khẩu");
+      setErrorMessage(isVi ? "Vui lòng nhập mật khẩu" : "Please enter your password");
       return;
     }
 
@@ -53,16 +60,29 @@ export default function LoginPage() {
     try {
       const res = await login(identifier.trim(), password, rememberMe);
       if (res.success) {
-        setSuccessMessage("Đăng nhập thành công! Đang chuyển hướng...");
+        setSuccessMessage(
+          isVi
+            ? "Đăng nhập thành công! Đang chuyển hướng..."
+            : "Sign in successful! Redirecting..."
+        );
         setTimeout(() => {
           router.push(redirectUrl);
           router.refresh();
         }, 600);
       } else {
-        setErrorMessage(res.error || "Tên đăng nhập hoặc mật khẩu không đúng");
+        setErrorMessage(
+          res.error ||
+            (isVi
+              ? "Tên đăng nhập hoặc mật khẩu không đúng"
+              : "Invalid username or password")
+        );
       }
     } catch {
-      setErrorMessage("Không thể kết nối đến máy chủ. Vui lòng thử lại sau.");
+      setErrorMessage(
+        isVi
+          ? "Không thể kết nối đến máy chủ. Vui lòng thử lại sau."
+          : "Could not connect to server. Please try again later."
+      );
     } finally {
       setLoading(false);
     }
@@ -139,7 +159,7 @@ export default function LoginPage() {
           }}
         >
           <ArrowLeft size={14} />
-          <span>Về trang chủ</span>
+          <span>{isVi ? "Về trang chủ" : "Back to Home"}</span>
         </Link>
       </div>
 
@@ -167,7 +187,7 @@ export default function LoginPage() {
               margin: "0 0 8px 0",
             }}
           >
-            Đăng Nhập Tài Khoản
+            {isVi ? "Đăng Nhập Tài Khoản" : "Sign In to Account"}
           </h1>
           <p
             style={{
@@ -177,7 +197,9 @@ export default function LoginPage() {
               lineHeight: 1.5,
             }}
           >
-            Tiếp tục ván cờ, leo bảng xếp hạng và nâng cao hệ số ELO của bạn.
+            {isVi
+              ? "Tiếp tục ván cờ, leo bảng xếp hạng và nâng cao hệ số ELO của bạn."
+              : "Continue your chess journey, climb the leaderboard, and improve your rating."}
           </p>
         </div>
 
@@ -224,7 +246,10 @@ export default function LoginPage() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: "flex", flexDirection: "column", gap: 18 }}
+        >
           {/* Identifier Field */}
           <div>
             <label
@@ -239,7 +264,7 @@ export default function LoginPage() {
                 letterSpacing: "0.5px",
               }}
             >
-              Email hoặc Tên đăng nhập
+              {isVi ? "Email hoặc Tên đăng nhập" : "Email or Username"}
             </label>
             <div
               style={{
@@ -266,7 +291,11 @@ export default function LoginPage() {
                 autoComplete="username"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="vd: grandmaster_vn hoặc email@domain.com"
+                placeholder={
+                  isVi
+                    ? "vd: grandmaster_vn hoặc email@domain.com"
+                    : "e.g. grandmaster_vn or email@domain.com"
+                }
                 required
                 style={{
                   width: "100%",
@@ -305,7 +334,7 @@ export default function LoginPage() {
                   letterSpacing: "0.5px",
                 }}
               >
-                Mật khẩu
+                {isVi ? "Mật khẩu" : "Password"}
               </label>
               <Link
                 href="/forgot-password"
@@ -315,7 +344,7 @@ export default function LoginPage() {
                   textDecoration: "none",
                 }}
               >
-                Quên mật khẩu?
+                {isVi ? "Quên mật khẩu?" : "Forgot password?"}
               </Link>
             </div>
             <div
@@ -343,7 +372,7 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Nhập mật khẩu của bạn"
+                placeholder={isVi ? "Nhập mật khẩu của bạn" : "Enter your password"}
                 required
                 style={{
                   width: "100%",
@@ -373,7 +402,15 @@ export default function LoginPage() {
                   alignItems: "center",
                   padding: 2,
                 }}
-                title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                title={
+                  showPassword
+                    ? isVi
+                      ? "Ẩn mật khẩu"
+                      : "Hide password"
+                    : isVi
+                      ? "Hiện mật khẩu"
+                      : "Show password"
+                }
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -403,7 +440,7 @@ export default function LoginPage() {
                 userSelect: "none",
               }}
             >
-              Ghi nhớ đăng nhập (7 ngày)
+              {isVi ? "Ghi nhớ đăng nhập (7 ngày)" : "Remember me (7 days)"}
             </label>
           </div>
 
@@ -422,11 +459,13 @@ export default function LoginPage() {
             }}
           >
             {loading ? (
-              <span>Đang xác thực bảo mật...</span>
+              <span>
+                {isVi ? "Đang xác thực bảo mật..." : "Authenticating securely..."}
+              </span>
             ) : (
               <>
                 <LogIn size={16} />
-                <span>Đăng Nhập</span>
+                <span>{isVi ? "Đăng Nhập" : "Sign In"}</span>
               </>
             )}
           </button>
@@ -445,7 +484,9 @@ export default function LoginPage() {
           }}
         >
           <div style={{ flex: 1, height: 1, background: "var(--divider)" }} />
-          <span style={{ padding: "0 12px" }}>HOẶC TIẾP TỤC VỚI</span>
+          <span style={{ padding: "0 12px" }}>
+            {isVi ? "HOẶC TIẾP TỤC VỚI" : "OR CONTINUE WITH"}
+          </span>
           <div style={{ flex: 1, height: 1, background: "var(--divider)" }} />
         </div>
 
@@ -453,7 +494,13 @@ export default function LoginPage() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           <button
             type="button"
-            onClick={() => setErrorMessage("Tính năng đăng nhập Google đang được kết nối qua OAuth 2.0")}
+            onClick={() =>
+              setErrorMessage(
+                isVi
+                  ? "Tính năng đăng nhập Google đang được kết nối qua OAuth 2.0"
+                  : "Google Sign-In connecting via OAuth 2.0"
+              )
+            }
             style={{
               display: "flex",
               alignItems: "center",
@@ -493,7 +540,13 @@ export default function LoginPage() {
 
           <button
             type="button"
-            onClick={() => setErrorMessage("Tính năng đăng nhập GitHub đang được kết nối qua OAuth 2.0")}
+            onClick={() =>
+              setErrorMessage(
+                isVi
+                  ? "Tính năng đăng nhập GitHub đang được kết nối qua OAuth 2.0"
+                  : "GitHub Sign-In connecting via OAuth 2.0"
+              )
+            }
             style={{
               display: "flex",
               alignItems: "center",
@@ -520,7 +573,7 @@ export default function LoginPage() {
         {/* Footer Links */}
         <div style={{ marginTop: 24, textAlign: "center" }}>
           <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-            Chưa có tài khoản?{" "}
+            {isVi ? "Chưa có tài khoản?" : "Don't have an account?"}{" "}
             <Link
               href="/register"
               style={{
@@ -529,7 +582,7 @@ export default function LoginPage() {
                 textDecoration: "none",
               }}
             >
-              Đăng ký miễn phí ngay
+              {isVi ? "Đăng ký miễn phí ngay" : "Sign up for free"}
             </Link>
           </div>
 
@@ -546,7 +599,11 @@ export default function LoginPage() {
               }}
             >
               <Bot size={13} />
-              <span>Chơi thử với máy không cần đăng nhập</span>
+              <span>
+                {isVi
+                  ? "Chơi thử với máy không cần đăng nhập"
+                  : "Play vs AI without signing in"}
+              </span>
             </Link>
           </div>
         </div>
@@ -568,17 +625,17 @@ export default function LoginPage() {
       >
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <ShieldCheck size={14} color="var(--green-light)" />
-          Mã hóa mật khẩu Bcrypt
+          {isVi ? "Mã hóa mật khẩu Bcrypt" : "Bcrypt Password Encryption"}
         </span>
         <span>•</span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <Lock size={13} color="var(--gold-light)" />
-          Chống Brute-force & CSRF
+          {isVi ? "Chống Brute-force & CSRF" : "Brute-force & CSRF Protected"}
         </span>
         <span>•</span>
         <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
           <Sparkles size={13} color="var(--blue-light)" />
-          Hệ thống ELO FIDE Chuẩn
+          {isVi ? "Hệ thống ELO FIDE Chuẩn" : "FIDE Standard ELO System"}
         </span>
       </div>
     </div>

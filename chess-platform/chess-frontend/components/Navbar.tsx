@@ -58,9 +58,14 @@ export default function Navbar() {
   ];
 
   const isDark = theme === "dark";
-  const navBg = scrolled || mobileMenuOpen
-    ? isDark ? "rgba(22,21,18,0.98)" : "rgba(255,255,255,0.98)"
-    : isDark ? "rgba(22,21,18,0.88)" : "rgba(240,236,230,0.88)";
+  const navBg =
+    scrolled || mobileMenuOpen
+      ? isDark
+        ? "rgba(22,21,18,0.98)"
+        : "rgba(255,255,255,0.98)"
+      : isDark
+        ? "rgba(22,21,18,0.88)"
+        : "rgba(240,236,230,0.88)";
 
   return (
     <nav
@@ -74,8 +79,32 @@ export default function Navbar() {
         borderBottom: `1px solid ${scrolled || mobileMenuOpen ? "var(--divider)" : "var(--border-subtle)"}`,
         backdropFilter: "blur(12px)",
         transition: "border-color 0.25s ease, background 0.25s ease",
+        overflow: "hidden",
       }}
     >
+      {/* Subtle isometric matrix ambient decoration in header */}
+      <div
+        style={{
+          position: "absolute",
+          top: -22,
+          right: "24%",
+          width: 108,
+          height: 108,
+          opacity: isDark ? 0.16 : 0.1,
+          pointerEvents: "none",
+          zIndex: 0,
+          filter: "drop-shadow(0 0 16px rgba(225, 29, 130, 0.25))",
+        }}
+      >
+        <Image
+          src="/geometric_matrix_pink.png"
+          alt=""
+          width={108}
+          height={108}
+          style={{ objectFit: "contain" }}
+        />
+      </div>
+
       <div
         className="game-arena-container"
         style={{
@@ -83,13 +112,20 @@ export default function Navbar() {
           alignItems: "center",
           justifyContent: "space-between",
           height: 64,
+          position: "relative",
+          zIndex: 1,
         }}
       >
         {/* Logo & Platform Name */}
         <Link
           href="/"
           onClick={() => setMobileMenuOpen(false)}
-          style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            textDecoration: "none",
+          }}
         >
           <div style={{ position: "relative", width: 32, height: 32 }}>
             <Image
@@ -137,18 +173,23 @@ export default function Navbar() {
                   textDecoration: "none",
                   color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
                   background: isActive ? "var(--bg-raised)" : "transparent",
-                  border: isActive ? "1px solid var(--border-medium)" : "1px solid transparent",
+                  border: isActive
+                    ? "1px solid var(--border-medium)"
+                    : "1px solid transparent",
                   transition: "all 0.15s ease",
                 }}
                 onMouseEnter={(e) => {
                   (e.currentTarget as HTMLElement).style.color = "var(--text-primary)";
-                  if (!isActive) (e.currentTarget as HTMLElement).style.background = "var(--bg-raised)";
+                  if (!isActive)
+                    (e.currentTarget as HTMLElement).style.background =
+                      "var(--bg-raised)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLElement).style.color = isActive
                     ? "var(--text-primary)"
                     : "var(--text-secondary)";
-                  if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent";
+                  if (!isActive)
+                    (e.currentTarget as HTMLElement).style.background = "transparent";
                 }}
               >
                 <Icon size={15} strokeWidth={2} />
@@ -175,13 +216,18 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Actions: Language + Theme Toggle + Auth Buttons */}
-        <div className="hide-on-mobile" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div
+          className="hide-on-mobile"
+          style={{ display: "flex", gap: 8, alignItems: "center" }}
+        >
           {/* Language Switcher Pill */}
           {/* Language Switcher Icon Button */}
           <button
             type="button"
             onClick={toggleLanguage}
-            title={language === "vi" ? "Switch to English (EN)" : "Chuyển sang Tiếng Việt (VI)"}
+            title={
+              language === "vi" ? "Switch to English (EN)" : "Chuyển sang Tiếng Việt (VI)"
+            }
             aria-label="Toggle language"
             style={{
               display: "inline-flex",
@@ -258,7 +304,9 @@ export default function Navbar() {
           {/* User Profile or Login/Register */}
           {user ? (
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div
+              <Link
+                href="/profile"
+                title={language === "vi" ? "Xem hồ sơ người chơi" : "View Profile"}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
@@ -267,6 +315,17 @@ export default function Navbar() {
                   borderRadius: 6,
                   background: "var(--bg-raised)",
                   border: "1px solid var(--border-medium)",
+                  textDecoration: "none",
+                  transition: "all 0.2s ease",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor =
+                    "var(--gold-light)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor =
+                    "var(--border-medium)";
                 }}
               >
                 <div
@@ -282,11 +341,25 @@ export default function Navbar() {
                     justifyContent: "center",
                     fontSize: 12,
                     fontWeight: 700,
+                    overflow: "hidden",
+                    position: "relative",
                   }}
                 >
-                  {user.username.charAt(0).toUpperCase()}
+                  {user.avatarUrl ? (
+                    <Image
+                      src={user.avatarUrl}
+                      alt={user.username}
+                      width={24}
+                      height={24}
+                      style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                    />
+                  ) : (
+                    user.username.charAt(0).toUpperCase()
+                  )}
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
+                <span
+                  style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}
+                >
                   {user.username}
                 </span>
                 <span
@@ -301,7 +374,7 @@ export default function Navbar() {
                 >
                   {user.eloRating}
                 </span>
-              </div>
+              </Link>
 
               <button
                 type="button"
@@ -321,11 +394,14 @@ export default function Navbar() {
                   transition: "all 0.15s ease",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--red-light, #f87171)";
-                  (e.currentTarget as HTMLElement).style.color = "var(--red-light, #f87171)";
+                  (e.currentTarget as HTMLElement).style.borderColor =
+                    "var(--red-light, #f87171)";
+                  (e.currentTarget as HTMLElement).style.color =
+                    "var(--red-light, #f87171)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border-subtle)";
+                  (e.currentTarget as HTMLElement).style.borderColor =
+                    "var(--border-subtle)";
                   (e.currentTarget as HTMLElement).style.color = "var(--text-muted)";
                 }}
               >
@@ -338,7 +414,13 @@ export default function Navbar() {
               <Link
                 href="/login"
                 className="btn btn-ghost"
-                style={{ padding: "8px 16px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
+                style={{
+                  padding: "8px 16px",
+                  fontSize: 14,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
               >
                 <LogIn size={15} />
                 <span>{t("nav.login")}</span>
@@ -346,7 +428,13 @@ export default function Navbar() {
               <Link
                 href="/register"
                 className="btn btn-green"
-                style={{ padding: "8px 18px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
+                style={{
+                  padding: "8px 18px",
+                  fontSize: 14,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
               >
                 <UserPlus size={15} />
                 <span>{t("nav.registerFree")}</span>
@@ -356,7 +444,10 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Header Right Controls: Theme + Lang + Hamburger */}
-        <div className="hide-on-desktop" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div
+          className="hide-on-desktop"
+          style={{ display: "flex", alignItems: "center", gap: 8 }}
+        >
           {/* Quick Theme Toggle */}
           <button
             type="button"
@@ -382,7 +473,9 @@ export default function Navbar() {
           <button
             type="button"
             onClick={toggleLanguage}
-            title={language === "vi" ? "Switch to English (EN)" : "Chuyển sang Tiếng Việt (VI)"}
+            title={
+              language === "vi" ? "Switch to English (EN)" : "Chuyển sang Tiếng Việt (VI)"
+            }
             aria-label="Toggle Language"
             style={{
               display: "inline-flex",
@@ -466,7 +559,15 @@ export default function Navbar() {
               marginBottom: 6,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-secondary)" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                fontSize: 13,
+                color: "var(--text-secondary)",
+              }}
+            >
               <Globe size={15} />
               <span>{t("lang.switch")}:</span>
             </div>
@@ -528,7 +629,11 @@ export default function Navbar() {
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <Icon size={18} strokeWidth={2} color={isActive ? "var(--gold-light)" : "var(--text-secondary)"} />
+                  <Icon
+                    size={18}
+                    strokeWidth={2}
+                    color={isActive ? "var(--gold-light)" : "var(--text-secondary)"}
+                  />
                   <span>{label}</span>
                 </div>
                 {isNew && (
@@ -560,7 +665,9 @@ export default function Navbar() {
           >
             {user ? (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <div
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -569,6 +676,7 @@ export default function Navbar() {
                     background: "var(--bg-surface)",
                     borderRadius: 6,
                     border: "1px solid var(--border-subtle)",
+                    textDecoration: "none",
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -584,12 +692,30 @@ export default function Navbar() {
                         justifyContent: "center",
                         fontWeight: 700,
                         fontSize: 14,
+                        overflow: "hidden",
+                        position: "relative",
                       }}
                     >
-                      {user.username.charAt(0).toUpperCase()}
+                      {user.avatarUrl ? (
+                        <Image
+                          src={user.avatarUrl}
+                          alt={user.username}
+                          width={32}
+                          height={32}
+                          style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                        />
+                      ) : (
+                        user.username.charAt(0).toUpperCase()
+                      )}
                     </div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
+                      <div
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 700,
+                          color: "var(--text-primary)",
+                        }}
+                      >
                         {user.username}
                       </div>
                       <div style={{ fontSize: 12, color: "var(--gold-light)" }}>
@@ -597,7 +723,10 @@ export default function Navbar() {
                       </div>
                     </div>
                   </div>
-                </div>
+                  <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                    {language === "vi" ? "Xem hồ sơ →" : "Profile →"}
+                  </span>
+                </Link>
 
                 <button
                   type="button"
@@ -606,7 +735,11 @@ export default function Navbar() {
                     setMobileMenuOpen(false);
                   }}
                   className="btn btn-ghost"
-                  style={{ width: "100%", justifyContent: "center", color: "var(--red-vivid, #ef4444)" }}
+                  style={{
+                    width: "100%",
+                    justifyContent: "center",
+                    color: "var(--red-vivid, #ef4444)",
+                  }}
                 >
                   <LogOut size={15} />
                   <span>{t("nav.logoutAccount")}</span>

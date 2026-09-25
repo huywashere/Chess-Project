@@ -70,7 +70,11 @@ export const ChessPiece3D = React.memo(function ChessPiece3D({
   }, [isSelected]);
 
   // Target Y height: elevate slightly if selected or hovered
-  const currentY = isSelected ? position[1] + 0.35 : hovered ? position[1] + 0.1 : position[1];
+  const currentY = isSelected
+    ? position[1] + 0.35
+    : hovered
+      ? position[1] + 0.1
+      : position[1];
 
   // Knights face towards opponent (White faces -Z, Black faces +Z)
   const rotationY = useMemo(() => {
@@ -109,7 +113,12 @@ export const ChessPiece3D = React.memo(function ChessPiece3D({
       {isSelected && (
         <mesh position={[0, -0.28, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.36, 0.44, 32]} />
-          <meshBasicMaterial color={0x84cc16} side={THREE.DoubleSide} transparent opacity={0.8} />
+          <meshBasicMaterial
+            color={0x84cc16}
+            side={THREE.DoubleSide}
+            transparent
+            opacity={0.8}
+          />
         </mesh>
       )}
     </group>

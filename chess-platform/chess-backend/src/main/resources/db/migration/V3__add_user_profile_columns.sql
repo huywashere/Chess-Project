@@ -1,0 +1,4 @@
+-- V3: Add missing user profile columns (title, country, role)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS title VARCHAR(10);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS country VARCHAR(10);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'USER';

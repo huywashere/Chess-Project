@@ -19,6 +19,7 @@ import {
 import { CHESS_PUZZLES, ChessPuzzle } from "@/lib/puzzlesData";
 import { soundManager } from "@/lib/soundEffects";
 import { BOARD_THEMES, PIECE_THEMES, getCustomPieces } from "@/lib/boardThemes";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Dynamically import Chessboard with SSR disabled
 const Chessboard = dynamic(
@@ -39,22 +40,29 @@ const Chessboard = dynamic(
           fontSize: 14,
         }}
       >
-        Đang tải bàn cờ câu đố...
+        Loading puzzle board...
       </div>
     ),
   }
 );
 
 export default function PuzzlesArena() {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
   const [game, setGame] = useState<Chess | null>(null);
   const [fen, setFen] = useState<string>("");
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [puzzleStatus, setPuzzleStatus] = useState<"idle" | "correct_step" | "wrong" | "solved">("idle");
+  const [puzzleStatus, setPuzzleStatus] = useState<
+    "idle" | "correct_step" | "wrong" | "solved"
+  >("idle");
   const [hintText, setHintText] = useState<string | null>(null);
   const [isShowingSolution, setIsShowingSolution] = useState(false);
-  const [lastMoveSquares, setLastMoveSquares] = useState<Record<string, { background: string }>>({});
+  const [lastMoveSquares, setLastMoveSquares] = useState<
+    Record<string, { background: string }>
+  >({});
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   // User Stats & Rating
@@ -70,7 +78,8 @@ export default function PuzzlesArena() {
     return CHESS_PUZZLES.filter((p) => p.category === selectedCategory);
   }, [selectedCategory]);
 
-  const currentPuzzle: ChessPuzzle = filteredPuzzles[currentPuzzleIndex] || CHESS_PUZZLES[0];
+  const currentPuzzle: ChessPuzzle =
+    filteredPuzzles[currentPuzzleIndex] || CHESS_PUZZLES[0];
 
   // Theme styling (Listudy default)
   const boardTheme = BOARD_THEMES.listudy;
@@ -135,7 +144,9 @@ export default function PuzzlesArena() {
         // Check if there is an opponent reaction step
         if (expectedStep.opponentFrom && expectedStep.opponentTo) {
           setPuzzleStatus("correct_step");
-          setHintText(expectedStep.hintAfter || "Nước đi rất hay! Chờ phản hồi của đối thủ...");
+          setHintText(
+            expectedStep.hintAfter || "Nước đi rất hay! Chờ phản hồi của đối thủ..."
+          );
 
           setTimeout(() => {
             if (expectedStep.opponentFenAfter) {
@@ -213,7 +224,11 @@ export default function PuzzlesArena() {
       setLastMoveSquares({
         [step.from]: { background: "rgba(212, 174, 26, 0.6)" },
       });
-      setHintText(`Gợi ý: Quân cờ tại ô [${step.from.toUpperCase()}] đang nắm giữ chìa khóa!`);
+      setHintText(
+        isVi
+          ? `Gợi ý: Quân cờ tại ô [${step.from.toUpperCase()}] đang nắm giữ chìa khóa!`
+          : `Hint: Piece on square [${step.from.toUpperCase()}] holds the key!`
+      );
     } else {
       setHintText(currentPuzzle.hint);
     }
@@ -223,7 +238,11 @@ export default function PuzzlesArena() {
   function handleShowSolution() {
     setIsShowingSolution(true);
     setPuzzleStatus("wrong");
-    setHintText(`Lời giải hoàn chỉnh: ${currentPuzzle.explanation}`);
+    setHintText(
+      isVi
+        ? `Lời giải hoàn chỉnh: ${currentPuzzle.explanation}`
+        : `Complete solution: ${currentPuzzle.explanation}`
+    );
   }
 
   // Retry Puzzle
@@ -232,13 +251,13 @@ export default function PuzzlesArena() {
   }
 
   const categories = [
-    { id: "all", label: "Tất Cả" },
-    { id: "mate", label: "Chiếu Bí" },
-    { id: "fork", label: "Chĩa Đôi (Fork)" },
-    { id: "pin", label: "Ghim Quân (Pin)" },
-    { id: "discovery", label: "Tấn Công Mở" },
-    { id: "skewer", label: "Đòn Xiên (Skewer)" },
-    { id: "sacrifice", label: "Thí Quân" },
+    { id: "all", label: isVi ? "Tất Cả" : "All" },
+    { id: "mate", label: isVi ? "Chiếu Bí" : "Checkmate" },
+    { id: "fork", label: isVi ? "Chĩa Đôi (Fork)" : "Fork" },
+    { id: "pin", label: isVi ? "Ghim Quân (Pin)" : "Pin" },
+    { id: "discovery", label: isVi ? "Tấn Công Mở" : "Discovered Attack" },
+    { id: "skewer", label: isVi ? "Đòn Xiên (Skewer)" : "Skewer" },
+    { id: "sacrifice", label: isVi ? "Thí Quân" : "Sacrifice" },
   ];
 
   return (
@@ -266,7 +285,7 @@ export default function PuzzlesArena() {
             }}
           >
             <Puzzle size={14} />
-            <span>KHO BÀI TẬP CHIẾN THUẬT</span>
+            <span>{isVi ? "KHO BÀI TẬP CHIẾN THUẬT" : "TACTICAL PUZZLES ARENA"}</span>
           </div>
 
           <div
@@ -289,7 +308,9 @@ export default function PuzzlesArena() {
                   letterSpacing: "-0.5px",
                 }}
               >
-                Luyện Tập Thế Cờ & Chiến Thuật
+                {isVi
+                  ? "Luyện Tập Thế Cờ & Chiến Thuật"
+                  : "Tactical Puzzles & Calculation"}
               </h1>
               <p
                 style={{
@@ -299,7 +320,9 @@ export default function PuzzlesArena() {
                   marginBottom: 0,
                 }}
               >
-                Hơn 50,000+ bài tập thực tế trích xuất từ ván đấu, giúp rèn luyện khả năng tính toán
+                {isVi
+                  ? "Hơn 50,000+ bài tập thực tế trích xuất từ ván đấu, giúp rèn luyện khả năng tính toán"
+                  : "50,000+ real game tactical puzzles to sharpen your calculation and tactical vision"}
               </p>
             </div>
 
@@ -322,7 +345,15 @@ export default function PuzzlesArena() {
               }}
             >
               {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
-              <span>{soundEnabled ? "Âm thanh: Bật" : "Âm thanh: Tắt"}</span>
+              <span>
+                {soundEnabled
+                  ? isVi
+                    ? "Âm thanh: Bật"
+                    : "Sound: On"
+                  : isVi
+                    ? "Âm thanh: Tắt"
+                    : "Sound: Off"}
+              </span>
             </button>
           </div>
         </div>
@@ -394,8 +425,16 @@ export default function PuzzlesArena() {
                   onPieceDrop: handlePieceDrop,
                   darkSquareStyle: { backgroundColor: boardTheme.dark },
                   lightSquareStyle: { backgroundColor: boardTheme.light },
-                  darkSquareNotationStyle: { color: boardTheme.lightNotationColor, fontSize: 10, fontWeight: "600" },
-                  lightSquareNotationStyle: { color: boardTheme.darkNotationColor, fontSize: 10, fontWeight: "600" },
+                  darkSquareNotationStyle: {
+                    color: boardTheme.lightNotationColor,
+                    fontSize: 10,
+                    fontWeight: "600",
+                  },
+                  lightSquareNotationStyle: {
+                    color: boardTheme.darkNotationColor,
+                    fontSize: 10,
+                    fontWeight: "600",
+                  },
                   squareStyles: lastMoveSquares,
                   pieces: customPieces,
                   animationDurationInMs: 200,
@@ -415,9 +454,14 @@ export default function PuzzlesArena() {
                 margin: "10px auto 0",
               }}
             >
-              <span>Kéo thả quân cờ để giải trực tiếp</span>
               <span>
-                Thế cờ #{currentPuzzleIndex + 1} / {filteredPuzzles.length}
+                {isVi
+                  ? "Kéo thả quân cờ để giải trực tiếp"
+                  : "Drag and drop pieces to solve"}
+              </span>
+              <span>
+                {isVi ? "Thế cờ #" : "Puzzle #"}
+                {currentPuzzleIndex + 1} / {filteredPuzzles.length}
               </span>
             </div>
           </div>
@@ -442,7 +486,14 @@ export default function PuzzlesArena() {
               }}
             >
               <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    marginBottom: 6,
+                  }}
+                >
                   <span
                     style={{
                       background: "var(--orange-bg)",
@@ -503,11 +554,20 @@ export default function PuzzlesArena() {
                     width: 10,
                     height: 10,
                     borderRadius: "50%",
-                    background: currentPuzzle.playerColor === "white" ? "#fff" : "#1a1816",
+                    background:
+                      currentPuzzle.playerColor === "white" ? "#fff" : "#1a1816",
                     border: "1px solid var(--divider)",
                   }}
                 />
-                <span>{currentPuzzle.playerColor === "white" ? "Trắng đi" : "Đen đi"}</span>
+                <span>
+                  {currentPuzzle.playerColor === "white"
+                    ? isVi
+                      ? "Trắng đi"
+                      : "White to move"
+                    : isVi
+                      ? "Đen đi"
+                      : "Black to move"}
+                </span>
               </div>
             </div>
 
@@ -542,7 +602,9 @@ export default function PuzzlesArena() {
               >
                 <CheckCircle2 size={18} />
                 <span>
-                  Chính xác tuyệt đối! +{ratingChange || 15} ELO • Chuỗi thắng {streak} 🔥
+                  {isVi
+                    ? `Chính xác tuyệt đối! +${ratingChange || 15} ELO • Chuỗi thắng ${streak} 🔥`
+                    : `Brilliant move! +${ratingChange || 15} ELO • Win streak ${streak} 🔥`}
                 </span>
               </div>
             ) : puzzleStatus === "wrong" ? (
@@ -562,7 +624,12 @@ export default function PuzzlesArena() {
                 }}
               >
                 <AlertCircle size={18} />
-                <span>{hintText || "Nước đi chưa đúng! Hãy thử lại hoặc xem gợi ý."}</span>
+                <span>
+                  {hintText ||
+                    (isVi
+                      ? "Nước đi chưa đúng! Hãy thử lại hoặc xem gợi ý."
+                      : "Incorrect move! Try again or check the hint.")}
+                </span>
               </div>
             ) : hintText ? (
               <div
@@ -608,7 +675,7 @@ export default function PuzzlesArena() {
                     }}
                   >
                     <Lightbulb size={15} />
-                    <span>Gợi Ý</span>
+                    <span>{isVi ? "Gợi Ý" : "Hint"}</span>
                   </button>
 
                   <button
@@ -629,7 +696,7 @@ export default function PuzzlesArena() {
                     }}
                   >
                     <Eye size={15} />
-                    <span>Xem Lời Giải</span>
+                    <span>{isVi ? "Xem Lời Giải" : "Solution"}</span>
                   </button>
 
                   <button
@@ -650,7 +717,7 @@ export default function PuzzlesArena() {
                     }}
                   >
                     <RotateCcw size={15} />
-                    <span>Làm Lại</span>
+                    <span>{isVi ? "Làm Lại" : "Retry"}</span>
                   </button>
                 </>
               )}
@@ -664,7 +731,10 @@ export default function PuzzlesArena() {
                   gap: 6,
                   padding: "9px 18px",
                   borderRadius: 6,
-                  background: puzzleStatus === "solved" ? "var(--green-vivid)" : "var(--orange-vivid)",
+                  background:
+                    puzzleStatus === "solved"
+                      ? "var(--green-vivid)"
+                      : "var(--orange-vivid)",
                   border: "none",
                   color: "#fff",
                   fontSize: 13,
@@ -674,7 +744,7 @@ export default function PuzzlesArena() {
                   transition: "opacity 0.15s ease",
                 }}
               >
-                <span>Câu Tiếp Theo</span>
+                <span>{isVi ? "Câu Tiếp Theo" : "Next Puzzle"}</span>
                 <ArrowRight size={15} />
               </button>
             </div>
@@ -693,16 +763,27 @@ export default function PuzzlesArena() {
               }}
             >
               <div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
+                <div
+                  style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}
+                >
                   TACTICS ELO
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "var(--gold-light)", marginTop: 2 }}>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 800,
+                    color: "var(--gold-light)",
+                    marginTop: 2,
+                  }}
+                >
                   {userRating}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
-                  CHUỖI THẮNG
+                <div
+                  style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}
+                >
+                  {isVi ? "CHUỖI THẮNG" : "WIN STREAK"}
                 </div>
                 <div
                   style={{
@@ -721,10 +802,19 @@ export default function PuzzlesArena() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
-                  ĐÃ GIẢI ĐÚNG
+                <div
+                  style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}
+                >
+                  {isVi ? "ĐÃ GIẢI ĐÚNG" : "SOLVED"}
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "var(--green-light)", marginTop: 2 }}>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 800,
+                    color: "var(--green-light)",
+                    marginTop: 2,
+                  }}
+                >
                   {solvedCount} / {solvedCount + failedCount}
                 </div>
               </div>

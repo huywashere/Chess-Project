@@ -5,6 +5,7 @@ import { Chess } from "chess.js";
 import { RefreshCw, RotateCcw, MousePointerClick, Cpu } from "lucide-react";
 import { getAiMove } from "@/lib/chessAiEngine";
 import { soundManager } from "@/lib/soundEffects";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Dynamically import react-chessboard with ssr: false to prevent hydration mismatches
 const Chessboard = dynamic(
@@ -25,22 +26,14 @@ const Chessboard = dynamic(
           fontSize: 14,
         }}
       >
-        Đang tải bàn cờ...
+        Loading board...
       </div>
     ),
   }
 );
 
 export type BoardTheme =
-  | "green"
-  | "wood"
-  | "blue"
-  | "dark"
-  | "listudy"
-  | "brown"
-  | "slate"
-  | "icy"
-  | "violet";
+  "green" | "wood" | "blue" | "dark" | "listudy" | "brown" | "slate" | "icy" | "violet";
 
 interface InteractiveBoardProps {
   initialFen?: string;
@@ -49,20 +42,18 @@ interface InteractiveBoardProps {
   onMove?: (moveSan: string, fen: string, evaluation?: number) => void;
 }
 
-const THEME_COLORS: Record<
-  BoardTheme,
-  { dark: string; light: string; border: string }
-> = {
-  listudy: { dark: "#8ca2ad", light: "#dee3e6", border: "#6b828d" },
-  green: { dark: "#779952", light: "#edeed1", border: "#496332" },
-  wood: { dark: "#b58863", light: "#f0d9b5", border: "#734e2c" },
-  blue: { dark: "#4d7399", light: "#d0e0ed", border: "#2d4866" },
-  dark: { dark: "#4a4845", light: "#b8b5b0", border: "#2a2825" },
-  brown: { dark: "#b88b4a", light: "#e3c16f", border: "#856230" },
-  slate: { dark: "#4a5568", light: "#cbd5e1", border: "#334155" },
-  icy: { dark: "#52796f", light: "#cad2c5", border: "#354f52" },
-  violet: { dark: "#886f9e", light: "#e5d9ed", border: "#6b547d" },
-};
+const THEME_COLORS: Record<BoardTheme, { dark: string; light: string; border: string }> =
+  {
+    listudy: { dark: "#8ca2ad", light: "#dee3e6", border: "#6b828d" },
+    green: { dark: "#779952", light: "#edeed1", border: "#496332" },
+    wood: { dark: "#b58863", light: "#f0d9b5", border: "#734e2c" },
+    blue: { dark: "#4d7399", light: "#d0e0ed", border: "#2d4866" },
+    dark: { dark: "#4a4845", light: "#b8b5b0", border: "#2a2825" },
+    brown: { dark: "#b88b4a", light: "#e3c16f", border: "#856230" },
+    slate: { dark: "#4a5568", light: "#cbd5e1", border: "#334155" },
+    icy: { dark: "#52796f", light: "#cad2c5", border: "#354f52" },
+    violet: { dark: "#886f9e", light: "#e5d9ed", border: "#6b547d" },
+  };
 
 export default function InteractiveBoard({
   initialFen = "r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3",
@@ -70,11 +61,15 @@ export default function InteractiveBoard({
   theme = "green",
   onMove,
 }: InteractiveBoardProps) {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
   const [mounted, setMounted] = useState(false);
   const [game, setGame] = useState<Chess | null>(null);
   const [gamePosition, setGamePosition] = useState(initialFen);
   const [isAiThinking, setIsAiThinking] = useState(false);
-  const [lastMoveSquares, setLastMoveSquares] = useState<Record<string, { background: string }>>({
+  const [lastMoveSquares, setLastMoveSquares] = useState<
+    Record<string, { background: string }>
+  >({
     f3: { background: "rgba(255, 255, 51, 0.4)" },
     b5: { background: "rgba(255, 255, 51, 0.4)" },
   });
@@ -269,8 +264,7 @@ export default function InteractiveBoard({
 
   possibleMoves.forEach((sq) => {
     squareStyles[sq] = {
-      background:
-        "radial-gradient(circle, rgba(0,0,0,0.35) 24%, transparent 26%)",
+      background: "radial-gradient(circle, rgba(0,0,0,0.35) 24%, transparent 26%)",
       borderRadius: "50%",
     };
   });
@@ -304,7 +298,8 @@ export default function InteractiveBoard({
         style={{
           transform: is3D ? "rotateX(20deg) scale(0.97)" : "none",
           transformOrigin: "center bottom",
-          transition: "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease",
+          transition:
+            "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease",
           borderRadius: is3D ? 8 : 4,
           padding: is3D ? "6px 6px 12px 6px" : 0,
           background: is3D
@@ -324,8 +319,16 @@ export default function InteractiveBoard({
             showNotation: true,
             darkSquareStyle: { backgroundColor: colors.dark },
             lightSquareStyle: { backgroundColor: colors.light },
-            darkSquareNotationStyle: { color: colors.light, fontWeight: "600", fontSize: 11 },
-            lightSquareNotationStyle: { color: colors.dark, fontWeight: "600", fontSize: 11 },
+            darkSquareNotationStyle: {
+              color: colors.light,
+              fontWeight: "600",
+              fontSize: 11,
+            },
+            lightSquareNotationStyle: {
+              color: colors.dark,
+              fontWeight: "600",
+              fontSize: 11,
+            },
             squareStyles,
             animationDurationInMs: 220,
           }}
@@ -349,9 +352,16 @@ export default function InteractiveBoard({
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {isAiThinking ? (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--blue-light)" }}>
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+                color: "var(--blue-light)",
+              }}
+            >
               <Cpu size={14} className="spin-slow" />
-              <strong>AI đang tính toán...</strong>
+              <strong>{isVi ? "AI đang tính toán..." : "AI is calculating..."}</strong>
             </span>
           ) : (
             <>
@@ -366,12 +376,30 @@ export default function InteractiveBoard({
                 }}
               />
               <span>
-                Lượt: <strong style={{ color: "var(--text-primary)" }}>{game?.turn() === "w" ? "Trắng" : "Đen (AI)"}</strong>
+                {isVi ? "Lượt: " : "Turn: "}
+                <strong style={{ color: "var(--text-primary)" }}>
+                  {game?.turn() === "w"
+                    ? isVi
+                      ? "Trắng"
+                      : "White"
+                    : isVi
+                      ? "Đen (AI)"
+                      : "Black (AI)"}
+                </strong>
               </span>
               <span style={{ color: "var(--text-muted)" }}>•</span>
-              <span style={{ color: "var(--text-muted)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <span
+                style={{
+                  color: "var(--text-muted)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+              >
                 <MousePointerClick size={12} />
-                <span>Thử đi 1 nước, AI sẽ đáp trả</span>
+                <span>
+                  {isVi ? "Thử đi 1 nước, AI sẽ đáp trả" : "Make a move, AI will respond"}
+                </span>
               </span>
             </>
           )}
@@ -381,7 +409,7 @@ export default function InteractiveBoard({
           <button
             type="button"
             onClick={handleFlip}
-            title="Đổi góc nhìn (Xoay bàn cờ)"
+            title={isVi ? "Đổi góc nhìn (Xoay bàn cờ)" : "Flip board"}
             style={{
               background: "var(--bg-raised)",
               border: "1px solid var(--border-subtle)",
@@ -396,12 +424,12 @@ export default function InteractiveBoard({
             }}
           >
             <RefreshCw size={11} />
-            <span>Xoay</span>
+            <span>{isVi ? "Xoay" : "Flip"}</span>
           </button>
           <button
             type="button"
             onClick={handleReset}
-            title="Đặt lại thế cờ ban đầu"
+            title={isVi ? "Đặt lại thế cờ ban đầu" : "Reset board"}
             style={{
               background: "var(--bg-raised)",
               border: "1px solid var(--border-subtle)",
@@ -416,7 +444,7 @@ export default function InteractiveBoard({
             }}
           >
             <RotateCcw size={11} />
-            <span>Đặt lại</span>
+            <span>{isVi ? "Đặt lại" : "Reset"}</span>
           </button>
         </div>
       </div>

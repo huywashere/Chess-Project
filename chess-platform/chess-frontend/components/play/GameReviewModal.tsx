@@ -1,8 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, Trophy, Award, AlertCircle, X, ChevronRight, Check, Copy } from "lucide-react";
+import {
+  Sparkles,
+  Trophy,
+  Award,
+  AlertCircle,
+  X,
+  ChevronRight,
+  Check,
+  Copy,
+} from "lucide-react";
 import { GameReviewReport, MoveClassification } from "@/lib/chessReviewEngine";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface GameReviewModalProps {
   isOpen: boolean;
@@ -14,14 +24,50 @@ export interface GameReviewModalProps {
 
 const CLASSIFICATION_CONFIG: Record<
   MoveClassification,
-  { label: string; badge: string; color: string; bg: string }
+  { labelVi: string; labelEn: string; badge: string; color: string; bg: string }
 > = {
-  brilliant: { label: "Thiên Tài", badge: "!!", color: "#38bdf8", bg: "rgba(56, 189, 248, 0.15)" },
-  best: { label: "Nước Tối Ưu", badge: "★", color: "#81b64c", bg: "rgba(129, 182, 76, 0.15)" },
-  great: { label: "Xuất Sắc", badge: "✓", color: "#60a5fa", bg: "rgba(96, 165, 250, 0.15)" },
-  inaccuracy: { label: "Chưa Chuẩn", badge: "?!", color: "#facc15", bg: "rgba(250, 204, 21, 0.15)" },
-  mistake: { label: "Sai Lầm", badge: "?", color: "#fb923c", bg: "rgba(251, 146, 60, 0.15)" },
-  blunder: { label: "Sai Lầm Lớn", badge: "??", color: "#ef4444", bg: "rgba(239, 68, 68, 0.15)" },
+  brilliant: {
+    labelVi: "Thiên Tài",
+    labelEn: "Brilliant",
+    badge: "!!",
+    color: "#38bdf8",
+    bg: "rgba(56, 189, 248, 0.15)",
+  },
+  best: {
+    labelVi: "Nước Tối Ưu",
+    labelEn: "Best Move",
+    badge: "★",
+    color: "#81b64c",
+    bg: "rgba(129, 182, 76, 0.15)",
+  },
+  great: {
+    labelVi: "Xuất Sắc",
+    labelEn: "Great",
+    badge: "✓",
+    color: "#60a5fa",
+    bg: "rgba(96, 165, 250, 0.15)",
+  },
+  inaccuracy: {
+    labelVi: "Chưa Chuẩn",
+    labelEn: "Inaccuracy",
+    badge: "?!",
+    color: "#facc15",
+    bg: "rgba(250, 204, 21, 0.15)",
+  },
+  mistake: {
+    labelVi: "Sai Lầm",
+    labelEn: "Mistake",
+    badge: "?",
+    color: "#fb923c",
+    bg: "rgba(251, 146, 60, 0.15)",
+  },
+  blunder: {
+    labelVi: "Sai Lầm Lớn",
+    labelEn: "Blunder",
+    badge: "??",
+    color: "#ef4444",
+    bg: "rgba(239, 68, 68, 0.15)",
+  },
 };
 
 export default function GameReviewModal({
@@ -31,6 +77,9 @@ export default function GameReviewModal({
   onSelectMoveIndex,
   pgnString,
 }: GameReviewModalProps) {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+
   const [selectedMoveIdx, setSelectedMoveIdx] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -91,7 +140,9 @@ export default function GameReviewModal({
             <Award size={22} style={{ color: "var(--gold-light)" }} />
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, color: "#fff" }}>
-                Báo Cáo Phân Tích Ván Đấu (Game Review)
+                {isVi
+                  ? "Báo Cáo Phân Tích Ván Đấu (Game Review)"
+                  : "Game Review & Accuracy Analysis"}
               </h2>
               <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
                 Stockfish 17 Engine Analysis
@@ -116,7 +167,14 @@ export default function GameReviewModal({
         {/* Content Body */}
         <div style={{ padding: "16px 14px", overflowY: "auto", flex: 1 }}>
           {/* Accuracy Score Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 16,
+              marginBottom: 20,
+            }}
+          >
             {/* White Player */}
             <div
               style={{
@@ -127,15 +185,22 @@ export default function GameReviewModal({
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}>
-                Độ Chính Xác Trắng (Bạn)
+              <div
+                style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}
+              >
+                {isVi ? "Độ Chính Xác Trắng (Bạn)" : "White Accuracy (You)"}
               </div>
               <div
                 style={{
                   fontSize: 36,
                   fontWeight: 800,
                   fontFamily: "var(--font-mono)",
-                  color: report.whiteAccuracy >= 85 ? "#81b64c" : report.whiteAccuracy >= 70 ? "#eab308" : "#ef4444",
+                  color:
+                    report.whiteAccuracy >= 85
+                      ? "#81b64c"
+                      : report.whiteAccuracy >= 70
+                        ? "#eab308"
+                        : "#ef4444",
                 }}
               >
                 {report.whiteAccuracy}%
@@ -152,15 +217,22 @@ export default function GameReviewModal({
                 textAlign: "center",
               }}
             >
-              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}>
-                Độ Chính Xác Đen (Máy)
+              <div
+                style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 4 }}
+              >
+                {isVi ? "Độ Chính Xác Đen (Máy)" : "Black Accuracy (AI)"}
               </div>
               <div
                 style={{
                   fontSize: 36,
                   fontWeight: 800,
                   fontFamily: "var(--font-mono)",
-                  color: report.blackAccuracy >= 85 ? "#81b64c" : report.blackAccuracy >= 70 ? "#eab308" : "#ef4444",
+                  color:
+                    report.blackAccuracy >= 85
+                      ? "#81b64c"
+                      : report.blackAccuracy >= 70
+                        ? "#eab308"
+                        : "#ef4444",
                 }}
               >
                 {report.blackAccuracy}%
@@ -184,16 +256,30 @@ export default function GameReviewModal({
             }}
           >
             <Sparkles size={18} />
-            <span>{report.summary}</span>
+            <span>{isVi ? report.summary : report.summaryEn || report.summary}</span>
           </div>
 
           {/* Move Classification Breakdown */}
           <div style={{ marginBottom: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 10 }}>
-              Thống Kê Phân Loại Nước Đi
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: "var(--text-muted)",
+                textTransform: "uppercase",
+                marginBottom: 10,
+              }}
+            >
+              {isVi ? "Thống Kê Phân Loại Nước Đi" : "Move Classification Breakdown"}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 10 }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))",
+                gap: 10,
+              }}
+            >
               {(Object.keys(CLASSIFICATION_CONFIG) as MoveClassification[]).map((key) => {
                 const conf = CLASSIFICATION_CONFIG[key];
                 const wCount = report.whiteStats[key] || 0;
@@ -229,7 +315,9 @@ export default function GameReviewModal({
                       >
                         {conf.badge}
                       </span>
-                      <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{conf.label}</span>
+                      <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+                        {isVi ? conf.labelVi : conf.labelEn}
+                      </span>
                     </div>
 
                     <div style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>
@@ -243,8 +331,18 @@ export default function GameReviewModal({
 
           {/* Move-by-Move Inspector */}
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", marginBottom: 10 }}>
-              Chi Tiết Từng Nước Đi (Bấm để xem phân tích)
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 700,
+                color: "var(--text-muted)",
+                textTransform: "uppercase",
+                marginBottom: 10,
+              }}
+            >
+              {isVi
+                ? "Chi Tiết Từng Nước Đi (Bấm để xem phân tích)"
+                : "Move-by-Move Inspector (Click to inspect)"}
             </div>
 
             <div
@@ -279,8 +377,15 @@ export default function GameReviewModal({
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ color: "var(--text-muted)", width: 28 }}>{m.moveNumber}.</span>
-                      <span style={{ fontWeight: 700, color: m.color === "w" ? "#fff" : "var(--gold-light)" }}>
+                      <span style={{ color: "var(--text-muted)", width: 28 }}>
+                        {m.moveNumber}.
+                      </span>
+                      <span
+                        style={{
+                          fontWeight: 700,
+                          color: m.color === "w" ? "#fff" : "var(--gold-light)",
+                        }}
+                      >
                         {m.san}
                       </span>
                       <span
@@ -293,12 +398,15 @@ export default function GameReviewModal({
                           color: conf.color,
                         }}
                       >
-                        {conf.badge} {conf.label}
+                        {conf.badge} {isVi ? conf.labelVi : conf.labelEn}
                       </span>
                     </div>
 
                     <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                      Thế cờ: {m.evalAfter >= 0 ? `+${m.evalAfter.toFixed(1)}` : m.evalAfter.toFixed(1)}
+                      {isVi ? "Thế cờ: " : "Eval: "}
+                      {m.evalAfter >= 0
+                        ? `+${m.evalAfter.toFixed(1)}`
+                        : m.evalAfter.toFixed(1)}
                     </div>
                   </div>
                 );
@@ -318,10 +426,21 @@ export default function GameReviewModal({
                   lineHeight: 1.5,
                 }}
               >
-                <strong style={{ color: CLASSIFICATION_CONFIG[selectedMove.classification].color }}>
-                  Nước {selectedMove.moveNumber} ({selectedMove.san}):
+                <strong
+                  style={{
+                    color: CLASSIFICATION_CONFIG[selectedMove.classification].color,
+                  }}
+                >
+                  {isVi
+                    ? `Nước ${selectedMove.moveNumber} (${selectedMove.san}):`
+                    : `Move ${selectedMove.moveNumber} (${selectedMove.san}):`}
                 </strong>{" "}
-                {selectedMove.comment} (Mất {selectedMove.evalLoss.toFixed(2)} điểm vị trí).
+                {isVi
+                  ? selectedMove.comment
+                  : selectedMove.commentEn || selectedMove.comment}{" "}
+                {isVi
+                  ? `(Mất ${selectedMove.evalLoss.toFixed(2)} điểm vị trí).`
+                  : `(Loss of ${selectedMove.evalLoss.toFixed(2)} eval).`}
               </div>
             )}
           </div>
@@ -344,8 +463,20 @@ export default function GameReviewModal({
               className="btn btn-secondary"
               style={{ padding: "8px 16px", fontSize: 13 }}
             >
-              {copied ? <Check size={14} style={{ color: "var(--green-light)" }} /> : <Copy size={14} />}
-              <span>{copied ? "Đã Sao Chép PGN!" : "Sao Chép PGN"}</span>
+              {copied ? (
+                <Check size={14} style={{ color: "var(--green-light)" }} />
+              ) : (
+                <Copy size={14} />
+              )}
+              <span>
+                {copied
+                  ? isVi
+                    ? "Đã Sao Chép PGN!"
+                    : "Copied PGN!"
+                  : isVi
+                    ? "Sao Chép PGN"
+                    : "Copy PGN"}
+              </span>
             </button>
           ) : (
             <div />
@@ -356,7 +487,7 @@ export default function GameReviewModal({
             className="btn btn-primary"
             style={{ padding: "8px 24px", fontSize: 13 }}
           >
-            Đóng Phân Tích
+            {isVi ? "Đóng Phân Tích" : "Close Review"}
           </button>
         </div>
       </div>

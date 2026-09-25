@@ -8,7 +8,6 @@ import {
   Lightbulb,
   Eye,
   RotateCcw,
-  CheckCircle2,
   AlertCircle,
   Award,
   ArrowRight,
@@ -49,9 +48,11 @@ export default function DailyPuzzleSection() {
   const [step, setStep] = useState(0);
   const [status, setStatus] = useState<"idle" | "success" | "wrong" | "complete">("idle");
   const [hint, setHint] = useState<string | null>(null);
-  const [lastMoveSquares, setLastMoveSquares] = useState<Record<string, { background: string }>>({});
+  const [lastMoveSquares, setLastMoveSquares] = useState<
+    Record<string, { background: string }>
+  >({});
 
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const isVi = language === "vi";
 
   function handlePieceDrop({
@@ -124,7 +125,11 @@ export default function DailyPuzzleSection() {
         return true;
       } else {
         setStatus("wrong");
-        setHint(isVi ? "Hãy dùng Xe ăn lại quân Xe ở e8 để chiếu bí!" : "Use your Rook on e1 to deliver mate on e8!");
+        setHint(
+          isVi
+            ? "Hãy dùng Xe ăn lại quân Xe ở e8 để chiếu bí!"
+            : "Use your Rook on e1 to deliver mate on e8!"
+        );
         return false;
       }
     }
@@ -237,7 +242,9 @@ export default function DailyPuzzleSection() {
               }}
             >
               <Puzzle size={13} strokeWidth={2.5} />
-              <span>{isVi ? "CÂU ĐỐ TRONG NGÀY (DAILY PUZZLE)" : "DAILY TACTICAL PUZZLE"}</span>
+              <span>
+                {isVi ? "CÂU ĐỐ TRONG NGÀY (DAILY PUZZLE)" : "DAILY TACTICAL PUZZLE"}
+              </span>
             </div>
 
             <h2
@@ -264,15 +271,24 @@ export default function DailyPuzzleSection() {
             >
               {isVi ? (
                 <>
-                  Độ khó: <strong style={{ color: "var(--orange-light)" }}>1550 ELO</strong> • Chủ đề:{" "}
-                  <strong style={{ color: "var(--text-primary)" }}>Thí Hậu & Chiếu Bí Hàng Đáy (Deflection)</strong>.
-                  Quan sát kỹ vị trí vua đối phương bị chặn bởi chính các quân tốt của mình.
+                  Độ khó:{" "}
+                  <strong style={{ color: "var(--orange-light)" }}>1550 ELO</strong> • Chủ
+                  đề:{" "}
+                  <strong style={{ color: "var(--text-primary)" }}>
+                    Thí Hậu & Chiếu Bí Hàng Đáy (Deflection)
+                  </strong>
+                  . Quan sát kỹ vị trí vua đối phương bị chặn bởi chính các quân tốt của
+                  mình.
                 </>
               ) : (
                 <>
-                  Rating: <strong style={{ color: "var(--orange-light)" }}>1550 ELO</strong> • Theme:{" "}
-                  <strong style={{ color: "var(--text-primary)" }}>Queen Sacrifice & Back-Rank Deflection</strong>.
-                  Black's king is restricted by its own pawn shield.
+                  Rating:{" "}
+                  <strong style={{ color: "var(--orange-light)" }}>1550 ELO</strong> •
+                  Theme:{" "}
+                  <strong style={{ color: "var(--text-primary)" }}>
+                    Queen Sacrifice & Back-Rank Deflection
+                  </strong>
+                  . Black&apos;s king is restricted by its own pawn shield.
                 </>
               )}
             </p>
@@ -285,14 +301,14 @@ export default function DailyPuzzleSection() {
                     status === "complete"
                       ? "var(--green-bg)"
                       : status === "wrong"
-                      ? "rgba(224, 76, 76, 0.15)"
-                      : "var(--bg-surface)",
+                        ? "rgba(224, 76, 76, 0.15)"
+                        : "var(--bg-surface)",
                   border: `1px solid ${
                     status === "complete"
                       ? "var(--green-border)"
                       : status === "wrong"
-                      ? "rgba(224, 76, 76, 0.3)"
-                      : "var(--border-subtle)"
+                        ? "rgba(224, 76, 76, 0.3)"
+                        : "var(--border-subtle)"
                   }`,
                   borderRadius: 6,
                   padding: "12px 16px",
@@ -301,8 +317,8 @@ export default function DailyPuzzleSection() {
                     status === "complete"
                       ? "var(--green-light)"
                       : status === "wrong"
-                      ? "#ff7b72"
-                      : "var(--text-primary)",
+                        ? "#ff7b72"
+                        : "var(--text-primary)",
                   marginBottom: 20,
                   display: "flex",
                   alignItems: "center",
@@ -332,7 +348,13 @@ export default function DailyPuzzleSection() {
                   )
                 }
                 className="btn btn-ghost"
-                style={{ fontSize: 14, padding: "9px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                style={{
+                  fontSize: 14,
+                  padding: "9px 18px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
               >
                 <Lightbulb size={16} />
                 <span>{isVi ? "Nhận Gợi Ý" : "Get Hint"}</span>
@@ -342,7 +364,13 @@ export default function DailyPuzzleSection() {
                 type="button"
                 onClick={resetPuzzle}
                 className="btn btn-ghost"
-                style={{ fontSize: 14, padding: "9px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                style={{
+                  fontSize: 14,
+                  padding: "9px 18px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
               >
                 <RotateCcw size={16} />
                 <span>{isVi ? "Làm Lại" : "Reset"}</span>
@@ -352,7 +380,13 @@ export default function DailyPuzzleSection() {
                 type="button"
                 onClick={showSolution}
                 className="btn btn-ghost"
-                style={{ fontSize: 14, padding: "9px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}
+                style={{
+                  fontSize: 14,
+                  padding: "9px 18px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
               >
                 <Eye size={16} />
                 <span>{isVi ? "Xem Giải Pháp" : "Solution"}</span>
@@ -371,7 +405,11 @@ export default function DailyPuzzleSection() {
                 textDecoration: "none",
               }}
             >
-              <span>{isVi ? "Xem tất cả 50,000+ bài tập thế cờ" : "Explore all 50,000+ tactical puzzles"}</span>
+              <span>
+                {isVi
+                  ? "Xem tất cả 50,000+ bài tập thế cờ"
+                  : "Explore all 50,000+ tactical puzzles"}
+              </span>
               <ArrowRight size={15} />
             </Link>
           </div>

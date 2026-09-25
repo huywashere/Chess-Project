@@ -1,16 +1,16 @@
 package com.chess.leaderboard;
 
-import com.chess.user.User;
-import com.chess.user.UserRepository;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,11 +20,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LeaderboardController {
 
-    private final UserRepository userRepository;
+    private final LeaderboardService leaderboardService;
 
     @Data
     @Builder
-    public static class LeaderboardEntry {
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class LeaderboardEntry implements Serializable {
+        private static final long serialVersionUID = 1L;
         private int rank;
         private UUID id;
         private String username;
@@ -35,26 +38,7 @@ public class LeaderboardController {
 
     @GetMapping
     public ResponseEntity<?> getLeaderboard() {
-        List<User> topUsers = userRepository.findTop50ByOrderByEloRatingDesc();
-        List<LeaderboardEntry> entries = new ArrayList<>();
-
-        for (int i = 0; i < topUsers.size(); i++) {
-            User u = topUsers.get(i);
-            String title = null;
-            if (u.getEloRating() >= 2700) title = "GM";
-            else if (u.getEloRating() >= 2400) title = "IM";
-            else if (u.getEloRating() >= 2200) title = "NM";
-
-            entries.add(LeaderboardEntry.builder()
-                    .rank(i + 1)
-                    .id(u.getId())
-                    .username(u.getUsername())
-                    .avatarUrl(u.getAvatarUrl())
-                    .eloRating(u.getEloRating())
-                    .title(title)
-                    .build());
-        }
-
+        List<LeaderboardEntry> entries = leaderboardService.getTop50();
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "count", entries.size(),

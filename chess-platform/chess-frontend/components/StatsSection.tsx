@@ -1,39 +1,43 @@
 "use client";
 import React from "react";
 import { Users, Swords, Activity, Puzzle } from "lucide-react";
-
-const STATS = [
-  {
-    n: "2.4M+",
-    label: "Người Chơi",
-    sub: "đã đăng ký toàn cầu",
-    color: "var(--green-vivid)",
-    icon: Users,
-  },
-  {
-    n: "150K+",
-    label: "Ván / Ngày",
-    sub: "ghép cặp tức thì",
-    color: "var(--blue-vivid)",
-    icon: Swords,
-  },
-  {
-    n: "99.9%",
-    label: "Thời Gian Hoạt Động",
-    sub: "máy chủ độ trễ < 15ms",
-    color: "var(--teal-vivid)",
-    icon: Activity,
-  },
-  {
-    n: "50K+",
-    label: "Thế Cờ Chiến Thuật",
-    sub: "cập nhật mỗi ngày",
-    color: "var(--orange-vivid)",
-    icon: Puzzle,
-  },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function StatsSection() {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+
+  const stats = [
+    {
+      n: "2.4M+",
+      label: isVi ? "Người Chơi" : "Active Players",
+      sub: isVi ? "đã đăng ký toàn cầu" : "registered worldwide",
+      color: "var(--green-vivid)",
+      icon: Users,
+    },
+    {
+      n: "150K+",
+      label: isVi ? "Ván / Ngày" : "Games / Day",
+      sub: isVi ? "ghép cặp tức thì" : "instant matchmaking",
+      color: "var(--blue-vivid)",
+      icon: Swords,
+    },
+    {
+      n: "99.9%",
+      label: isVi ? "Thời Gian Hoạt Động" : "Platform Uptime",
+      sub: isVi ? "máy chủ độ trễ < 15ms" : "ultra-low latency < 15ms",
+      color: "var(--teal-vivid)",
+      icon: Activity,
+    },
+    {
+      n: "50K+",
+      label: isVi ? "Thế Cờ Chiến Thuật" : "Tactical Puzzles",
+      sub: isVi ? "cập nhật mỗi ngày" : "daily updated sets",
+      color: "var(--orange-vivid)",
+      icon: Puzzle,
+    },
+  ];
+
   return (
     <section
       style={{
@@ -43,8 +47,13 @@ export default function StatsSection() {
       }}
     >
       <div className="container">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))" }}>
-          {STATS.map((s, i) => {
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
+          }}
+        >
+          {stats.map((s) => {
             const Icon = s.icon;
             return (
               <div
@@ -95,9 +104,7 @@ export default function StatsSection() {
                   >
                     {s.label}
                   </div>
-                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                    {s.sub}
-                  </div>
+                  <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{s.sub}</div>
                 </div>
               </div>
             );

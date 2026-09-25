@@ -16,9 +16,7 @@ export interface ChessGameState {
 }
 
 export function useChessGame(initialFen?: string) {
-  const [chess] = useState(
-    () => new Chess(initialFen)
-  );
+  const [chess] = useState(() => new Chess(initialFen));
   const [fen, setFen] = useState(chess.fen());
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
 

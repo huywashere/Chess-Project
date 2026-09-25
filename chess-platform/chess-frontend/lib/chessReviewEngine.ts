@@ -20,6 +20,7 @@ export interface ReviewedMove {
   evalLoss: number;
   classification: MoveClassification;
   comment: string;
+  commentEn?: string;
   fenAfter: number extends number ? string : string;
 }
 
@@ -31,6 +32,7 @@ export interface GameReviewReport {
   evalGraph: { moveIndex: number; score: number; san: string }[];
   moves: ReviewedMove[];
   summary: string;
+  summaryEn?: string;
 }
 
 /**
@@ -90,10 +92,14 @@ export async function analyzeGameHistory(moveSans: string[]): Promise<GameReview
     // Classify move
     let classification: MoveClassification = "best";
     let comment = "Nước đi tối ưu theo sách chiến thuật.";
+    let commentEn = "Optimal tactical move according to chess theory.";
 
     // Check for brilliant sacrifice: captured piece value < moved piece value, but eval maintained
     const isSacrifice =
-      (move.piece === "q" || move.piece === "r" || move.piece === "b" || move.piece === "n") &&
+      (move.piece === "q" ||
+        move.piece === "r" ||
+        move.piece === "b" ||
+        move.piece === "n") &&
       move.captured &&
       evalLoss <= 0.1 &&
       evalAfterPlayer >= 0.5;
@@ -101,21 +107,29 @@ export async function analyzeGameHistory(moveSans: string[]): Promise<GameReview
     if (isSacrifice && Math.random() > 0.4) {
       classification = "brilliant";
       comment = "Nước đi thiên tài! Thí quân mẫu mực mở toang thế cờ đối phương.";
+      commentEn =
+        "Brilliant move! A textbook sacrifice blowing open your opponent's king position.";
     } else if (evalLoss <= 0.18) {
       classification = "best";
       comment = "Nước đi tốt nhất, duy trì lợi thế vị trí tối ưu.";
+      commentEn = "Best move, maintaining optimal positional advantage.";
     } else if (evalLoss <= 0.45) {
       classification = "great";
       comment = "Nước đi chuẩn xác và tích cực phát triển quân.";
+      commentEn = "Great move, developing active piece harmony.";
     } else if (evalLoss <= 0.95) {
       classification = "inaccuracy";
       comment = "Nước đi thiếu chuẩn xác, bỏ lỡ phương án gây sức ép tốt hơn.";
+      commentEn = "Inaccuracy, missed a sharper continuation to exert pressure.";
     } else if (evalLoss <= 1.85) {
       classification = "mistake";
       comment = "Sai lầm chiến thuật khiến đối phương lật ngược một phần thế trận.";
+      commentEn = "Mistake, allowing your opponent counterplay.";
     } else {
       classification = "blunder";
-      comment = "Sai lầm nghiêm trọng! Đánh mất lợi thế lớn hoặc để mất quân không đáng có.";
+      comment =
+        "Sai lầm nghiêm trọng! Đánh mất lợi thế lớn hoặc để mất quân không đáng có.";
+      commentEn = "Blunder! Gives away significant advantage or hangs material.";
     }
 
     if (color === "w") {
@@ -139,6 +153,7 @@ export async function analyzeGameHistory(moveSans: string[]): Promise<GameReview
       evalLoss,
       classification,
       comment,
+      commentEn,
       fenAfter: g.fen(),
     });
 
@@ -157,12 +172,20 @@ export async function analyzeGameHistory(moveSans: string[]): Promise<GameReview
   const blackAccuracy = calcAccuracy(blackLossTotal, blackMoveCount);
 
   let summary = "Ván đấu kịch tính và giằng co qua từng nước cờ.";
+  let summaryEn = "A thrilling, closely contested battle across every single phase.";
   if (whiteAccuracy > 88 && blackAccuracy > 88) {
-    summary = "Ván đấu đỉnh cao cấp độ Kiện Tướng với tỷ lệ chính xác tuyệt vời từ cả hai bên!";
+    summary =
+      "Ván đấu đỉnh cao cấp độ Kiện Tướng với tỷ lệ chính xác tuyệt vời từ cả hai bên!";
+    summaryEn =
+      "Master-level performance with exceptional accuracy displayed by both sides!";
   } else if (whiteAccuracy > blackAccuracy + 15) {
     summary = "Bên Trắng áp đảo hoàn toàn với sự chuẩn xác vượt trội trong trung cuộc.";
+    summaryEn = "White completely dominated with superior middlegame precision.";
   } else if (blackAccuracy > whiteAccuracy + 15) {
-    summary = "Bên Đen phản công mẫu mực và trừng phạt triệt để các sai lầm của bên Trắng.";
+    summary =
+      "Bên Đen phản công mẫu mực và trừng phạt triệt để các sai lầm của bên Trắng.";
+    summaryEn =
+      "Black orchestrated a textbook counter-attack, punishing White's inaccuracies.";
   }
 
   return {
@@ -173,5 +196,6 @@ export async function analyzeGameHistory(moveSans: string[]): Promise<GameReview
     evalGraph,
     moves: reviewedMoves,
     summary,
+    summaryEn,
   };
 }

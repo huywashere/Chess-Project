@@ -4,7 +4,8 @@
  * with sub-millisecond evaluation, game analysis, and anti-cheat timing entropy.
  */
 
-const RUST_SERVICE_URL = process.env.NEXT_PUBLIC_RUST_ENGINE_URL || "http://localhost:8002";
+const RUST_SERVICE_URL =
+  process.env.NEXT_PUBLIC_RUST_ENGINE_URL || "http://localhost:8002";
 
 export interface RustEvalResponse {
   fen: string;
@@ -73,7 +74,10 @@ export interface RustAntiCheatReport {
  */
 export async function checkRustEngineHealth(): Promise<boolean> {
   try {
-    const res = await fetch(`${RUST_SERVICE_URL}/health`, { method: "GET", cache: "no-store" });
+    const res = await fetch(`${RUST_SERVICE_URL}/health`, {
+      method: "GET",
+      cache: "no-store",
+    });
     if (!res.ok) return false;
     const data = await res.json();
     return data.status === "ok";
@@ -85,7 +89,9 @@ export async function checkRustEngineHealth(): Promise<boolean> {
 /**
  * Evaluate a single chess position with the Rust PST engine
  */
-export async function evaluatePositionRust(fen: string): Promise<RustEvalResponse | null> {
+export async function evaluatePositionRust(
+  fen: string
+): Promise<RustEvalResponse | null> {
   try {
     const res = await fetch(`${RUST_SERVICE_URL}/api/evaluate`, {
       method: "POST",

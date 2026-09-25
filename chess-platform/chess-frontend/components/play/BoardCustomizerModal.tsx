@@ -18,6 +18,7 @@ import {
   PieceThemeKey,
 } from "@/lib/boardThemes";
 import { soundManager } from "@/lib/soundEffects";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface BoardCustomizerModalProps {
   isOpen: boolean;
@@ -36,6 +37,9 @@ export default function BoardCustomizerModal({
   onSelectBoardTheme,
   onSelectPieceTheme,
 }: BoardCustomizerModalProps) {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+
   const [activeTab, setActiveTab] = useState<"colors" | "pieces">("colors");
 
   if (!isOpen) return null;
@@ -102,7 +106,7 @@ export default function BoardCustomizerModal({
                   color: "#fff",
                 }}
               >
-                Giao Diện Bàn Cờ & Quân Cờ
+                {isVi ? "Giao Diện Bàn Cờ & Quân Cờ" : "Board & Piece Themes"}
               </h3>
               <p
                 style={{
@@ -111,7 +115,9 @@ export default function BoardCustomizerModal({
                   margin: "2px 0 0 0",
                 }}
               >
-                Tùy biến phong cách hiển thị chuẩn Listudy, Lichess & Chess.com
+                {isVi
+                  ? "Tùy biến phong cách hiển thị chuẩn Listudy, Lichess & Chess.com"
+                  : "Customize appearance with Listudy, Lichess & Chess.com themes"}
               </p>
             </div>
           </div>
@@ -147,13 +153,9 @@ export default function BoardCustomizerModal({
             onClick={() => setActiveTab("colors")}
             style={{
               flex: 1,
-              background:
-                activeTab === "colors" ? "var(--bg-surface)" : "transparent",
+              background: activeTab === "colors" ? "var(--bg-surface)" : "transparent",
               border: "none",
-              color:
-                activeTab === "colors"
-                  ? "var(--text-primary)"
-                  : "var(--text-muted)",
+              color: activeTab === "colors" ? "var(--text-primary)" : "var(--text-muted)",
               padding: "8px 14px",
               borderRadius: 6,
               fontSize: 13,
@@ -167,7 +169,11 @@ export default function BoardCustomizerModal({
             }}
           >
             <Palette size={15} />
-            <span>Màu Bàn Cờ ({Object.keys(BOARD_THEMES).length})</span>
+            <span>
+              {isVi
+                ? `Màu Bàn Cờ (${Object.keys(BOARD_THEMES).length})`
+                : `Board Colors (${Object.keys(BOARD_THEMES).length})`}
+            </span>
           </button>
 
           <button
@@ -175,13 +181,9 @@ export default function BoardCustomizerModal({
             onClick={() => setActiveTab("pieces")}
             style={{
               flex: 1,
-              background:
-                activeTab === "pieces" ? "var(--bg-surface)" : "transparent",
+              background: activeTab === "pieces" ? "var(--bg-surface)" : "transparent",
               border: "none",
-              color:
-                activeTab === "pieces"
-                  ? "var(--gold-light)"
-                  : "var(--text-muted)",
+              color: activeTab === "pieces" ? "var(--gold-light)" : "var(--text-muted)",
               padding: "8px 14px",
               borderRadius: 6,
               fontSize: 13,
@@ -195,7 +197,11 @@ export default function BoardCustomizerModal({
             }}
           >
             <Layers size={15} />
-            <span>Kiểu Quân Cờ ({Object.keys(PIECE_THEMES).length})</span>
+            <span>
+              {isVi
+                ? `Kiểu Quân Cờ (${Object.keys(PIECE_THEMES).length})`
+                : `Piece Sets (${Object.keys(PIECE_THEMES).length})`}
+            </span>
           </button>
         </div>
 
@@ -217,9 +223,7 @@ export default function BoardCustomizerModal({
                   type="button"
                   onClick={() => onSelectBoardTheme(theme.id)}
                   style={{
-                    background: isSelected
-                      ? "var(--bg-overlay)"
-                      : "var(--bg-raised)",
+                    background: isSelected ? "var(--bg-overlay)" : "var(--bg-raised)",
                     border: `2px solid ${
                       isSelected ? "var(--green-vivid)" : "var(--border-subtle)"
                     }`,
@@ -268,18 +272,16 @@ export default function BoardCustomizerModal({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {theme.name}
+                      {isVi ? theme.name : theme.nameEn || theme.name}
                     </div>
                     <div
                       style={{
                         fontSize: 11,
-                        color: isSelected
-                          ? "var(--green-light)"
-                          : "var(--text-muted)",
+                        color: isSelected ? "var(--green-light)" : "var(--text-muted)",
                         fontWeight: 600,
                       }}
                     >
-                      {theme.tag}
+                      {isVi ? theme.tag : theme.tagEn || theme.tag}
                     </div>
                   </div>
 
@@ -324,9 +326,7 @@ export default function BoardCustomizerModal({
                   type="button"
                   onClick={() => onSelectPieceTheme(theme.id)}
                   style={{
-                    background: isSelected
-                      ? "var(--bg-overlay)"
-                      : "var(--bg-raised)",
+                    background: isSelected ? "var(--bg-overlay)" : "var(--bg-raised)",
                     border: `2px solid ${
                       isSelected ? "var(--gold-vivid)" : "var(--border-subtle)"
                     }`,
@@ -361,7 +361,7 @@ export default function BoardCustomizerModal({
                           background: theme.whiteFill,
                           border: "1px solid #666",
                         }}
-                        title="Quân Trắng"
+                        title={isVi ? "Quân Trắng" : "White Pieces"}
                       />
                       <div
                         style={{
@@ -371,7 +371,7 @@ export default function BoardCustomizerModal({
                           background: theme.blackFill,
                           border: "1px solid #888",
                         }}
-                        title="Quân Đen"
+                        title={isVi ? "Quân Đen" : "Black Pieces"}
                       />
                     </div>
 
@@ -388,7 +388,7 @@ export default function BoardCustomizerModal({
                           gap: 8,
                         }}
                       >
-                        <span>{theme.name}</span>
+                        <span>{isVi ? theme.name : theme.nameEn || theme.name}</span>
                         <span
                           style={{
                             fontSize: 10,
@@ -399,7 +399,7 @@ export default function BoardCustomizerModal({
                             fontWeight: 600,
                           }}
                         >
-                          {theme.tag}
+                          {isVi ? theme.tag : theme.tagEn || theme.tag}
                         </span>
                       </div>
                       <div
@@ -409,7 +409,7 @@ export default function BoardCustomizerModal({
                           marginTop: 2,
                         }}
                       >
-                        {theme.desc}
+                        {isVi ? theme.desc : theme.descEn || theme.desc}
                       </div>
                     </div>
                   </div>
@@ -460,10 +460,14 @@ export default function BoardCustomizerModal({
                   color: "var(--text-primary)",
                 }}
               >
-                Âm Thanh Gõ Cờ Chuẩn Listudy / Lichess
+                {isVi
+                  ? "Âm Thanh Gõ Cờ Chuẩn Listudy / Lichess"
+                  : "Authentic Listudy / Lichess Sound Effects"}
               </div>
               <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                Tiếng cờ gỗ chân thực được nạp trực tiếp từ listudy.org
+                {isVi
+                  ? "Tiếng cờ gỗ chân thực được nạp trực tiếp từ listudy.org"
+                  : "Realistic wooden piece sounds loaded from listudy.org"}
               </div>
             </div>
           </div>
@@ -482,7 +486,7 @@ export default function BoardCustomizerModal({
               }}
             >
               <Play size={12} />
-              <span>Tiếng Đi Quân</span>
+              <span>{isVi ? "Tiếng Đi Quân" : "Move Sound"}</span>
             </button>
             <button
               type="button"
@@ -497,7 +501,7 @@ export default function BoardCustomizerModal({
               }}
             >
               <Play size={12} />
-              <span>Tiếng Ăn Quân</span>
+              <span>{isVi ? "Tiếng Ăn Quân" : "Capture Sound"}</span>
             </button>
           </div>
         </div>
@@ -516,7 +520,7 @@ export default function BoardCustomizerModal({
             className="btn btn-green"
             style={{ padding: "10px 24px", fontSize: 14, fontWeight: 700 }}
           >
-            Hoàn Tất & Áp Dụng
+            {isVi ? "Hoàn Tất & Áp Dụng" : "Done & Apply"}
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 package com.chess.auth;
 
 import com.chess.user.User;
-import com.chess.user.UserRepository;
+import com.chess.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,12 +16,12 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
-        User user = userRepository.findByIdentifier(identifier)
+        User user = userService.findByIdentifier(identifier)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with identifier: " + identifier));
 
         return new org.springframework.security.core.userdetails.User(

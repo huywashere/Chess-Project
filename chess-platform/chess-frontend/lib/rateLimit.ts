@@ -16,26 +16,30 @@ const store = new Map<string, RateLimitRecord>();
 
 // Periodic cleanup of stale IP records every 5 minutes to prevent memory leak
 if (typeof setInterval !== "undefined") {
-  setInterval(() => {
-    const now = Date.now();
-    for (const [key, record] of store.entries()) {
-      record.timestamps = record.timestamps.filter((ts) => now - ts < 3600000); // keep last 1 hour
-      if (record.timestamps.length === 0) {
-        store.delete(key);
+  setInterval(
+    () => {
+      const now = Date.now();
+      for (const [key, record] of store.entries()) {
+        record.timestamps = record.timestamps.filter((ts) => now - ts < 3600000); // keep last 1 hour
+        if (record.timestamps.length === 0) {
+          store.delete(key);
+        }
       }
-    }
-  }, 5 * 60 * 1000);
+    },
+    5 * 60 * 1000
+  );
 }
 
 export type RateLimitCategory =
-  | "AUTH"            // Login, Register (5 req / 60s)
+  | "AUTH" // Login, Register (5 req / 60s)
   | "GAME_SUBMISSION" // Saving games & post-game analysis (15 req / 60s)
-  | "API_READ"        // Leaderboard, Puzzles, Tournaments list (60 req / 60s)
-  | "SESSION_CHECK"   // /api/auth/me (60 req / 60s)
-  | "GLOBAL_API";     // General API safety net (120 req / 60s)
+  | "API_READ" // Leaderboard, Puzzles, Tournaments list (60 req / 60s)
+  | "SESSION_CHECK" // /api/auth/me (60 req / 60s)
+  | "USER_UPDATE" // Profile updates (10 req / 60s)
+  | "GLOBAL_API"; // General API safety net (120 req / 60s)
 
 export interface RateLimitOptions {
-  limit: number;         // Maximum allowed requests within window
+  limit: number; // Maximum allowed requests within window
   windowSeconds: number; // Time window in seconds
 }
 
@@ -44,6 +48,7 @@ export const RATE_LIMIT_PRESETS: Record<RateLimitCategory, RateLimitOptions> = {
   GAME_SUBMISSION: { limit: 15, windowSeconds: 60 },
   API_READ: { limit: 60, windowSeconds: 60 },
   SESSION_CHECK: { limit: 60, windowSeconds: 60 },
+  USER_UPDATE: { limit: 10, windowSeconds: 60 },
   GLOBAL_API: { limit: 120, windowSeconds: 60 },
 };
 

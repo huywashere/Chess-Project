@@ -16,12 +16,21 @@ import {
 } from "lucide-react";
 import { CHESS_TOURNAMENTS, ChessTournament } from "@/lib/tournamentsData";
 import { soundManager } from "@/lib/soundEffects";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function TournamentsHub() {
-  const [activeTab, setActiveTab] = useState<"all" | "live" | "upcoming" | "completed">("all");
-  const [selectedTournament, setSelectedTournament] = useState<ChessTournament | null>(null);
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+  const [activeTab, setActiveTab] = useState<"all" | "live" | "upcoming" | "completed">(
+    "all"
+  );
+  const [selectedTournament, setSelectedTournament] = useState<ChessTournament | null>(
+    null
+  );
   const [registeredIds, setRegisteredIds] = useState<string[]>(["tour-01"]);
-  const [activeDetailTab, setActiveDetailTab] = useState<"standings" | "pairings" | "rules">("standings");
+  const [activeDetailTab, setActiveDetailTab] = useState<
+    "standings" | "pairings" | "rules"
+  >("standings");
 
   // Filter tournaments
   const filteredTournaments = CHESS_TOURNAMENTS.filter((tour) => {
@@ -39,11 +48,31 @@ export default function TournamentsHub() {
     }
   }
 
-  const tabs: { id: "all" | "live" | "upcoming" | "completed"; label: string; count: number }[] = [
-    { id: "all", label: "Tất Cả Giải Đấu", count: CHESS_TOURNAMENTS.length },
-    { id: "live", label: "Đang Diễn Ra 🔥", count: CHESS_TOURNAMENTS.filter((t) => t.status === "live").length },
-    { id: "upcoming", label: "Sắp Bắt Đầu ⏰", count: CHESS_TOURNAMENTS.filter((t) => t.status === "upcoming").length },
-    { id: "completed", label: "Đã Kết Thúc 🏆", count: CHESS_TOURNAMENTS.filter((t) => t.status === "completed").length },
+  const tabs: {
+    id: "all" | "live" | "upcoming" | "completed";
+    label: string;
+    count: number;
+  }[] = [
+    {
+      id: "all",
+      label: isVi ? "Tất Cả Giải Đấu" : "All Tournaments",
+      count: CHESS_TOURNAMENTS.length,
+    },
+    {
+      id: "live",
+      label: isVi ? "Đang Diễn Ra 🔥" : "Live Now 🔥",
+      count: CHESS_TOURNAMENTS.filter((t) => t.status === "live").length,
+    },
+    {
+      id: "upcoming",
+      label: isVi ? "Sắp Bắt Đầu ⏰" : "Upcoming ⏰",
+      count: CHESS_TOURNAMENTS.filter((t) => t.status === "upcoming").length,
+    },
+    {
+      id: "completed",
+      label: isVi ? "Đã Kết Thúc 🏆" : "Completed 🏆",
+      count: CHESS_TOURNAMENTS.filter((t) => t.status === "completed").length,
+    },
   ];
 
   return (
@@ -71,7 +100,7 @@ export default function TournamentsHub() {
             }}
           >
             <Trophy size={14} />
-            <span>ĐẤU TRƯỜNG & GIẢI ĐẤU</span>
+            <span>{isVi ? "ĐẤU TRƯỜNG & GIẢI ĐẤU" : "ARENA & TOURNAMENTS"}</span>
           </div>
 
           <div
@@ -94,7 +123,7 @@ export default function TournamentsHub() {
                   letterSpacing: "-0.5px",
                 }}
               >
-                Giải Đấu Cờ Vua Trực Tuyến
+                {isVi ? "Giải Đấu Cờ Vua Trực Tuyến" : "Online Chess Tournaments"}
               </h1>
               <p
                 style={{
@@ -104,14 +133,22 @@ export default function TournamentsHub() {
                   marginBottom: 0,
                 }}
               >
-                Tham gia tranh tài hàng giờ theo thể thức Arena và Thụy Sĩ (Swiss), tích lũy cúp vô địch
+                {isVi
+                  ? "Tham gia tranh tài hàng giờ theo thể thức Arena và Thụy Sĩ (Swiss), tích lũy cúp vô địch"
+                  : "Hourly Swiss and Arena tournaments, compete for championship trophies"}
               </p>
             </div>
 
             {/* Create Tournament CTA */}
             <button
               type="button"
-              onClick={() => alert("Chức năng tạo giải đấu riêng sẽ sẵn sàng trong bản cập nhật tới!")}
+              onClick={() =>
+                alert(
+                  isVi
+                    ? "Chức năng tạo giải đấu riêng sẽ sẵn sàng trong bản cập nhật tới!"
+                    : "Custom tournament creation will be available in the upcoming update!"
+                )
+              }
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -127,7 +164,7 @@ export default function TournamentsHub() {
               }}
             >
               <Trophy size={14} />
-              <span>Tạo Giải Đấu</span>
+              <span>{isVi ? "Tạo Giải Đấu" : "Create Tournament"}</span>
             </button>
           </div>
         </div>
@@ -212,9 +249,13 @@ export default function TournamentsHub() {
                   justifyContent: "space-between",
                   transition: "all 0.15s ease",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--border-medium)")}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.borderColor = "var(--border-medium)")
+                }
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.borderColor = isLive ? "var(--gold-border)" : "var(--divider)")
+                  (e.currentTarget.style.borderColor = isLive
+                    ? "var(--gold-border)"
+                    : "var(--divider)")
                 }
               >
                 <div>
@@ -238,19 +279,19 @@ export default function TournamentsHub() {
                           background: isLive
                             ? "rgba(220, 38, 38, 0.15)"
                             : tour.status === "upcoming"
-                            ? "var(--blue-bg)"
-                            : "var(--bg-raised)",
+                              ? "var(--blue-bg)"
+                              : "var(--bg-raised)",
                           color: isLive
                             ? "#f87171"
                             : tour.status === "upcoming"
-                            ? "var(--blue-light)"
-                            : "var(--text-muted)",
+                              ? "var(--blue-light)"
+                              : "var(--text-muted)",
                           border: `1px solid ${
                             isLive
                               ? "rgba(220, 38, 38, 0.3)"
                               : tour.status === "upcoming"
-                              ? "var(--blue-border)"
-                              : "var(--divider)"
+                                ? "var(--blue-border)"
+                                : "var(--divider)"
                           }`,
                         }}
                       >
@@ -317,7 +358,10 @@ export default function TournamentsHub() {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       <Users size={13} color="var(--blue-light)" />
-                      <span>{tour.registeredCount} / {tour.maxPlayers} kỳ thủ</span>
+                      <span>
+                        {tour.registeredCount} / {tour.maxPlayers}{" "}
+                        {isVi ? "kỳ thủ" : "players"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -332,7 +376,9 @@ export default function TournamentsHub() {
                     paddingTop: 12,
                   }}
                 >
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-light)" }}>
+                  <div
+                    style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-light)" }}
+                  >
                     🏆 {tour.prizePool}
                   </div>
 
@@ -349,17 +395,27 @@ export default function TournamentsHub() {
                       background: isRegistered
                         ? "var(--green-bg)"
                         : isLive
-                        ? "var(--gold-light)"
-                        : "var(--bg-raised)",
+                          ? "var(--gold-light)"
+                          : "var(--bg-raised)",
                       color: isRegistered
                         ? "var(--green-light)"
                         : isLive
-                        ? "var(--text-inverse)"
-                        : "var(--text-primary)",
+                          ? "var(--text-inverse)"
+                          : "var(--text-primary)",
                       border: isRegistered ? "1px solid var(--green-border)" : "none",
                     }}
                   >
-                    {isRegistered ? "✓ Đã Đăng Ký" : isLive ? "Tham Gia Ngay" : "Đăng Ký"}
+                    {isRegistered
+                      ? isVi
+                        ? "✓ Đã Đăng Ký"
+                        : "✓ Registered"
+                      : isLive
+                        ? isVi
+                          ? "Tham Gia Ngay"
+                          : "Join Now"
+                        : isVi
+                          ? "Đăng Ký"
+                          : "Register"}
                   </button>
                 </div>
               </div>
@@ -411,11 +467,19 @@ export default function TournamentsHub() {
                 }}
               >
                 <div>
-                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+                  <h3
+                    style={{
+                      margin: 0,
+                      fontSize: 18,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                    }}
+                  >
                     {selectedTournament.name}
                   </h3>
                   <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
-                    {selectedTournament.format} • {selectedTournament.timeControl} • Giải thưởng: {selectedTournament.prizePool}
+                    {selectedTournament.format} • {selectedTournament.timeControl} •{" "}
+                    {isVi ? "Giải thưởng:" : "Prize Pool:"} {selectedTournament.prizePool}
                   </div>
                 </div>
 
@@ -452,12 +516,18 @@ export default function TournamentsHub() {
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: "pointer",
-                    background: activeDetailTab === "standings" ? "var(--bg-raised)" : "transparent",
-                    color: activeDetailTab === "standings" ? "var(--gold-light)" : "var(--text-secondary)",
+                    background:
+                      activeDetailTab === "standings"
+                        ? "var(--bg-raised)"
+                        : "transparent",
+                    color:
+                      activeDetailTab === "standings"
+                        ? "var(--gold-light)"
+                        : "var(--text-secondary)",
                     border: "none",
                   }}
                 >
-                  Bảng Điểm Xếp Hạng
+                  {isVi ? "Bảng Điểm Xếp Hạng" : "Standings"}
                 </button>
                 <button
                   type="button"
@@ -468,12 +538,16 @@ export default function TournamentsHub() {
                     fontSize: 12,
                     fontWeight: 600,
                     cursor: "pointer",
-                    background: activeDetailTab === "pairings" ? "var(--bg-raised)" : "transparent",
-                    color: activeDetailTab === "pairings" ? "var(--gold-light)" : "var(--text-secondary)",
+                    background:
+                      activeDetailTab === "pairings" ? "var(--bg-raised)" : "transparent",
+                    color:
+                      activeDetailTab === "pairings"
+                        ? "var(--gold-light)"
+                        : "var(--text-secondary)",
                     border: "none",
                   }}
                 >
-                  Cặp Đấu Trực Tiếp
+                  {isVi ? "Cặp Đấu Trực Tiếp" : "Live Pairings"}
                 </button>
               </div>
 
@@ -492,11 +566,17 @@ export default function TournamentsHub() {
                         textTransform: "uppercase",
                       }}
                     >
-                      <span>Hạng</span>
-                      <span>Kỳ Thủ</span>
-                      <span style={{ textAlign: "right" }}>Điểm</span>
-                      <span className="hide-on-mobile" style={{ textAlign: "right" }}>Chuỗi</span>
-                      <span className="hide-on-mobile" style={{ textAlign: "right" }}>Thắng</span>
+                      <span>{isVi ? "Hạng" : "Rank"}</span>
+                      <span>{isVi ? "Kỳ Thủ" : "Player"}</span>
+                      <span style={{ textAlign: "right" }}>
+                        {isVi ? "Điểm" : "Points"}
+                      </span>
+                      <span className="hide-on-mobile" style={{ textAlign: "right" }}>
+                        {isVi ? "Chuỗi" : "Streak"}
+                      </span>
+                      <span className="hide-on-mobile" style={{ textAlign: "right" }}>
+                        {isVi ? "Thắng" : "Win Rate"}
+                      </span>
                     </div>
 
                     {selectedTournament.standings.map((st) => (
@@ -509,10 +589,24 @@ export default function TournamentsHub() {
                           fontSize: 13,
                         }}
                       >
-                        <span style={{ fontWeight: 700, color: st.rank <= 3 ? "var(--gold-light)" : "var(--text-muted)" }}>
+                        <span
+                          style={{
+                            fontWeight: 700,
+                            color:
+                              st.rank <= 3 ? "var(--gold-light)" : "var(--text-muted)",
+                          }}
+                        >
                           #{st.rank}
                         </span>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, overflow: "hidden" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 6,
+                            minWidth: 0,
+                            overflow: "hidden",
+                          }}
+                        >
                           {st.title && (
                             <span
                               style={{
@@ -528,17 +622,45 @@ export default function TournamentsHub() {
                               {st.title}
                             </span>
                           )}
-                          <span style={{ fontWeight: 600, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color: "var(--text-primary)",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
                             {st.name}
                           </span>
                         </div>
-                        <span style={{ textAlign: "right", fontWeight: 700, color: "var(--gold-light)" }}>
+                        <span
+                          style={{
+                            textAlign: "right",
+                            fontWeight: 700,
+                            color: "var(--gold-light)",
+                          }}
+                        >
                           {st.points}
                         </span>
-                        <span className="hide-on-mobile" style={{ textAlign: "right", color: "var(--orange-light)", fontWeight: 600 }}>
+                        <span
+                          className="hide-on-mobile"
+                          style={{
+                            textAlign: "right",
+                            color: "var(--orange-light)",
+                            fontWeight: 600,
+                          }}
+                        >
                           {st.streak}🔥
                         </span>
-                        <span className="hide-on-mobile" style={{ textAlign: "right", color: "var(--green-light)", fontWeight: 600 }}>
+                        <span
+                          className="hide-on-mobile"
+                          style={{
+                            textAlign: "right",
+                            color: "var(--green-light)",
+                            fontWeight: 600,
+                          }}
+                        >
                           {st.winRate}%
                         </span>
                       </div>
@@ -560,14 +682,29 @@ export default function TournamentsHub() {
                           fontSize: 13,
                         }}
                       >
-                        <span style={{ fontWeight: 700, color: "var(--text-muted)", width: 70 }}>
-                          Bàn {p.board}
+                        <span
+                          style={{
+                            fontWeight: 700,
+                            color: "var(--text-muted)",
+                            width: 70,
+                          }}
+                        >
+                          {isVi ? `Bàn ${p.board}` : `Board ${p.board}`}
                         </span>
-                        <div style={{ flex: 1, display: "flex", justifyContent: "space-around", alignItems: "center" }}>
+                        <div
+                          style={{
+                            flex: 1,
+                            display: "flex",
+                            justifyContent: "space-around",
+                            alignItems: "center",
+                          }}
+                        >
                           <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                             {p.whitePlayer.name} ({p.whitePlayer.rating})
                           </span>
-                          <span style={{ color: "var(--text-muted)", fontSize: 11 }}>VS</span>
+                          <span style={{ color: "var(--text-muted)", fontSize: 11 }}>
+                            VS
+                          </span>
                           <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
                             {p.blackPlayer.name} ({p.blackPlayer.rating})
                           </span>

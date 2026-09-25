@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { RotateCcw, Palette, Compass, Sparkles } from "lucide-react";
 import { ChessBoard3DScene } from "./ChessBoard3DScene";
+import { useLanguage } from "@/context/LanguageContext";
 
 export interface ChessBoard3DProps {
   fen: string;
@@ -26,10 +27,13 @@ export default function ChessBoard3D({
   flipped = false,
   onFlip,
 }: ChessBoard3DProps) {
+  const { language } = useLanguage();
+  const isVi = language === "vi";
+
   const [mounted, setMounted] = useState(false);
-  const [pieceMaterial, setPieceMaterial] = useState<"classic_wood" | "tournament" | "marble">(
-    "classic_wood"
-  );
+  const [pieceMaterial, setPieceMaterial] = useState<
+    "classic_wood" | "tournament" | "marble"
+  >("classic_wood");
   const [cameraKey, setCameraKey] = useState(0);
 
   useEffect(() => {
@@ -51,7 +55,9 @@ export default function ChessBoard3D({
           fontSize: 14,
         }}
       >
-        Đang khởi tạo bàn cờ 3D Three.js...
+        {isVi
+          ? "Đang khởi tạo bàn cờ 3D Three.js..."
+          : "Initializing 3D Three.js board..."}
       </div>
     );
   }
@@ -112,7 +118,7 @@ export default function ChessBoard3D({
         {/* Reset Camera Button */}
         <button
           onClick={() => setCameraKey((k) => k + 1)}
-          title="Đặt lại góc nhìn chuẩn"
+          title={isVi ? "Đặt lại góc nhìn chuẩn" : "Reset camera angle"}
           style={{
             background: "none",
             border: "none",
@@ -130,15 +136,23 @@ export default function ChessBoard3D({
           onMouseLeave={(e) => (e.currentTarget.style.color = "#aaa")}
         >
           <Compass size={14} />
-          Góc Chuẩn
+          {isVi ? "Góc Chuẩn" : "Reset View"}
         </button>
 
         {/* Piece Material Toggle */}
-        <div style={{ display: "flex", alignItems: "center", gap: 3, borderLeft: "1px solid #333", paddingLeft: 6 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 3,
+            borderLeft: "1px solid #333",
+            paddingLeft: 6,
+          }}
+        >
           <Palette size={13} style={{ color: "#888" }} />
           <button
             onClick={() => setPieceMaterial("classic_wood")}
-            title="Quân gỗ tự nhiên"
+            title={isVi ? "Quân gỗ tự nhiên" : "Natural wood pieces"}
             style={{
               background: pieceMaterial === "classic_wood" ? "#81b64c" : "transparent",
               color: pieceMaterial === "classic_wood" ? "#fff" : "#888",
@@ -150,11 +164,11 @@ export default function ChessBoard3D({
               cursor: "pointer",
             }}
           >
-            Gỗ
+            {isVi ? "Gỗ" : "Wood"}
           </button>
           <button
             onClick={() => setPieceMaterial("tournament")}
-            title="Quân thi đấu chuẩn"
+            title={isVi ? "Quân thi đấu chuẩn" : "Tournament standard pieces"}
             style={{
               background: pieceMaterial === "tournament" ? "#81b64c" : "transparent",
               color: pieceMaterial === "tournament" ? "#fff" : "#888",
@@ -166,11 +180,11 @@ export default function ChessBoard3D({
               cursor: "pointer",
             }}
           >
-            Thi Đấu
+            {isVi ? "Thi Đấu" : "Standard"}
           </button>
           <button
             onClick={() => setPieceMaterial("marble")}
-            title="Quân cẩm thạch bóng"
+            title={isVi ? "Quân cẩm thạch bóng" : "Glossy marble pieces"}
             style={{
               background: pieceMaterial === "marble" ? "#81b64c" : "transparent",
               color: pieceMaterial === "marble" ? "#fff" : "#888",
@@ -182,7 +196,7 @@ export default function ChessBoard3D({
               cursor: "pointer",
             }}
           >
-            Cẩm Thạch
+            {isVi ? "Cẩm Thạch" : "Marble"}
           </button>
         </div>
 
@@ -190,7 +204,7 @@ export default function ChessBoard3D({
         {onFlip && (
           <button
             onClick={onFlip}
-            title="Xoay bàn cờ"
+            title={isVi ? "Xoay bàn cờ" : "Flip board"}
             style={{
               background: "none",
               border: "none",
@@ -208,7 +222,7 @@ export default function ChessBoard3D({
             onMouseLeave={(e) => (e.currentTarget.style.color = "#aaa")}
           >
             <RotateCcw size={13} />
-            Đổi Bên
+            {isVi ? "Đổi Bên" : "Flip"}
           </button>
         )}
       </div>
@@ -233,7 +247,9 @@ export default function ChessBoard3D({
         }}
       >
         <Sparkles size={11} style={{ color: "#81b64c" }} />
-        Kéo chuột trái để xoay 3D • Cuộn chuột để zoom • Bấm quân cờ để di chuyển
+        {isVi
+          ? "Kéo chuột trái để xoay 3D • Cuộn chuột để zoom • Bấm quân cờ để di chuyển"
+          : "Left click & drag to rotate 3D • Scroll to zoom • Click piece to move"}
       </div>
     </div>
   );

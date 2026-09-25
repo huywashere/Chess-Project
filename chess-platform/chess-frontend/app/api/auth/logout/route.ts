@@ -9,15 +9,9 @@ export async function POST() {
     // Clear session cookie
     cookieStore.delete(AUTH_COOKIE_NAME);
 
-    return NextResponse.json(
-      { message: "Đăng xuất thành công" },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "Đăng xuất thành công" }, { status: 200 });
   } catch (error) {
     console.error("Logout error:", error);
-    return NextResponse.json(
-      { message: "Đã đăng xuất" },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "Đã đăng xuất" }, { status: 200 });
   }
 }

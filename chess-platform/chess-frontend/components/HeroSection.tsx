@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import InteractiveBoard, { BoardTheme } from "./InteractiveBoard";
 import {
@@ -24,7 +25,12 @@ import { useTheme } from "@/context/ThemeContext";
 /* ── SVG Country Flags (avoid OS unicode emoji font fallback) ── */
 function VietnamFlag() {
   return (
-    <svg width="20" height="14" viewBox="0 0 30 20" style={{ borderRadius: 2, display: "block" }}>
+    <svg
+      width="20"
+      height="14"
+      viewBox="0 0 30 20"
+      style={{ borderRadius: 2, display: "block" }}
+    >
       <rect width="30" height="20" fill="#da251d" />
       <polygon
         points="15,4 16.5,8.8 21.6,8.8 17.5,11.8 19.1,16.6 15,13.6 10.9,16.6 12.5,11.8 8.4,8.8 13.5,8.8"
@@ -36,7 +42,12 @@ function VietnamFlag() {
 
 function NorwayFlag() {
   return (
-    <svg width="20" height="14" viewBox="0 0 22 16" style={{ borderRadius: 2, display: "block" }}>
+    <svg
+      width="20"
+      height="14"
+      viewBox="0 0 22 16"
+      style={{ borderRadius: 2, display: "block" }}
+    >
       <rect width="22" height="16" fill="#ba0c2f" />
       <rect x="6" width="4" height="16" fill="#ffffff" />
       <rect y="6" width="22" height="4" fill="#ffffff" />
@@ -49,8 +60,22 @@ function NorwayFlag() {
 /* ── Live games ticker list ── */
 const LIVE_GAMES = [
   { w: "Magnus2882", b: "HikAru99", wElo: 2850, bElo: 2820, tc: "3+2", move: "4.Ba4" },
-  { w: "LeQuangLiem", b: "Firouzja2003", wElo: 2731, bElo: 2805, tc: "5+0", move: "12.d4" },
-  { w: "NguyenNgocTruongSon", b: "Vidit_G", wElo: 2645, bElo: 2715, tc: "10+0", move: "18.Qe2" },
+  {
+    w: "LeQuangLiem",
+    b: "Firouzja2003",
+    wElo: 2731,
+    bElo: 2805,
+    tc: "5+0",
+    move: "12.d4",
+  },
+  {
+    w: "NguyenNgocTruongSon",
+    b: "Vidit_G",
+    wElo: 2645,
+    bElo: 2715,
+    tc: "10+0",
+    move: "18.Qe2",
+  },
 ];
 
 export default function HeroSection() {
@@ -62,6 +87,7 @@ export default function HeroSection() {
   const [blackTime, setBlackTime] = useState(167);
 
   const { language, t } = useLanguage();
+  const isVi = language === "vi";
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -96,14 +122,68 @@ export default function HeroSection() {
         paddingTop: 64,
         borderBottom: "1px solid var(--divider)",
         transition: "background-color 0.25s ease, border-color 0.25s ease",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
+      {/* Floating Isometric Matrix Background Decorations */}
+      <div
+        className="floating-matrix-decoration"
+        style={{
+          position: "absolute",
+          top: 90,
+          right: -20,
+          width: 440,
+          height: 440,
+          opacity: isDark ? 0.32 : 0.2,
+          pointerEvents: "none",
+          zIndex: 0,
+          filter: "drop-shadow(0 0 50px rgba(225, 29, 130, 0.28))",
+        }}
+      >
+        <Image
+          src="/geometric_matrix_pink.png"
+          alt="Geometric Matrix Decoration"
+          width={440}
+          height={440}
+          style={{ objectFit: "contain", width: "100%", height: "100%" }}
+          priority
+        />
+      </div>
+
+      <div
+        className="floating-matrix-decoration"
+        style={{
+          position: "absolute",
+          bottom: -50,
+          left: -60,
+          width: 320,
+          height: 320,
+          opacity: isDark ? 0.22 : 0.14,
+          pointerEvents: "none",
+          zIndex: 0,
+          transform: "scaleX(-1)",
+          filter: "drop-shadow(0 0 40px rgba(225, 29, 130, 0.2))",
+          animationDelay: "-4.5s",
+        }}
+      >
+        <Image
+          src="/geometric_matrix_pink.png"
+          alt="Geometric Matrix Watermark"
+          width={320}
+          height={320}
+          style={{ objectFit: "contain", width: "100%", height: "100%" }}
+        />
+      </div>
+
       {/* Top Banner Bar — like Lichess */}
       <div
         style={{
           background: "var(--green-bg)",
           borderBottom: "1px solid var(--green-border)",
           padding: "8px 0",
+          position: "relative",
+          zIndex: 1,
         }}
       >
         <div
@@ -143,14 +223,11 @@ export default function HeroSection() {
             <span style={{ color: "var(--text-muted)" }}>•</span>
             <span style={{ color: "var(--text-secondary)" }}>
               {language === "vi" ? "Ván đỉnh cao:" : "Top game:"}{" "}
-              <strong style={{ color: "var(--text-primary)" }}>
-                {activeGame.w}
-              </strong>{" "}
-              ({activeGame.wElo}) vs{" "}
-              <strong style={{ color: "var(--text-primary)" }}>
-                {activeGame.b}
-              </strong>{" "}
-              ({activeGame.bElo}) • {activeGame.tc} • {language === "vi" ? "Nước" : "Move"} {activeGame.move}
+              <strong style={{ color: "var(--text-primary)" }}>{activeGame.w}</strong> (
+              {activeGame.wElo}) vs{" "}
+              <strong style={{ color: "var(--text-primary)" }}>{activeGame.b}</strong> (
+              {activeGame.bElo}) • {activeGame.tc} • {language === "vi" ? "Nước" : "Move"}{" "}
+              {activeGame.move}
             </span>
           </div>
 
@@ -165,19 +242,23 @@ export default function HeroSection() {
           >
             <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
               <Wifi size={13} color="var(--green-light)" />
-              {language === "vi" ? "Độ trễ:" : "Latency:"} <strong style={{ color: "var(--green-light)" }}>12ms</strong>
+              {language === "vi" ? "Độ trễ:" : "Latency:"}{" "}
+              <strong style={{ color: "var(--green-light)" }}>12ms</strong>
             </span>
             <span>•</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
               <Server size={13} />
-              Engine: <strong style={{ color: "var(--text-primary)" }}>Rust 10µs + Stockfish 17</strong>
+              Engine:{" "}
+              <strong style={{ color: "var(--text-primary)" }}>
+                Rust 10µs + Stockfish 17
+              </strong>
             </span>
           </div>
         </div>
       </div>
 
       {/* Main Hero Grid */}
-      <div className="container hero-grid">
+      <div className="container hero-grid" style={{ position: "relative", zIndex: 1 }}>
         {/* LEFT COLUMN: Pitch & Quick Start */}
         <div style={{ paddingTop: 4 }}>
           {/* Tag */}
@@ -222,7 +303,8 @@ export default function HeroSection() {
           >
             {language === "vi" ? (
               <>
-                Chơi Cờ Vua<br />
+                Chơi Cờ Vua
+                <br />
                 <span style={{ color: "var(--green-light)" }}>Trực Tuyến</span>{" "}
                 <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>
                   Cùng Mọi Người
@@ -230,7 +312,8 @@ export default function HeroSection() {
               </>
             ) : (
               <>
-                Play World-Class<br />
+                Play World-Class
+                <br />
                 <span style={{ color: "var(--green-light)" }}>Chess Online</span>{" "}
                 <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>
                   With Everyone
@@ -274,10 +357,38 @@ export default function HeroSection() {
               }}
             >
               {[
-                { label: "1 min", sub: "Bullet", tc: "1+0", href: "/play?tc=60", color: "var(--red-vivid)", icon: Zap },
-                { label: "3 min", sub: "Blitz", tc: "3+0", href: "/play?tc=180", color: "var(--orange-vivid)", icon: Flame },
-                { label: "10 min", sub: "Rapid", tc: "10+0", href: "/play?tc=600", color: "var(--green-vivid)", icon: Timer },
-                { label: "Tùy Chọn", sub: "Custom", tc: "FIDE", href: "/play", color: "var(--blue-vivid)", icon: SlidersHorizontal },
+                {
+                  label: "1 min",
+                  sub: "Bullet",
+                  tc: "1+0",
+                  href: "/play?tc=60",
+                  color: "var(--red-vivid)",
+                  icon: Zap,
+                },
+                {
+                  label: "3 min",
+                  sub: "Blitz",
+                  tc: "3+0",
+                  href: "/play?tc=180",
+                  color: "var(--orange-vivid)",
+                  icon: Flame,
+                },
+                {
+                  label: "10 min",
+                  sub: "Rapid",
+                  tc: "10+0",
+                  href: "/play?tc=600",
+                  color: "var(--green-vivid)",
+                  icon: Timer,
+                },
+                {
+                  label: language === "vi" ? "Tùy Chọn" : "Custom",
+                  sub: language === "vi" ? "Tùy Chỉnh" : "Setup",
+                  tc: "FIDE",
+                  href: "/play",
+                  color: "var(--blue-vivid)",
+                  icon: SlidersHorizontal,
+                },
               ].map((item) => {
                 const Icon = item.icon;
                 return (
@@ -299,20 +410,42 @@ export default function HeroSection() {
                     }}
                     onMouseEnter={(e) => {
                       (e.currentTarget as HTMLElement).style.borderColor = item.color;
-                      (e.currentTarget as HTMLElement).style.background = "var(--bg-overlay)";
+                      (e.currentTarget as HTMLElement).style.background =
+                        "var(--bg-overlay)";
                     }}
                     onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = "var(--border-subtle)";
-                      (e.currentTarget as HTMLElement).style.background = "var(--bg-raised)";
+                      (e.currentTarget as HTMLElement).style.borderColor =
+                        "var(--border-subtle)";
+                      (e.currentTarget as HTMLElement).style.background =
+                        "var(--bg-raised)";
                     }}
                   >
-                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        width: "100%",
+                        alignItems: "center",
+                      }}
+                    >
                       <Icon size={16} color={item.color} />
-                      <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: "var(--text-muted)",
+                          fontFamily: "var(--font-mono)",
+                        }}
+                      >
                         {item.tc}
                       </span>
                     </div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "var(--text-primary)",
+                      }}
+                    >
                       {item.label}
                     </div>
                     <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
@@ -325,7 +458,9 @@ export default function HeroSection() {
           </div>
 
           {/* Primary Action Buttons */}
-          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+          <div
+            style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}
+          >
             <Link
               href="/play"
               className="btn btn-green"
@@ -393,14 +528,19 @@ export default function HeroSection() {
           >
             {/* Theme options */}
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 12, color: "var(--text-muted)", marginRight: 4 }}>Giao diện:</span>
+              <span style={{ fontSize: 12, color: "var(--text-muted)", marginRight: 4 }}>
+                {isVi ? "Giao diện:" : "Theme:"}
+              </span>
               <button
                 type="button"
                 onClick={() => setBoardTheme("green")}
                 style={{
                   background: boardTheme === "green" ? "var(--green-bg)" : "transparent",
                   border: `1px solid ${boardTheme === "green" ? "var(--green-border)" : "transparent"}`,
-                  color: boardTheme === "green" ? "var(--green-light)" : "var(--text-secondary)",
+                  color:
+                    boardTheme === "green"
+                      ? "var(--green-light)"
+                      : "var(--text-secondary)",
                   borderRadius: 4,
                   padding: "4px 10px",
                   fontSize: 12,
@@ -412,7 +552,7 @@ export default function HeroSection() {
                 }}
               >
                 <Palette size={13} />
-                <span>Xanh Thi Đấu</span>
+                <span>{isVi ? "Xanh Thi Đấu" : "Tournament Green"}</span>
               </button>
               <button
                 type="button"
@@ -420,7 +560,8 @@ export default function HeroSection() {
                 style={{
                   background: boardTheme === "wood" ? "var(--gold-bg)" : "transparent",
                   border: `1px solid ${boardTheme === "wood" ? "var(--gold-border)" : "transparent"}`,
-                  color: boardTheme === "wood" ? "var(--gold-light)" : "var(--text-secondary)",
+                  color:
+                    boardTheme === "wood" ? "var(--gold-light)" : "var(--text-secondary)",
                   borderRadius: 4,
                   padding: "4px 10px",
                   fontSize: 12,
@@ -432,7 +573,7 @@ export default function HeroSection() {
                 }}
               >
                 <Trees size={13} />
-                <span>Bàn Gỗ</span>
+                <span>{isVi ? "Bàn Gỗ" : "Wood Board"}</span>
               </button>
             </div>
 
@@ -457,7 +598,15 @@ export default function HeroSection() {
                 }}
               >
                 <Layers size={13} />
-                <span>{is3D ? "3D Đang Bật" : "Góc Nghiêng 3D"}</span>
+                <span>
+                  {is3D
+                    ? isVi
+                      ? "3D Đang Bật"
+                      : "3D Enabled"
+                    : isVi
+                      ? "Góc Nghiêng 3D"
+                      : "3D Tilt"}
+                </span>
               </button>
 
               <Link
@@ -478,7 +627,7 @@ export default function HeroSection() {
                 }}
               >
                 <Sparkles size={12} />
-                <span>Bàn Cờ 3D WebGL</span>
+                <span>{isVi ? "Bàn Cờ 3D WebGL" : "WebGL 3D Board"}</span>
               </Link>
             </div>
           </div>
@@ -525,12 +674,18 @@ export default function HeroSection() {
                   >
                     GM
                   </span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
+                  <span
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                    }}
+                  >
                     Magnus2882
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                  2850 ELO • Cầm quân Đen
+                  2850 ELO • {isVi ? "Cầm quân Đen" : "Playing Black"}
                 </div>
               </div>
             </div>
@@ -556,7 +711,9 @@ export default function HeroSection() {
           <div style={{ display: "flex", gap: 8, alignItems: "stretch" }}>
             {/* Lichess/Chess.com style Evaluation Bar */}
             <div
-              title="Đánh giá thế cờ: Trắng +0.4"
+              title={
+                isVi ? "Đánh giá thế cờ: Trắng +0.4" : "Position evaluation: White +0.4"
+              }
               style={{
                 width: 14,
                 borderRadius: 3,
@@ -647,7 +804,13 @@ export default function HeroSection() {
                   >
                     GM
                   </span>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
+                  <span
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                    }}
+                  >
                     LeQuangLiem
                   </span>
                   <span
@@ -660,11 +823,11 @@ export default function HeroSection() {
                       borderRadius: 10,
                     }}
                   >
-                    Bạn
+                    {isVi ? "Bạn" : "You"}
                   </span>
                 </div>
                 <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                  2731 ELO • Cầm quân Trắng
+                  2731 ELO • {isVi ? "Cầm quân Trắng" : "Playing White"}
                 </div>
               </div>
             </div>
@@ -700,15 +863,26 @@ export default function HeroSection() {
               fontSize: 13,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, overflowX: "auto" }}>
+            <div
+              style={{ display: "flex", alignItems: "center", gap: 8, overflowX: "auto" }}
+            >
               <span style={{ fontSize: 12, color: "var(--text-muted)", flexShrink: 0 }}>
-                Khai cuộc:
+                {isVi ? "Khai cuộc:" : "Opening:"}
               </span>
-              <span style={{ fontWeight: 600, color: "var(--text-primary)", flexShrink: 0 }}>
+              <span
+                style={{ fontWeight: 600, color: "var(--text-primary)", flexShrink: 0 }}
+              >
                 Ruy Lopez: Morphy Defense
               </span>
               <span style={{ color: "var(--text-muted)" }}>•</span>
-              <div style={{ display: "flex", gap: 6, fontFamily: "var(--font-mono)", fontSize: 12 }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 6,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 12,
+                }}
+              >
                 {["1.e4", "e5", "2.Nf3", "Nc6", "3.Bb5", "a6", "4.Ba4"].map((m, idx) => (
                   <span
                     key={idx}
@@ -726,8 +900,15 @@ export default function HeroSection() {
               </div>
             </div>
 
-            <div style={{ fontSize: 12, color: "var(--green-light)", fontWeight: 600, flexShrink: 0 }}>
-              Nước vừa đi: {lastMoveSan}
+            <div
+              style={{
+                fontSize: 12,
+                color: "var(--green-light)",
+                fontWeight: 600,
+                flexShrink: 0,
+              }}
+            >
+              {isVi ? "Nước vừa đi:" : "Last move:"} {lastMoveSan}
             </div>
           </div>
         </div>

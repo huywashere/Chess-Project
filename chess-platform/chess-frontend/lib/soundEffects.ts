@@ -17,11 +17,13 @@ class SoundManager {
         this.victoryAudio = new Audio("/sounds/victory.mp3");
         this.errorAudio = new Audio("/sounds/error.mp3");
 
-        [this.moveAudio, this.captureAudio, this.victoryAudio, this.errorAudio].forEach((a) => {
-          if (a) {
-            a.preload = "auto";
+        [this.moveAudio, this.captureAudio, this.victoryAudio, this.errorAudio].forEach(
+          (a) => {
+            if (a) {
+              a.preload = "auto";
+            }
           }
-        });
+        );
       } catch {
         // audio element not supported
       }
