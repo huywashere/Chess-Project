@@ -67,6 +67,32 @@ services:
     networks:
       - chess-net
 
+  # ===== Golang Realtime Gateway (WebSockets, Millisecond Clocks, Matchmaking) =====
+  realtime-go:
+    build:
+      context: ./chess-realtime-go
+      dockerfile: Dockerfile
+    ports:
+      - "8085:8085"
+    environment:
+      - PORT=8085
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    networks:
+      - chess-net
+
+  # ===== Rust Chess Engine & Anti-Cheat Analysis Service =====
+  engine-rust:
+    build:
+      context: ./chess-engine-rust
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    networks:
+      - chess-net
+
   # ===== PostgreSQL =====
   postgres:
     image: postgres:16-alpine
