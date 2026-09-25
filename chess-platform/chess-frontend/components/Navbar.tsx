@@ -177,64 +177,53 @@ export default function Navbar() {
         {/* Desktop Actions: Language + Theme Toggle + Auth Buttons */}
         <div className="hide-on-mobile" style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {/* Language Switcher Pill */}
-          <div
+          {/* Language Switcher Icon Button */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            title={language === "vi" ? "Switch to English (EN)" : "Chuyển sang Tiếng Việt (VI)"}
+            aria-label="Toggle language"
             style={{
               display: "inline-flex",
               alignItems: "center",
+              justifyContent: "center",
+              width: 36,
+              height: 36,
+              borderRadius: 6,
               background: "var(--bg-surface)",
               border: "1px solid var(--border-medium)",
-              borderRadius: 6,
-              padding: "2px",
-              gap: 2,
+              color: "var(--text-secondary)",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              position: "relative",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "var(--bg-raised)";
+              (e.currentTarget as HTMLElement).style.borderColor = "var(--gold-light)";
+              (e.currentTarget as HTMLElement).style.color = "var(--text-primary)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "var(--bg-surface)";
+              (e.currentTarget as HTMLElement).style.borderColor = "var(--border-medium)";
+              (e.currentTarget as HTMLElement).style.color = "var(--text-secondary)";
             }}
           >
-            <button
-              type="button"
-              onClick={() => setLanguage("vi")}
-              title="Tiếng Việt"
+            <Globe size={17} />
+            <span
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                padding: "4px 8px",
-                borderRadius: 4,
-                border: "none",
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer",
-                background: language === "vi" ? "var(--bg-raised)" : "transparent",
-                color: language === "vi" ? "var(--text-primary)" : "var(--text-muted)",
-                boxShadow: language === "vi" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-                transition: "all 0.15s ease",
+                position: "absolute",
+                bottom: 2,
+                right: 3,
+                fontSize: 8,
+                fontWeight: 800,
+                color: "var(--gold-light)",
+                lineHeight: 1,
+                letterSpacing: "-0.2px",
               }}
             >
-              <span>🇻🇳</span>
-              <span>VI</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setLanguage("en")}
-              title="English"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                padding: "4px 8px",
-                borderRadius: 4,
-                border: "none",
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: "pointer",
-                background: language === "en" ? "var(--bg-raised)" : "transparent",
-                color: language === "en" ? "var(--text-primary)" : "var(--text-muted)",
-                boxShadow: language === "en" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-                transition: "all 0.15s ease",
-              }}
-            >
-              <span>🇬🇧</span>
-              <span>EN</span>
-            </button>
-          </div>
+              {language.toUpperCase()}
+            </span>
+          </button>
 
           {/* Theme Toggle Button */}
           <button
@@ -393,6 +382,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={toggleLanguage}
+            title={language === "vi" ? "Switch to English (EN)" : "Chuyển sang Tiếng Việt (VI)"}
             aria-label="Toggle Language"
             style={{
               display: "inline-flex",
@@ -403,11 +393,26 @@ export default function Navbar() {
               borderRadius: 6,
               background: "var(--bg-surface)",
               border: "1px solid var(--border-medium)",
-              fontSize: 16,
+              color: "var(--text-secondary)",
               cursor: "pointer",
+              position: "relative",
             }}
           >
-            {language === "vi" ? "🇻🇳" : "🇬🇧"}
+            <Globe size={17} />
+            <span
+              style={{
+                position: "absolute",
+                bottom: 2,
+                right: 3,
+                fontSize: 8,
+                fontWeight: 800,
+                color: "var(--gold-light)",
+                lineHeight: 1,
+                letterSpacing: "-0.2px",
+              }}
+            >
+              {language.toUpperCase()}
+            </span>
           </button>
 
           {/* Mobile Hamburger Toggle Button */}
