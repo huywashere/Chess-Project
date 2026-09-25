@@ -37,6 +37,16 @@ public class User {
     @Builder.Default
     private Integer eloRating = 1200;
 
+    @Column(length = 10)
+    private String title; // "GM", "IM", "FM"
+
+    @Column(length = 10)
+    private String country; // "VN", "US", etc.
+
+    @Column(length = 20)
+    @Builder.Default
+    private String role = "USER";
+
     @Column(nullable = false, length = 20)
     @Builder.Default
     private String provider = "local"; // "local" | "google"

@@ -79,6 +79,12 @@ app:
     timeout-seconds: 15
     pool-size: 4
 
+  rust:
+    service-url: ${RUST_ENGINE_URL:http://localhost:8002}
+
+  realtime:
+    service-url: ${REALTIME_GO_URL:http://localhost:8085}
+
   game:
     max-concurrent-ai-games: 100
     clock-tick-interval-ms: 1000

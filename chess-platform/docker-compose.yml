@@ -43,6 +43,8 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - AI_SERVICE_URL=http://ai-service:8001
+      - RUST_ENGINE_URL=http://engine-rust:8002
+      - REALTIME_GO_URL=http://realtime-go:8085
       - JWT_SECRET=${JWT_SECRET:-change-this-in-production-min-32-chars!!}
       - FRONTEND_URL=http://localhost:3000
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
@@ -53,6 +55,10 @@ services:
       redis:
         condition: service_healthy
       ai-service:
+        condition: service_started
+      engine-rust:
+        condition: service_started
+      realtime-go:
         condition: service_started
     networks:
       - chess-net
