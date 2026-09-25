@@ -179,7 +179,7 @@ export default function HeroSection() {
       {/* Main Hero Grid */}
       <div className="container hero-grid">
         {/* LEFT COLUMN: Pitch & Quick Start */}
-        <div>
+        <div style={{ paddingTop: 4 }}>
           {/* Tag */}
           <div
             style={{
@@ -190,7 +190,7 @@ export default function HeroSection() {
               border: "1px solid var(--border-subtle)",
               borderRadius: 4,
               padding: "5px 12px",
-              marginBottom: 20,
+              marginBottom: 14,
             }}
           >
             <VietnamFlag />
@@ -216,7 +216,7 @@ export default function HeroSection() {
               fontWeight: 700,
               lineHeight: 1.12,
               color: "var(--text-primary)",
-              marginBottom: 18,
+              marginBottom: 14,
               letterSpacing: "-0.5px",
             }}
           >
@@ -246,14 +246,14 @@ export default function HeroSection() {
               color: "var(--text-secondary)",
               lineHeight: 1.7,
               maxWidth: 520,
-              marginBottom: 32,
+              marginBottom: 24,
             }}
           >
             {t("hero.subtitle")}
           </p>
 
           {/* Quick Start Pairing Cards */}
-          <div style={{ marginBottom: 28 }}>
+          <div style={{ marginBottom: 22 }}>
             <div
               style={{
                 fontSize: 11,
@@ -261,7 +261,7 @@ export default function HeroSection() {
                 letterSpacing: "1.5px",
                 color: "var(--text-muted)",
                 textTransform: "uppercase",
-                marginBottom: 10,
+                marginBottom: 8,
               }}
             >
               {language === "vi" ? "Ghép Cặp Nhanh" : "Quick Pairing"}

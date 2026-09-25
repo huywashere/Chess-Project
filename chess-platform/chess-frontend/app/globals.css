@@ -241,15 +241,15 @@ body {
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   gap: 48px;
-  align-items: center;
-  padding: 56px 24px 64px;
+  align-items: start;
+  padding: 20px 24px 48px;
 }
 
 @media (max-width: 1024px) {
   .hero-grid {
     grid-template-columns: 1fr;
-    gap: 36px;
-    padding: 32px 16px 48px;
+    gap: 32px;
+    padding: 18px 16px 40px;
   }
 }
 
