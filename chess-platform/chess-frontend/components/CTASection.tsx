@@ -16,9 +16,8 @@ export default function CTASection() {
       <div className="container">
         {/* Two-column: left promo, right image */}
         <div
+          className="cta-card-grid"
           style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 480px",
             gap: 0,
             border: "1px solid var(--border-subtle)",
             borderRadius: 8,
@@ -30,7 +29,7 @@ export default function CTASection() {
             style={{
               background: "var(--green-bg)",
               borderRight: "1px solid var(--green-border)",
-              padding: "52px 48px",
+              padding: "40px 24px",
             }}
           >
             <div

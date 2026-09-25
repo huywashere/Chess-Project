@@ -116,6 +116,155 @@ body {
   padding: 0 24px;
 }
 
+@media (max-width: 768px) {
+  .container,
+  .game-arena-container,
+  .container-wide {
+    padding: 0 16px;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .mobile-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-on-desktop {
+    display: none !important;
+  }
+}
+
+.scroll-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 120px 110px 90px;
+  align-items: center;
+  padding: 14px 20px;
+}
+
+@media (max-width: 768px) {
+  .leaderboard-row {
+    grid-template-columns: 36px 1fr auto;
+    padding: 12px 14px;
+    gap: 8px;
+  }
+}
+
+.tournament-standings-row {
+  display: grid;
+  grid-template-columns: 50px 1fr 80px 70px 70px;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .tournament-standings-row {
+    grid-template-columns: 40px 1fr 60px;
+  }
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 48px;
+  align-items: center;
+  padding: 56px 24px 64px;
+}
+
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding: 32px 16px 48px;
+  }
+}
+
+.arena-grid {
+  display: grid;
+  grid-template-columns: min(calc(100vh - 260px), 720px) minmax(360px, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .arena-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+.puzzle-section-grid {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .puzzle-section-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+.featured-banner-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .featured-banner-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cta-card-grid {
+  display: grid;
+  grid-template-columns: 1fr 440px;
+}
+
+@media (max-width: 900px) {
+  .cta-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer-main-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+
+@media (max-width: 1024px) {
+  .footer-main-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-main-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
 /* ─── Solid Buttons (NO glow) ─── */
 .btn {
   display: inline-flex;

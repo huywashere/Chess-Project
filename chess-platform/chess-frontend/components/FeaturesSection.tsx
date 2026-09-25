@@ -92,7 +92,7 @@ export default function FeaturesSection() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
             gap: 1,
             background: "var(--divider)",
             borderRadius: 8,

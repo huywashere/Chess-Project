@@ -103,15 +103,13 @@ export default function GameModesSection() {
 
         {/* Featured Banner with User's unnamed.webp Artwork */}
         <div
+          className="featured-banner-grid"
           style={{
             background: "var(--bg-surface)",
             border: "1px solid var(--border-subtle)",
             borderRadius: 8,
             overflow: "hidden",
             marginBottom: 24,
-            display: "grid",
-            gridTemplateColumns: "1.1fr 0.9fr",
-            alignItems: "center",
           }}
         >
           <div style={{ padding: "36px 40px" }}>
@@ -198,7 +196,7 @@ export default function GameModesSection() {
         </div>
 
         {/* 2×2 grid of mode cards */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 16 }}>
           {MODES.map((mode) => {
             const Icon = mode.icon;
             return (

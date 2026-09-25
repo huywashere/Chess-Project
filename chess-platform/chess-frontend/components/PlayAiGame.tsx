@@ -912,7 +912,7 @@ export default function PlayAiGame() {
     gameStatus.includes("Hết giờ");
 
   return (
-    <div className="game-arena-container" style={{ padding: "74px 28px 40px" }}>
+    <div className="game-arena-container" style={{ paddingTop: 74, paddingBottom: 40 }}>
       {/* Top Header & Breadcrumb & Mode Switcher */}
       <div
         style={{
@@ -1071,14 +1071,7 @@ export default function PlayAiGame() {
       </div>
 
       {/* Main 2-Column Board & Control Interface */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "min(calc(100vh - 260px), 720px) minmax(380px, 1fr)",
-          gap: 32,
-          alignItems: "start",
-        }}
-      >
+      <div className="arena-grid">
         {/* LEFT COLUMN: The Chessboard & Player Bars */}
         <div>
           {/* Top Player (Opponent Bot / Player 2) */}

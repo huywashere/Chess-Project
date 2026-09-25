@@ -57,7 +57,7 @@ export default function GameReviewModal({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: 20,
+        padding: "16px 12px",
       }}
       onClick={onClose}
     >
@@ -114,7 +114,7 @@ export default function GameReviewModal({
         </div>
 
         {/* Content Body */}
-        <div style={{ padding: "20px 24px", overflowY: "auto", flex: 1 }}>
+        <div style={{ padding: "16px 14px", overflowY: "auto", flex: 1 }}>
           {/* Accuracy Score Cards */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
             {/* White Player */}
@@ -193,7 +193,7 @@ export default function GameReviewModal({
               Thống Kê Phân Loại Nước Đi
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 10 }}>
               {(Object.keys(CLASSIFICATION_CONFIG) as MoveClassification[]).map((key) => {
                 const conf = CLASSIFICATION_CONFIG[key];
                 const wCount = report.whiteStats[key] || 0;

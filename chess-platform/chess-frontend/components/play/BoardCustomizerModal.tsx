@@ -51,7 +51,7 @@ export default function BoardCustomizerModal({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: 20,
+        padding: "16px 12px",
       }}
       onClick={onClose}
     >
@@ -60,7 +60,7 @@ export default function BoardCustomizerModal({
           background: "var(--bg-surface)",
           border: "1px solid var(--border-medium)",
           borderRadius: 14,
-          padding: "24px 28px",
+          padding: "20px 16px",
           maxWidth: 620,
           width: "100%",
           maxHeight: "90vh",
@@ -204,7 +204,7 @@ export default function BoardCustomizerModal({
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
               gap: 10,
               marginBottom: 20,
             }}

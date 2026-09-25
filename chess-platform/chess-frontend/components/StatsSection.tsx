@@ -43,15 +43,16 @@ export default function StatsSection() {
       }}
     >
       <div className="container">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))" }}>
           {STATS.map((s, i) => {
             const Icon = s.icon;
             return (
               <div
                 key={s.label}
                 style={{
-                  padding: "28px 24px",
-                  borderRight: i < 3 ? "1px solid var(--divider)" : "none",
+                  padding: "24px 20px",
+                  borderRight: "1px solid var(--divider)",
+                  borderBottom: "1px solid var(--divider)",
                   display: "flex",
                   alignItems: "flex-start",
                   gap: 16,

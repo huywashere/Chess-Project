@@ -140,14 +140,7 @@ export default function DailyPuzzleSection() {
       }}
     >
       <div className="container">
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "380px 1fr",
-            gap: 48,
-            alignItems: "center",
-          }}
-        >
+        <div className="puzzle-section-grid">
           {/* Left: Interactive Puzzle Board */}
           <div>
             <div

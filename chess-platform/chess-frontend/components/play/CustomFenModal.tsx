@@ -72,7 +72,7 @@ export default function CustomFenModal({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: 20,
+        padding: "16px 12px",
       }}
       onClick={onClose}
     >
@@ -81,7 +81,7 @@ export default function CustomFenModal({
           background: "var(--bg-surface)",
           border: "1px solid var(--border-medium)",
           borderRadius: 12,
-          padding: "24px 28px",
+          padding: "20px 16px",
           maxWidth: 540,
           width: "100%",
           boxShadow: "0 24px 60px rgba(0,0,0,0.85)",

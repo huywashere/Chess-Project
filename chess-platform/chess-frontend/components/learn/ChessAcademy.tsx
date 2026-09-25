@@ -237,13 +237,11 @@ export default function ChessAcademy() {
 
         {/* Category Filter Pills */}
         <div
+          className="scroll-pills"
           style={{
-            display: "flex",
-            gap: 8,
             marginBottom: 28,
             borderBottom: "1px solid var(--divider)",
             paddingBottom: 14,
-            overflowX: "auto",
           }}
         >
           {categories.map((c) => {
@@ -276,8 +274,8 @@ export default function ChessAcademy() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
-            gap: 36,
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
+            gap: 24,
             alignItems: "start",
             marginBottom: 48,
           }}
@@ -290,7 +288,8 @@ export default function ChessAcademy() {
                 overflow: "hidden",
                 border: "2px solid #588c32",
                 boxShadow: "0 12px 32px rgba(0,0,0,0.4)",
-                maxWidth: 520,
+                maxWidth: 500,
+                width: "100%",
                 margin: "0 auto",
               }}
             >
@@ -639,7 +638,7 @@ export default function ChessAcademy() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))",
               gap: 16,
             }}
           >

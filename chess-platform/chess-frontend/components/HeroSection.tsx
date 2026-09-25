@@ -170,16 +170,7 @@ export default function HeroSection() {
       </div>
 
       {/* Main Hero Grid */}
-      <div
-        className="container"
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1.05fr 0.95fr",
-          gap: 48,
-          alignItems: "center",
-          padding: "56px 24px 64px",
-        }}
-      >
+      <div className="container hero-grid">
         {/* LEFT COLUMN: Pitch & Quick Start */}
         <div>
           {/* Tag */}

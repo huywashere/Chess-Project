@@ -134,6 +134,7 @@ export default function TournamentsHub() {
 
         {/* Status Filter Tabs */}
         <div
+          className="scroll-pills"
           style={{
             display: "flex",
             gap: 8,
@@ -188,7 +189,7 @@ export default function TournamentsHub() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
             gap: 20,
           }}
         >
@@ -380,7 +381,7 @@ export default function TournamentsHub() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              padding: 20,
+              padding: "16px 12px",
             }}
             onClick={() => setSelectedTournament(null)}
           >
@@ -481,9 +482,8 @@ export default function TournamentsHub() {
                 {activeDetailTab === "standings" ? (
                   <div>
                     <div
+                      className="tournament-standings-row"
                       style={{
-                        display: "grid",
-                        gridTemplateColumns: "50px 1fr 80px 70px 70px",
                         fontSize: 11,
                         fontWeight: 700,
                         color: "var(--text-muted)",
@@ -495,17 +495,15 @@ export default function TournamentsHub() {
                       <span>Hạng</span>
                       <span>Kỳ Thủ</span>
                       <span style={{ textAlign: "right" }}>Điểm</span>
-                      <span style={{ textAlign: "right" }}>Chuỗi</span>
-                      <span style={{ textAlign: "right" }}>Thắng</span>
+                      <span className="hide-on-mobile" style={{ textAlign: "right" }}>Chuỗi</span>
+                      <span className="hide-on-mobile" style={{ textAlign: "right" }}>Thắng</span>
                     </div>
 
                     {selectedTournament.standings.map((st) => (
                       <div
                         key={st.rank}
+                        className="tournament-standings-row"
                         style={{
-                          display: "grid",
-                          gridTemplateColumns: "50px 1fr 80px 70px 70px",
-                          alignItems: "center",
                           padding: "10px 0",
                           borderBottom: "1px solid var(--divider)",
                           fontSize: 13,
@@ -514,7 +512,7 @@ export default function TournamentsHub() {
                         <span style={{ fontWeight: 700, color: st.rank <= 3 ? "var(--gold-light)" : "var(--text-muted)" }}>
                           #{st.rank}
                         </span>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, overflow: "hidden" }}>
                           {st.title && (
                             <span
                               style={{
@@ -524,20 +522,23 @@ export default function TournamentsHub() {
                                 fontWeight: 800,
                                 padding: "1px 4px",
                                 borderRadius: 3,
+                                flexShrink: 0,
                               }}
                             >
                               {st.title}
                             </span>
                           )}
-                          <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{st.name}</span>
+                          <span style={{ fontWeight: 600, color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {st.name}
+                          </span>
                         </div>
                         <span style={{ textAlign: "right", fontWeight: 700, color: "var(--gold-light)" }}>
                           {st.points}
                         </span>
-                        <span style={{ textAlign: "right", color: "var(--orange-light)", fontWeight: 600 }}>
+                        <span className="hide-on-mobile" style={{ textAlign: "right", color: "var(--orange-light)", fontWeight: 600 }}>
                           {st.streak}🔥
                         </span>
-                        <span style={{ textAlign: "right", color: "var(--green-light)", fontWeight: 600 }}>
+                        <span className="hide-on-mobile" style={{ textAlign: "right", color: "var(--green-light)", fontWeight: 600 }}>
                           {st.winRate}%
                         </span>
                       </div>

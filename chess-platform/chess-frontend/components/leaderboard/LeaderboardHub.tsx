@@ -153,13 +153,11 @@ export default function LeaderboardHub() {
 
         {/* Category Tabs */}
         <div
+          className="scroll-pills"
           style={{
-            display: "flex",
-            gap: 8,
             marginBottom: 28,
             borderBottom: "1px solid var(--divider)",
             paddingBottom: 14,
-            overflowX: "auto",
           }}
         >
           {categoryTabs.map((tab) => {
@@ -481,10 +479,8 @@ export default function LeaderboardHub() {
         >
           {/* Table Header */}
           <div
+            className="leaderboard-row"
             style={{
-              display: "grid",
-              gridTemplateColumns: "60px 1fr 120px 110px 90px",
-              padding: "12px 20px",
               background: "var(--bg-raised)",
               borderBottom: "1px solid var(--divider)",
               fontSize: 11,
@@ -497,8 +493,8 @@ export default function LeaderboardHub() {
             <span>Hạng</span>
             <span>Kỳ Thủ</span>
             <span style={{ textAlign: "right" }}>Hệ Số ELO</span>
-            <span style={{ textAlign: "right" }}>Tỷ Lệ Thắng</span>
-            <span style={{ textAlign: "right" }}>Phong Độ</span>
+            <span className="hide-on-mobile" style={{ textAlign: "right" }}>Tỷ Lệ Thắng</span>
+            <span className="hide-on-mobile" style={{ textAlign: "right" }}>Phong Độ</span>
           </div>
 
           {/* Table Rows */}
@@ -523,11 +519,8 @@ export default function LeaderboardHub() {
               return (
                 <div
                   key={`${player.username}-${idx}`}
+                  className="leaderboard-row"
                   style={{
-                    display: "grid",
-                    gridTemplateColumns: "60px 1fr 120px 110px 90px",
-                    alignItems: "center",
-                    padding: "14px 20px",
                     borderBottom:
                       idx < filteredPlayers.length - 1 ? "1px solid var(--divider)" : "none",
                     background: idx % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
@@ -651,7 +644,7 @@ export default function LeaderboardHub() {
                   </div>
 
                   {/* Win rate */}
-                  <div style={{ textAlign: "right", fontSize: 13, color: "var(--text-secondary)" }}>
+                  <div className="hide-on-mobile" style={{ textAlign: "right", fontSize: 13, color: "var(--text-secondary)" }}>
                     <span style={{ color: "var(--green-light)", fontWeight: 600 }}>
                       {player.winRate}%
                     </span>
@@ -662,6 +655,7 @@ export default function LeaderboardHub() {
 
                   {/* Recent Form / Streak */}
                   <div
+                    className="hide-on-mobile"
                     style={{
                       textAlign: "right",
                       display: "flex",
