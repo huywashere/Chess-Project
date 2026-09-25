@@ -1,20 +1,32 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { AUTH_COOKIE_NAME, verifyAuthToken, toSafeUser } from "@/lib/auth";
+import {
+  checkRateLimit,
+  createRateLimitResponse,
+  getClientIp,
+  getRateLimitHeaders,
+} from "@/lib/rateLimit";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const limiter = checkRateLimit(`auth-me:${ip}`, "SESSION_CHECK");
+    if (!limiter.success) {
+      return createRateLimitResponse(limiter);
+    }
+
     const cookieStore = await cookies();
     const token = cookieStore.get(AUTH_COOKIE_NAME)?.value;
 
     if (!token) {
-      return NextResponse.json({ user: null }, { status: 200 });
+      return NextResponse.json({ user: null }, { status: 200, headers: getRateLimitHeaders(limiter) });
     }
 
     const payload = await verifyAuthToken(token);
     if (!payload || !payload.userId) {
-      return NextResponse.json({ user: null }, { status: 200 });
+      return NextResponse.json({ user: null }, { status: 200, headers: getRateLimitHeaders(limiter) });
     }
 
     const user = await prisma.user.findUnique({
@@ -24,10 +36,13 @@ export async function GET() {
     if (!user || !user.isActive) {
       // Clear invalid cookie
       cookieStore.delete(AUTH_COOKIE_NAME);
-      return NextResponse.json({ user: null }, { status: 200 });
+      return NextResponse.json({ user: null }, { status: 200, headers: getRateLimitHeaders(limiter) });
     }
 
-    return NextResponse.json({ user: toSafeUser(user) }, { status: 200 });
+    return NextResponse.json(
+      { user: toSafeUser(user) },
+      { status: 200, headers: getRateLimitHeaders(limiter) }
+    );
   } catch (error) {
     console.error("Auth me check error:", error);
     return NextResponse.json({ user: null }, { status: 200 });

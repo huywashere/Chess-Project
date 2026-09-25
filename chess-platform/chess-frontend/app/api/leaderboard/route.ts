@@ -1,8 +1,24 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import {
+  checkRateLimit,
+  createRateLimitResponse,
+  getClientIp,
+  getRateLimitHeaders,
+} from '@/lib/rateLimit';
 
 export async function GET(request: Request) {
   try {
+    // Rate limit: 60 requests per minute to prevent leaderboard scraping / DB overload
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit(`leaderboard:${ip}`, 'API_READ');
+    if (!limiter.success) {
+      return createRateLimitResponse(
+        limiter,
+        `Bạn đã truy vấn bảng xếp hạng quá nhiều lần. Vui lòng thử lại sau ${limiter.resetInSeconds} giây.`
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category') || 'blitz';
     const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
@@ -46,12 +62,18 @@ export async function GET(request: Request) {
           : u.ratingBlitz,
     }));
 
-    return NextResponse.json({
-      success: true,
-      category,
-      total: rankedUsers.length,
-      data: rankedUsers,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        category,
+        total: rankedUsers.length,
+        data: rankedUsers,
+      },
+      {
+        status: 200,
+        headers: getRateLimitHeaders(limiter),
+      }
+    );
   } catch (error) {
     console.error('Error in /api/leaderboard:', error);
     return NextResponse.json(

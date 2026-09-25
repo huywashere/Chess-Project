@@ -1,8 +1,24 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import {
+  checkRateLimit,
+  createRateLimitResponse,
+  getClientIp,
+  getRateLimitHeaders,
+} from '@/lib/rateLimit';
 
 export async function GET(request: Request) {
   try {
+    // Rate limit: 60 requests per minute for games query
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit(`games-get:${ip}`, 'API_READ');
+    if (!limiter.success) {
+      return createRateLimitResponse(
+        limiter,
+        `Bạn đã truy vấn lịch sử ván cờ quá nhanh. Vui lòng thử lại sau ${limiter.resetInSeconds} giây.`
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get('limit') || '20', 10), 50);
 
@@ -32,11 +48,17 @@ export async function GET(request: Request) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      count: games.length,
-      data: games,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        count: games.length,
+        data: games,
+      },
+      {
+        status: 200,
+        headers: getRateLimitHeaders(limiter),
+      }
+    );
   } catch (error) {
     console.error('Error in GET /api/games:', error);
     return NextResponse.json(
@@ -48,6 +70,16 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    // Rate limit: 15 game saves per minute per IP to prevent spam & DB flood
+    const ip = getClientIp(request);
+    const limiter = checkRateLimit(`games-post:${ip}`, 'GAME_SUBMISSION');
+    if (!limiter.success) {
+      return createRateLimitResponse(
+        limiter,
+        `Bạn đang lưu ván cờ quá nhanh. Vui lòng đợi ${limiter.resetInSeconds} giây.`
+      );
+    }
+
     const body = await request.json();
     const {
       whitePlayerId,
@@ -102,10 +134,16 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: game,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: game,
+      },
+      {
+        status: 201,
+        headers: getRateLimitHeaders(limiter),
+      }
+    );
   } catch (error) {
     console.error('Error in POST /api/games:', error);
     return NextResponse.json(
