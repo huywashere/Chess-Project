@@ -9,17 +9,11 @@ import {
   RotateCcw,
   CheckCircle2,
   AlertCircle,
-  Award,
+  Eye,
   ArrowRight,
   Flame,
-  Trophy,
-  Brain,
-  HelpCircle,
   Volume2,
   VolumeX,
-  Shuffle,
-  ChevronRight,
-  Zap,
   Sparkles,
 } from "lucide-react";
 import { CHESS_PUZZLES, ChessPuzzle } from "@/lib/puzzlesData";
@@ -37,7 +31,7 @@ const Chessboard = dynamic(
           width: "100%",
           aspectRatio: "1",
           background: "#262421",
-          borderRadius: 8,
+          borderRadius: 6,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -123,7 +117,6 @@ export default function PuzzlesArena() {
 
     // Check if move matches expected solution
     if (sourceSquare === expectedStep.from && targetSquare === expectedStep.to) {
-      // Valid move!
       try {
         const move = game.move({ from: sourceSquare, to: targetSquare, promotion: "q" });
         if (!move) return false;
@@ -168,7 +161,7 @@ export default function PuzzlesArena() {
 
             setCurrentStepIndex((prev) => prev + 1);
             setHintText(expectedStep.hintAfter || "Hãy tiếp tục tung đòn kết liễu!");
-          }, 500);
+          }, 450);
 
           return true;
         } else {
@@ -238,424 +231,430 @@ export default function PuzzlesArena() {
     loadPuzzle(currentPuzzle);
   }
 
-  const winRate =
-    solvedCount + failedCount > 0
-      ? Math.round((solvedCount / (solvedCount + failedCount)) * 100)
-      : 100;
+  const categories = [
+    { id: "all", label: "Tất Cả" },
+    { id: "mate", label: "Chiếu Bí" },
+    { id: "fork", label: "Chĩa Đôi (Fork)" },
+    { id: "pin", label: "Ghim Quân (Pin)" },
+    { id: "discovery", label: "Tấn Công Mở" },
+    { id: "skewer", label: "Đòn Xiên (Skewer)" },
+    { id: "sacrifice", label: "Thí Quân" },
+  ];
 
   return (
-    <div
+    <section
       style={{
+        background: "var(--bg-base)",
         minHeight: "100vh",
-        background:
-          "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(212, 174, 26, 0.12), transparent 70%), radial-gradient(ellipse 60% 40% at 90% 20%, rgba(129, 182, 76, 0.08), transparent 60%), #12110e",
-        padding: "80px 24px 64px",
+        padding: "88px 0 64px",
       }}
     >
-      <div className="game-arena-container" style={{ maxWidth: 1400, margin: "0 auto" }}>
-        {/* Header Banner */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 24,
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      <div className="container">
+        {/* Section Header - Đồng bộ với Trang Chủ */}
+        <div style={{ marginBottom: 32 }}>
           <div
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 10,
-              background: "rgba(212, 174, 26, 0.15)",
-              border: "1px solid rgba(212, 174, 26, 0.3)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              color: "var(--gold-light)",
+              gap: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "1.2px",
+              color: "var(--orange-light)",
+              marginBottom: 8,
             }}
           >
-            <Puzzle size={24} />
+            <Puzzle size={14} />
+            <span>KHO BÀI TẬP CHIẾN THUẬT</span>
           </div>
-          <div>
-            <h1
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              flexWrap: "wrap",
+              gap: 16,
+            }}
+          >
+            <div>
+              <h1
+                style={{
+                  fontSize: "clamp(26px, 3.5vw, 36px)",
+                  fontWeight: 700,
+                  fontFamily: "var(--font-serif)",
+                  color: "var(--text-primary)",
+                  margin: 0,
+                  letterSpacing: "-0.5px",
+                }}
+              >
+                Luyện Tập Thế Cờ & Chiến Thuật
+              </h1>
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "var(--text-secondary)",
+                  marginTop: 6,
+                  marginBottom: 0,
+                }}
+              >
+                Hơn 50,000+ bài tập thực tế trích xuất từ ván đấu, giúp rèn luyện khả năng tính toán
+              </p>
+            </div>
+
+            {/* Sound toggle button */}
+            <button
+              type="button"
+              onClick={() => setSoundEnabled((v) => !v)}
               style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: 24,
-                fontWeight: 700,
-                color: "var(--text-primary)",
-                margin: 0,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 14px",
+                background: "var(--bg-surface)",
+                border: "1px solid var(--divider)",
+                borderRadius: 6,
+                color: soundEnabled ? "var(--text-primary)" : "var(--text-muted)",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
               }}
             >
-              Đấu Trường Chiến Thuật (Puzzles Arena)
-            </h1>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
-              Giải thế cờ hóc búa, rèn luyện tư duy tính toán và nâng cao chỉ số ELO chiến thuật
-            </p>
+              {soundEnabled ? <Volume2 size={15} /> : <VolumeX size={15} />}
+              <span>{soundEnabled ? "Âm thanh: Bật" : "Âm thanh: Tắt"}</span>
+            </button>
           </div>
         </div>
 
-        {/* Sound Toggle */}
-        <button
-          type="button"
-          onClick={() => setSoundEnabled((v) => !v)}
+        {/* Category Filter Pills */}
+        <div
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            background: "var(--bg-surface)",
-            border: "1px solid var(--border-subtle)",
-            color: soundEnabled ? "var(--green-light)" : "var(--text-muted)",
-            borderRadius: 6,
-            padding: "6px 12px",
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: "pointer",
+            display: "flex",
+            gap: 8,
+            marginBottom: 28,
+            borderBottom: "1px solid var(--divider)",
+            paddingBottom: 14,
+            overflowX: "auto",
           }}
         >
-          {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-          <span>{soundEnabled ? "Âm thanh: Bật" : "Âm thanh: Tắt"}</span>
-        </button>
-      </div>
+          {categories.map((c) => {
+            const isActive = selectedCategory === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => {
+                  setSelectedCategory(c.id);
+                  setCurrentPuzzleIndex(0);
+                }}
+                style={{
+                  padding: "7px 14px",
+                  borderRadius: 6,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  background: isActive ? "var(--bg-raised)" : "transparent",
+                  color: isActive ? "var(--orange-light)" : "var(--text-secondary)",
+                  border: `1px solid ${isActive ? "var(--orange-border)" : "transparent"}`,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Category Pills */}
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          marginBottom: 20,
-          overflowX: "auto",
-          paddingBottom: 4,
-        }}
-      >
-        {[
-          { id: "all", label: "Tất Cả Thế Cờ" },
-          { id: "mate", label: "Chiếu Bí (Checkmate)" },
-          { id: "fork", label: "Đòn Chĩa Đôi (Fork)" },
-          { id: "pin", label: "Đòn Ghim (Pin)" },
-          { id: "skewer", label: "Đòn Xiên (Skewer)" },
-          { id: "discovery", label: "Tấn Công Mở" },
-          { id: "sacrifice", label: "Thí Quân Phối Hợp" },
-        ].map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            onClick={() => {
-              setSelectedCategory(cat.id);
-              setCurrentPuzzleIndex(0);
-            }}
-            style={{
-              padding: "6px 14px",
-              borderRadius: 20,
-              fontSize: 13,
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-              cursor: "pointer",
-              background:
-                selectedCategory === cat.id
-                  ? "var(--gold-bg)"
-                  : "var(--bg-surface)",
-              color:
-                selectedCategory === cat.id
-                  ? "var(--gold-light)"
-                  : "var(--text-secondary)",
-              border: `1px solid ${
-                selectedCategory === cat.id
-                  ? "var(--gold-border)"
-                  : "var(--border-subtle)"
-              }`,
-              transition: "all 0.15s ease",
-            }}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
+        {/* Main 2-Column Grid (Giống DailyPuzzleSection) */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
+            gap: 36,
+            alignItems: "start",
+          }}
+        >
+          {/* Left: Interactive Board */}
+          <div>
+            <div
+              style={{
+                borderRadius: 6,
+                overflow: "hidden",
+                border: "2px solid #588c32",
+                boxShadow: "0 12px 32px rgba(0,0,0,0.4)",
+                maxWidth: 520,
+                margin: "0 auto",
+              }}
+            >
+              <Chessboard
+                options={{
+                  position: fen,
+                  boardOrientation: currentPuzzle.playerColor,
+                  onPieceDrop: handlePieceDrop,
+                  darkSquareStyle: { backgroundColor: boardTheme.dark },
+                  lightSquareStyle: { backgroundColor: boardTheme.light },
+                  darkSquareNotationStyle: { color: boardTheme.lightNotationColor, fontSize: 10, fontWeight: "600" },
+                  lightSquareNotationStyle: { color: boardTheme.darkNotationColor, fontSize: 10, fontWeight: "600" },
+                  squareStyles: lastMoveSquares,
+                  pieces: customPieces,
+                  animationDurationInMs: 200,
+                }}
+              />
+            </div>
 
-      {/* Main Grid: Chessboard + Side Panel */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "minmax(320px, 600px) minmax(300px, 1fr)",
-          gap: 24,
-          alignItems: "start",
-        }}
-      >
-        {/* LEFT COLUMN: Chessboard */}
-        <div>
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              borderRadius: 12,
-              border: "1px solid var(--border-medium)",
-              padding: 16,
-              boxShadow: "0 12px 32px rgba(0,0,0,0.5)",
-            }}
-          >
-            {/* Top Indicator */}
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 12,
-                padding: "8px 12px",
-                background: "rgba(0,0,0,0.25)",
-                borderRadius: 6,
+                marginTop: 10,
+                fontSize: 12,
+                color: "var(--text-muted)",
+                maxWidth: 520,
+                margin: "10px auto 0",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span>Kéo thả quân cờ để giải trực tiếp</span>
+              <span>
+                Thế cờ #{currentPuzzleIndex + 1} / {filteredPuzzles.length}
+              </span>
+            </div>
+          </div>
+
+          {/* Right: Puzzle Info & Actions Card */}
+          <div
+            style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--divider)",
+              borderRadius: 8,
+              padding: 24,
+            }}
+          >
+            {/* Header info */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: 12,
+                marginBottom: 16,
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <span
+                    style={{
+                      background: "var(--orange-bg)",
+                      border: "1px solid var(--orange-border)",
+                      color: "var(--orange-light)",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                    }}
+                  >
+                    {currentPuzzle.categoryName}
+                  </span>
+                  <span
+                    style={{
+                      background: "var(--bg-raised)",
+                      color: "var(--gold-light)",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: 4,
+                    }}
+                  >
+                    {currentPuzzle.rating} ELO
+                  </span>
+                </div>
+
+                <h2
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                    margin: 0,
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {currentPuzzle.title}
+                </h2>
+              </div>
+
+              {/* Turn indicator */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "4px 10px",
+                  borderRadius: 20,
+                  background: "var(--bg-raised)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: "var(--text-secondary)",
+                  flexShrink: 0,
+                }}
+              >
                 <span
                   style={{
                     width: 10,
                     height: 10,
                     borderRadius: "50%",
-                    background: currentPuzzle.playerColor === "white" ? "#fff" : "#000",
-                    border: "1px solid #777",
+                    background: currentPuzzle.playerColor === "white" ? "#fff" : "#1a1816",
+                    border: "1px solid var(--divider)",
                   }}
                 />
-                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
-                  {currentPuzzle.playerColor === "white"
-                    ? "Trắng Đi Trước"
-                    : "Đen Đi Trước"}
-                </span>
+                <span>{currentPuzzle.playerColor === "white" ? "Trắng đi" : "Đen đi"}</span>
               </div>
-              <span
+            </div>
+
+            {/* Description */}
+            <p
+              style={{
+                fontSize: 14,
+                color: "var(--text-secondary)",
+                lineHeight: 1.6,
+                marginBottom: 20,
+              }}
+            >
+              {currentPuzzle.description}
+            </p>
+
+            {/* Feedback / Status Box */}
+            {puzzleStatus === "solved" ? (
+              <div
                 style={{
-                  fontSize: 12,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "12px 16px",
+                  borderRadius: 6,
+                  background: "var(--green-bg)",
+                  border: "1px solid var(--green-border)",
+                  color: "var(--green-light)",
+                  fontSize: 14,
                   fontWeight: 600,
-                  padding: "2px 8px",
-                  borderRadius: 4,
-                  background: "rgba(212, 174, 26, 0.15)",
-                  color: "var(--gold-light)",
-                  border: "1px solid rgba(212, 174, 26, 0.3)",
+                  marginBottom: 20,
                 }}
               >
-                {currentPuzzle.difficulty} • {currentPuzzle.rating} ELO
-              </span>
-            </div>
-
-            {/* Chessboard */}
-            <div
-              style={{
-                width: "100%",
-                aspectRatio: "1",
-                borderRadius: 6,
-                overflow: "hidden",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
-              }}
-            >
-              {fen && (
-                <Chessboard
-                  options={{
-                    position: fen,
-                    boardOrientation: currentPuzzle.playerColor,
-                    onPieceDrop: handlePieceDrop,
-                    showNotation: true,
-                    darkSquareStyle: { backgroundColor: boardTheme.dark },
-                    lightSquareStyle: { backgroundColor: boardTheme.light },
-                    darkSquareNotationStyle: {
-                      color: boardTheme.lightNotationColor,
-                      fontWeight: "600",
-                      fontSize: 11,
-                    },
-                    lightSquareNotationStyle: {
-                      color: boardTheme.darkNotationColor,
-                      fontWeight: "600",
-                      fontSize: 11,
-                    },
-                    pieces: customPieces,
-                    squareStyles: lastMoveSquares,
-                    animationDurationInMs: 200,
-                  }}
-                />
-              )}
-            </div>
-
-            {/* Board Status & Feedback Banner */}
-            <div style={{ marginTop: 14 }}>
-              {puzzleStatus === "idle" && (
-                <div
-                  style={{
-                    background: "rgba(255,255,255,0.04)",
-                    border: "1px solid var(--border-subtle)",
-                    borderRadius: 8,
-                    padding: "10px 14px",
-                    fontSize: 13,
-                    color: "var(--text-secondary)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <Brain size={16} color="var(--gold-light)" />
-                  <span>{currentPuzzle.description}</span>
-                </div>
-              )}
-
-              {puzzleStatus === "correct_step" && (
-                <div
-                  style={{
-                    background: "rgba(129, 182, 76, 0.15)",
-                    border: "1px solid var(--green-border)",
-                    borderRadius: 8,
-                    padding: "10px 14px",
-                    fontSize: 13,
-                    color: "var(--green-light)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    fontWeight: 600,
-                  }}
-                >
-                  <CheckCircle2 size={16} />
-                  <span>{hintText || "Nước đi rất chuẩn xác! Hãy chuẩn bị cho nước tiếp theo."}</span>
-                </div>
-              )}
-
-              {puzzleStatus === "solved" && (
-                <div
-                  style={{
-                    background: "linear-gradient(135deg, rgba(129, 182, 76, 0.2), rgba(212, 174, 26, 0.15))",
-                    border: "1px solid var(--green-border)",
-                    borderRadius: 8,
-                    padding: "14px 16px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 8,
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--green-light)", fontWeight: 700 }}>
-                      <Award size={18} />
-                      <span>XUẤT SẮC! CÂU ĐỐ ĐÃ ĐƯỢC GIẢI QUYẾT (+{ratingChange} ELO)</span>
-                    </div>
-                    <span
-                      style={{
-                        fontSize: 12,
-                        padding: "2px 8px",
-                        borderRadius: 12,
-                        background: "rgba(239, 68, 68, 0.2)",
-                        color: "#f87171",
-                        fontWeight: 700,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                      }}
-                    >
-                      <Flame size={12} /> Chuỗi {streak}
-                    </span>
-                  </div>
-                  <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                    {currentPuzzle.explanation}
-                  </p>
-                </div>
-              )}
-
-              {puzzleStatus === "wrong" && (
-                <div
-                  style={{
-                    background: "rgba(239, 68, 68, 0.12)",
-                    border: "1px solid rgba(239, 68, 68, 0.35)",
-                    borderRadius: 8,
-                    padding: "12px 14px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 6,
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#f87171", fontWeight: 700, fontSize: 13 }}>
-                    <AlertCircle size={16} />
-                    <span>Nước đi chưa tối ưu! ({ratingChange} ELO)</span>
-                  </div>
-                  <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)" }}>
-                    {hintText || "Hãy phân tích lại các quân cờ đang bị hớ của đối phương."}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Action Buttons Toolbar */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginTop: 14,
-                gap: 10,
-                flexWrap: "wrap",
-              }}
-            >
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  type="button"
-                  onClick={handleRetry}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 12px",
-                    borderRadius: 6,
-                    background: "var(--bg-elevated)",
-                    border: "1px solid var(--border-subtle)",
-                    color: "var(--text-primary)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                  title="Thử lại câu đố này"
-                >
-                  <RotateCcw size={14} />
-                  <span>Thử Lại</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleShowHint}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 12px",
-                    borderRadius: 6,
-                    background: "var(--gold-bg)",
-                    border: "1px solid var(--gold-border)",
-                    color: "var(--gold-light)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                  title="Hiển thị gợi ý nước đi"
-                >
-                  <Lightbulb size={14} />
-                  <span>Gợi Ý</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleShowSolution}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 12px",
-                    borderRadius: 6,
-                    background: "rgba(255,255,255,0.06)",
-                    border: "1px solid var(--border-subtle)",
-                    color: "var(--text-muted)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                  title="Xem lời giải chi tiết"
-                >
-                  <HelpCircle size={14} />
-                  <span>Xem Lời Giải</span>
-                </button>
+                <CheckCircle2 size={18} />
+                <span>
+                  Chính xác tuyệt đối! +{ratingChange || 15} ELO • Chuỗi thắng {streak} 🔥
+                </span>
               </div>
+            ) : puzzleStatus === "wrong" ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "12px 16px",
+                  borderRadius: 6,
+                  background: "rgba(200, 75, 58, 0.15)",
+                  border: "1px solid rgba(200, 75, 58, 0.3)",
+                  color: "#f87171",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  marginBottom: 20,
+                }}
+              >
+                <AlertCircle size={18} />
+                <span>{hintText || "Nước đi chưa đúng! Hãy thử lại hoặc xem gợi ý."}</span>
+              </div>
+            ) : hintText ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "12px 16px",
+                  borderRadius: 6,
+                  background: "var(--gold-bg)",
+                  border: "1px solid var(--gold-border)",
+                  color: "var(--gold-light)",
+                  fontSize: 13,
+                  fontWeight: 500,
+                  marginBottom: 20,
+                }}
+              >
+                <Lightbulb size={18} />
+                <span>{hintText}</span>
+              </div>
+            ) : null}
+
+            {/* Action Buttons */}
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 24 }}>
+              {puzzleStatus !== "solved" && (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleShowHint}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "9px 14px",
+                      borderRadius: 6,
+                      background: "var(--bg-raised)",
+                      border: "1px solid var(--divider)",
+                      color: "var(--text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "color 0.15s ease",
+                    }}
+                  >
+                    <Lightbulb size={15} />
+                    <span>Gợi Ý</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleShowSolution}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "9px 14px",
+                      borderRadius: 6,
+                      background: "var(--bg-raised)",
+                      border: "1px solid var(--divider)",
+                      color: "var(--text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <Eye size={15} />
+                    <span>Xem Lời Giải</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleRetry}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "9px 14px",
+                      borderRadius: 6,
+                      background: "var(--bg-raised)",
+                      border: "1px solid var(--divider)",
+                      color: "var(--text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <RotateCcw size={15} />
+                    <span>Làm Lại</span>
+                  </button>
+                </>
+              )}
 
               <button
                 type="button"
@@ -663,213 +662,77 @@ export default function PuzzlesArena() {
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: 8,
+                  gap: 6,
                   padding: "9px 18px",
                   borderRadius: 6,
-                  background: "var(--gold)",
-                  color: "#000",
+                  background: puzzleStatus === "solved" ? "var(--green-vivid)" : "var(--orange-vivid)",
+                  border: "none",
+                  color: "#fff",
                   fontSize: 13,
                   fontWeight: 700,
                   cursor: "pointer",
-                  border: "none",
-                  boxShadow: "0 2px 8px rgba(212, 174, 26, 0.4)",
+                  marginLeft: "auto",
+                  transition: "opacity 0.15s ease",
                 }}
               >
                 <span>Câu Tiếp Theo</span>
                 <ArrowRight size={15} />
               </button>
             </div>
-          </div>
-        </div>
 
-        {/* RIGHT COLUMN: Performance Stats & Puzzle Info */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* User Tactics Rating Card */}
-          <div
-            style={{
-              background: "linear-gradient(135deg, rgba(212, 174, 26, 0.12), rgba(129, 182, 76, 0.08))",
-              borderRadius: 12,
-              border: "1px solid var(--gold-border)",
-              padding: "20px 22px",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <span style={{ fontSize: 13, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px", fontWeight: 700 }}>
-                Chỉ Số Chiến Thuật Của Bạn
-              </span>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 5,
-                  padding: "3px 10px",
-                  borderRadius: 12,
-                  background: streak > 0 ? "rgba(239, 68, 68, 0.2)" : "rgba(255,255,255,0.06)",
-                  color: streak > 0 ? "#f87171" : "var(--text-muted)",
-                  fontWeight: 700,
-                  fontSize: 12,
-                }}
-              >
-                <Flame size={14} />
-                <span>Chuỗi thắng: {streak}</span>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 16 }}>
-              <span
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: 42,
-                  fontWeight: 800,
-                  color: "var(--gold-light)",
-                  lineHeight: 1,
-                }}
-              >
-                {userRating}
-              </span>
-              <span style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 600 }}>ELO TACTICS</span>
-            </div>
-
-            {/* Micro Stats Grid */}
+            {/* User Stats Mini-Panel */}
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr 1fr",
-                gap: 10,
-                paddingTop: 14,
-                borderTop: "1px solid var(--border-subtle)",
+                gap: 12,
+                padding: "14px",
+                background: "var(--bg-raised)",
+                borderRadius: 6,
+                border: "1px solid var(--divider)",
+                textAlign: "center",
               }}
             >
               <div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Đã Giải Đúng</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "var(--green-light)" }}>{solvedCount}</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
+                  TACTICS ELO
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "var(--gold-light)", marginTop: 2 }}>
+                  {userRating}
+                </div>
               </div>
               <div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Chưa Đúng</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "#f87171" }}>{failedCount}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Tỉ Lệ Thắng</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>{winRate}%</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Current Puzzle Deep Dive Card */}
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              borderRadius: 12,
-              border: "1px solid var(--border-subtle)",
-              padding: "18px 20px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <Sparkles size={16} color="var(--gold-light)" />
-              <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--text-primary)" }}>
-                Thông Tin Thế Cờ
-              </h3>
-            </div>
-
-            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--gold-light)", marginBottom: 6 }}>
-              {currentPuzzle.title}
-            </div>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5, marginBottom: 12 }}>
-              {currentPuzzle.description}
-            </p>
-
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
-              {currentPuzzle.themes.map((theme, i) => (
-                <span
-                  key={i}
+                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
+                  CHUỖI THẮNG
+                </div>
+                <div
                   style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    padding: "3px 8px",
-                    borderRadius: 4,
-                    background: "rgba(255,255,255,0.06)",
-                    color: "var(--text-secondary)",
-                    border: "1px solid var(--border-subtle)",
+                    fontSize: 16,
+                    fontWeight: 800,
+                    color: streak > 0 ? "var(--orange-light)" : "var(--text-secondary)",
+                    marginTop: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 3,
                   }}
                 >
-                  #{theme}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Puzzle List Quick Navigation */}
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              borderRadius: 12,
-              border: "1px solid var(--border-subtle)",
-              padding: "18px 20px",
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
-                Danh Sách Câu Đố ({filteredPuzzles.length})
-              </h3>
-              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                Câu {currentPuzzleIndex + 1} / {filteredPuzzles.length}
-              </span>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 260, overflowY: "auto" }}>
-              {filteredPuzzles.map((puz, idx) => {
-                const isActive = idx === currentPuzzleIndex;
-                return (
-                  <button
-                    key={puz.id}
-                    type="button"
-                    onClick={() => setCurrentPuzzleIndex(idx)}
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "8px 12px",
-                      borderRadius: 6,
-                      background: isActive ? "var(--gold-bg)" : "rgba(255,255,255,0.02)",
-                      border: `1px solid ${isActive ? "var(--gold-border)" : "transparent"}`,
-                      cursor: "pointer",
-                      textAlign: "left",
-                      transition: "all 0.15s ease",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: isActive ? "var(--gold-light)" : "var(--text-muted)",
-                          width: 20,
-                        }}
-                      >
-                        #{idx + 1}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 600,
-                          color: isActive ? "var(--gold-light)" : "var(--text-primary)",
-                        }}
-                      >
-                        {puz.title}
-                      </span>
-                    </div>
-                    <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
-                      {puz.rating} ELO
-                    </span>
-                  </button>
-                );
-              })}
+                  {streak > 0 && <Flame size={14} />}
+                  <span>{streak}</span>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
+                  ĐÃ GIẢI ĐÚNG
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "var(--green-light)", marginTop: 2 }}>
+                  {solvedCount} / {solvedCount + failedCount}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </section>
   );
 }

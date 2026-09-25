@@ -10,12 +10,9 @@ import {
   Calendar,
   Swords,
   ChevronRight,
-  Shield,
-  Zap,
   CheckCircle2,
   X,
-  Play,
-  Share2,
+  Zap,
 } from "lucide-react";
 import { CHESS_TOURNAMENTS, ChessTournament } from "@/lib/tournamentsData";
 import { soundManager } from "@/lib/soundEffects";
@@ -42,622 +39,559 @@ export default function TournamentsHub() {
     }
   }
 
+  const tabs: { id: "all" | "live" | "upcoming" | "completed"; label: string; count: number }[] = [
+    { id: "all", label: "Tất Cả Giải Đấu", count: CHESS_TOURNAMENTS.length },
+    { id: "live", label: "Đang Diễn Ra 🔥", count: CHESS_TOURNAMENTS.filter((t) => t.status === "live").length },
+    { id: "upcoming", label: "Sắp Bắt Đầu ⏰", count: CHESS_TOURNAMENTS.filter((t) => t.status === "upcoming").length },
+    { id: "completed", label: "Đã Kết Thúc 🏆", count: CHESS_TOURNAMENTS.filter((t) => t.status === "completed").length },
+  ];
+
   return (
-    <div
+    <section
       style={{
+        background: "var(--bg-base)",
         minHeight: "100vh",
-        background:
-          "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(239, 68, 68, 0.12), transparent 70%), radial-gradient(ellipse 60% 40% at 90% 20%, rgba(212, 174, 26, 0.08), transparent 60%), #12110e",
-        padding: "80px 24px 64px",
+        padding: "88px 0 64px",
       }}
     >
-      <div className="game-arena-container" style={{ maxWidth: 1400, margin: "0 auto" }}>
-        {/* Header Banner */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 24,
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      <div className="container">
+        {/* Section Header - Chuẩn giao diện Trang Chủ */}
+        <div style={{ marginBottom: 32 }}>
           <div
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 10,
-              background: "rgba(239, 68, 68, 0.15)",
-              border: "1px solid rgba(239, 68, 68, 0.3)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              color: "#f87171",
+              gap: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "1.2px",
+              color: "var(--gold-light)",
+              marginBottom: 8,
             }}
           >
-            <Trophy size={24} />
+            <Trophy size={14} />
+            <span>ĐẤU TRƯỜNG & GIẢI ĐẤU</span>
           </div>
-          <div>
-            <h1
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              flexWrap: "wrap",
+              gap: 16,
+            }}
+          >
+            <div>
+              <h1
+                style={{
+                  fontSize: "clamp(26px, 3.5vw, 36px)",
+                  fontWeight: 700,
+                  fontFamily: "var(--font-serif)",
+                  color: "var(--text-primary)",
+                  margin: 0,
+                  letterSpacing: "-0.5px",
+                }}
+              >
+                Giải Đấu Cờ Vua Trực Tuyến
+              </h1>
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "var(--text-secondary)",
+                  marginTop: 6,
+                  marginBottom: 0,
+                }}
+              >
+                Tham gia tranh tài hàng giờ theo thể thức Arena và Thụy Sĩ (Swiss), tích lũy cúp vô địch
+              </p>
+            </div>
+
+            {/* Create Tournament CTA */}
+            <button
+              type="button"
+              onClick={() => alert("Chức năng tạo giải đấu riêng sẽ sẵn sàng trong bản cập nhật tới!")}
               style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: 24,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "9px 18px",
+                borderRadius: 6,
+                background: "var(--gold-bg)",
+                border: "1px solid var(--gold-border)",
+                color: "var(--gold-light)",
+                fontSize: 13,
                 fontWeight: 700,
-                color: "var(--text-primary)",
-                margin: 0,
+                cursor: "pointer",
               }}
             >
-              Đại Hội Giải Đấu (Tournaments Arena)
-            </h1>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
-              Tranh tài đỉnh cao cùng hàng ngàn kỳ thủ, thăng hạng ELO và giành cúp vô địch danh giá
-            </p>
+              <Trophy size={14} />
+              <span>Tạo Giải Đấu</span>
+            </button>
           </div>
         </div>
 
-        {/* Create Tournament CTA */}
-        <button
-          type="button"
-          onClick={() => alert("Chức năng tạo giải đấu tùy chỉnh của bạn sẽ sẵn sàng trong bản cập nhật Club tới!")}
+        {/* Status Filter Tabs */}
+        <div
           style={{
-            display: "inline-flex",
-            alignItems: "center",
+            display: "flex",
             gap: 8,
-            padding: "9px 18px",
-            borderRadius: 6,
-            background: "var(--gold-bg)",
-            border: "1px solid var(--gold-border)",
-            color: "var(--gold-light)",
-            fontSize: 13,
-            fontWeight: 700,
-            cursor: "pointer",
+            marginBottom: 28,
+            borderBottom: "1px solid var(--divider)",
+            paddingBottom: 14,
+            overflowX: "auto",
           }}
         >
-          <Trophy size={15} />
-          <span>Tạo Giải Đấu Mới</span>
-        </button>
-      </div>
-
-      {/* Status Filter Tabs */}
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          marginBottom: 24,
-          borderBottom: "1px solid var(--border-subtle)",
-          paddingBottom: 12,
-        }}
-      >
-        {[
-          { id: "all", label: "Tất Cả Giải Đấu", count: CHESS_TOURNAMENTS.length },
-          { id: "live", label: "Đang Diễn Ra 🔥", count: CHESS_TOURNAMENTS.filter((t) => t.status === "live").length },
-          { id: "upcoming", label: "Sắp Bắt Đầu ⏰", count: CHESS_TOURNAMENTS.filter((t) => t.status === "upcoming").length },
-          { id: "completed", label: "Đã Kết Thúc 🏆", count: CHESS_TOURNAMENTS.filter((t) => t.status === "completed").length },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveTab(tab.id as any)}
-            style={{
-              padding: "7px 16px",
-              borderRadius: 6,
-              fontSize: 13,
-              fontWeight: 600,
-              cursor: "pointer",
-              background: activeTab === tab.id ? "var(--bg-elevated)" : "transparent",
-              color: activeTab === tab.id ? "var(--gold-light)" : "var(--text-secondary)",
-              border: `1px solid ${activeTab === tab.id ? "var(--border-medium)" : "transparent"}`,
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              transition: "all 0.15s ease",
-            }}
-          >
-            <span>{tab.label}</span>
-            <span
-              style={{
-                fontSize: 11,
-                padding: "1px 6px",
-                borderRadius: 10,
-                background: "rgba(255,255,255,0.06)",
-                color: "var(--text-muted)",
-              }}
-            >
-              {tab.count}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      {/* Tournaments Grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))",
-          gap: 20,
-        }}
-      >
-        {filteredTournaments.map((tour) => {
-          const isRegistered = registeredIds.includes(tour.id);
-          const percentFilled = Math.round((tour.registeredCount / tour.maxPlayers) * 100);
-
-          return (
-            <div
-              key={tour.id}
-              onClick={() => setSelectedTournament(tour)}
-              style={{
-                background: "var(--bg-surface)",
-                borderRadius: 12,
-                border: "1px solid var(--border-medium)",
-                padding: "22px",
-                cursor: "pointer",
-                transition: "transform 0.2s, box-shadow 0.2s, border-color 0.2s",
-                display: "flex",
-                flexDirection: "column",
-                position: "relative",
-                overflow: "hidden",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-              }}
-            >
-              {/* Top Accent Gradient */}
-              <div
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
                 style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: 4,
-                  background:
-                    tour.status === "live"
-                      ? "linear-gradient(90deg, #ef4444, #eab308)"
-                      : tour.status === "upcoming"
-                      ? "linear-gradient(90deg, #3b82f6, #8b5cf6)"
-                      : "rgba(255,255,255,0.2)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "8px 16px",
+                  borderRadius: 6,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  background: isActive ? "var(--bg-raised)" : "transparent",
+                  color: isActive ? "var(--gold-light)" : "var(--text-secondary)",
+                  border: `1px solid ${isActive ? "var(--gold-border)" : "transparent"}`,
+                  whiteSpace: "nowrap",
                 }}
-              />
-
-              {/* Status Badge & Format */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              >
+                <span>{tab.label}</span>
                 <span
                   style={{
                     fontSize: 11,
+                    padding: "1px 6px",
+                    borderRadius: 10,
+                    background: isActive ? "var(--gold-light)" : "var(--bg-overlay)",
+                    color: isActive ? "var(--text-inverse)" : "var(--text-muted)",
                     fontWeight: 700,
-                    padding: "3px 8px",
-                    borderRadius: 4,
-                    background:
-                      tour.status === "live"
-                        ? "rgba(239, 68, 68, 0.2)"
-                        : tour.status === "upcoming"
-                        ? "rgba(59, 130, 246, 0.2)"
-                        : "rgba(255,255,255,0.08)",
-                    color:
-                      tour.status === "live"
-                        ? "#f87171"
-                        : tour.status === "upcoming"
-                        ? "#60a5fa"
-                        : "var(--text-muted)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
                   }}
                 >
-                  {tour.status === "live" && (
-                    <span
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        backgroundColor: "#ef4444",
-                        boxShadow: "0 0 8px #ef4444",
-                      }}
-                    />
-                  )}
-                  {tour.badge}
+                  {tab.count}
                 </span>
+              </button>
+            );
+          })}
+        </div>
 
-                <span style={{ fontSize: 12, color: "var(--gold-light)", fontWeight: 600 }}>
-                  {tour.timeControl} • {tour.format}
-                </span>
-              </div>
+        {/* Tournaments Grid (Clean, matching GameModesSection) */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+            gap: 20,
+          }}
+        >
+          {filteredTournaments.map((tour) => {
+            const isRegistered = registeredIds.includes(tour.id);
+            const isLive = tour.status === "live";
 
-              {/* Tournament Title */}
-              <h3
-                style={{
-                  fontFamily: "var(--font-serif)",
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: "var(--text-primary)",
-                  margin: "0 0 6px 0",
-                }}
-              >
-                {tour.name}
-              </h3>
-
-              <p style={{ margin: "0 0 16px 0", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5 }}>
-                {tour.tagline}
-              </p>
-
-              {/* Prize & Schedule Details */}
+            return (
               <div
+                key={tour.id}
+                onClick={() => setSelectedTournament(tour)}
                 style={{
-                  background: "rgba(255,255,255,0.03)",
+                  background: "var(--bg-surface)",
+                  border: `1px solid ${isLive ? "var(--gold-border)" : "var(--divider)"}`,
                   borderRadius: 8,
-                  padding: "12px 14px",
+                  padding: 20,
+                  cursor: "pointer",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 8,
-                  marginBottom: 16,
+                  justifyContent: "space-between",
+                  transition: "all 0.15s ease",
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--border-medium)")}
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.borderColor = isLive ? "var(--gold-border)" : "var(--divider)")
+                }
               >
-                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
-                  <Award size={15} color="var(--gold-light)" />
-                  <span style={{ color: "var(--text-primary)", fontWeight: 600 }}>Giải thưởng:</span>
-                  <span style={{ color: "var(--gold-light)", fontWeight: 700 }}>{tour.prizePool}</span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--text-muted)" }}>
-                  <Clock size={14} />
-                  <span>{tour.startTime}</span>
-                </div>
-              </div>
-
-              {/* Registration Progress */}
-              <div style={{ marginBottom: 18 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 6 }}>
-                  <span style={{ color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                    <Users size={13} /> {tour.registeredCount} / {tour.maxPlayers} Kỳ Thủ
-                  </span>
-                  <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{percentFilled}%</span>
-                </div>
-                <div
-                  style={{
-                    width: "100%",
-                    height: 5,
-                    borderRadius: 3,
-                    background: "rgba(255,255,255,0.08)",
-                    overflow: "hidden",
-                  }}
-                >
+                <div>
+                  {/* Top Badges */}
                   <div
                     style={{
-                      width: `${percentFilled}%`,
-                      height: "100%",
-                      borderRadius: 3,
-                      background: tour.status === "live" ? "var(--green)" : "var(--gold)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: 12,
                     }}
-                  />
-                </div>
-              </div>
+                  >
+                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          fontWeight: 800,
+                          padding: "2px 8px",
+                          borderRadius: 4,
+                          textTransform: "uppercase",
+                          background: isLive
+                            ? "rgba(220, 38, 38, 0.15)"
+                            : tour.status === "upcoming"
+                            ? "var(--blue-bg)"
+                            : "var(--bg-raised)",
+                          color: isLive
+                            ? "#f87171"
+                            : tour.status === "upcoming"
+                            ? "var(--blue-light)"
+                            : "var(--text-muted)",
+                          border: `1px solid ${
+                            isLive
+                              ? "rgba(220, 38, 38, 0.3)"
+                              : tour.status === "upcoming"
+                              ? "var(--blue-border)"
+                              : "var(--divider)"
+                          }`,
+                        }}
+                      >
+                        {tour.badge}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "var(--gold-light)",
+                          background: "var(--gold-bg)",
+                          padding: "2px 6px",
+                          borderRadius: 4,
+                        }}
+                      >
+                        {tour.timeControl}
+                      </span>
+                    </div>
 
-              {/* Action Buttons */}
-              <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
-                {tour.status !== "completed" && (
+                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                      {tour.format}
+                    </span>
+                  </div>
+
+                  {/* Title & Tagline */}
+                  <h3
+                    style={{
+                      fontSize: 17,
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      margin: "0 0 6px 0",
+                    }}
+                  >
+                    {tour.name}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "var(--text-secondary)",
+                      margin: "0 0 16px 0",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {tour.tagline}
+                  </p>
+
+                  {/* Details row */}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 8,
+                      padding: "10px 12px",
+                      background: "var(--bg-raised)",
+                      borderRadius: 6,
+                      fontSize: 12,
+                      color: "var(--text-muted)",
+                      marginBottom: 16,
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <Clock size={13} color="var(--gold-light)" />
+                      <span>{tour.startTime}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <Users size={13} color="var(--blue-light)" />
+                      <span>{tour.registeredCount} / {tour.maxPlayers} kỳ thủ</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Footer */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    borderTop: "1px solid var(--divider)",
+                    paddingTop: 12,
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "var(--gold-light)" }}>
+                    🏆 {tour.prizePool}
+                  </div>
+
                   <button
                     type="button"
                     onClick={(e) => handleRegister(tour.id, e)}
                     style={{
-                      flex: 1,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 6,
-                      padding: "9px 14px",
+                      padding: "6px 14px",
                       borderRadius: 6,
-                      background: isRegistered ? "rgba(129, 182, 76, 0.2)" : "var(--gold-bg)",
-                      border: `1px solid ${isRegistered ? "var(--green-border)" : "var(--gold-border)"}`,
-                      color: isRegistered ? "var(--green-light)" : "var(--gold-light)",
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: 700,
                       cursor: "pointer",
                       transition: "all 0.15s ease",
+                      background: isRegistered
+                        ? "var(--green-bg)"
+                        : isLive
+                        ? "var(--gold-light)"
+                        : "var(--bg-raised)",
+                      color: isRegistered
+                        ? "var(--green-light)"
+                        : isLive
+                        ? "var(--text-inverse)"
+                        : "var(--text-primary)",
+                      border: isRegistered ? "1px solid var(--green-border)" : "none",
                     }}
                   >
-                    {isRegistered ? <CheckCircle2 size={15} /> : <Zap size={15} />}
-                    <span>{isRegistered ? "Đã Đăng Ký ✓" : "Tham Gia Ngay"}</span>
+                    {isRegistered ? "✓ Đã Đăng Ký" : isLive ? "Tham Gia Ngay" : "Đăng Ký"}
                   </button>
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedTournament(tour)}
-                  style={{
-                    padding: "9px 14px",
-                    borderRadius: 6,
-                    background: "var(--bg-elevated)",
-                    border: "1px solid var(--border-subtle)",
-                    color: "var(--text-primary)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                  }}
-                >
-                  <span>Chi Tiết</span>
-                  <ChevronRight size={14} />
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Tournament Detail Modal */}
-      {selectedTournament && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            background: "rgba(0, 0, 0, 0.8)",
-            backdropFilter: "blur(6px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 20,
-          }}
-          onClick={() => setSelectedTournament(null)}
-        >
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border-medium)",
-              borderRadius: 14,
-              padding: "26px 30px",
-              maxWidth: 720,
-              width: "100%",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              boxShadow: "0 24px 60px rgba(0,0,0,0.85)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-              <div>
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    padding: "3px 8px",
-                    borderRadius: 4,
-                    background: "rgba(212, 174, 26, 0.15)",
-                    color: "var(--gold-light)",
-                  }}
-                >
-                  {selectedTournament.format} • {selectedTournament.timeControl}
-                </span>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-serif)",
-                    fontSize: 22,
-                    fontWeight: 700,
-                    color: "var(--text-primary)",
-                    margin: "8px 0 4px 0",
-                  }}
-                >
-                  {selectedTournament.name}
-                </h2>
-                <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                  {selectedTournament.startTime} • Quỹ thưởng {selectedTournament.prizePool}
                 </div>
               </div>
+            );
+          })}
+        </div>
 
-              <button
-                type="button"
-                onClick={() => setSelectedTournament(null)}
+        {/* Tournament Standings Drawer / Modal */}
+        {selectedTournament && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0,0,0,0.75)",
+              zIndex: 1000,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 20,
+            }}
+            onClick={() => setSelectedTournament(null)}
+          >
+            <div
+              style={{
+                background: "var(--bg-surface)",
+                border: "1px solid var(--divider)",
+                borderRadius: 8,
+                maxWidth: 680,
+                width: "100%",
+                maxHeight: "85vh",
+                display: "flex",
+                flexDirection: "column",
+                overflow: "hidden",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div
                 style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "var(--text-muted)",
-                  cursor: "pointer",
+                  padding: "16px 20px",
+                  background: "var(--bg-raised)",
+                  borderBottom: "1px solid var(--divider)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
-                <X size={20} />
-              </button>
-            </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
+                    {selectedTournament.name}
+                  </h3>
+                  <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                    {selectedTournament.format} • {selectedTournament.timeControl} • Giải thưởng: {selectedTournament.prizePool}
+                  </div>
+                </div>
 
-            {/* Modal Subtabs */}
-            <div style={{ display: "flex", gap: 10, borderBottom: "1px solid var(--border-subtle)", paddingBottom: 10, marginBottom: 18 }}>
-              {[
-                { id: "standings", label: "Bảng Xếp Hạng Điểm" },
-                { id: "pairings", label: "Cặp Đấu Trực Tiếp" },
-                { id: "rules", label: "Thể Thức & Quy Định" },
-              ].map((tab) => (
                 <button
-                  key={tab.id}
                   type="button"
-                  onClick={() => setActiveDetailTab(tab.id as any)}
+                  onClick={() => setSelectedTournament(null)}
                   style={{
-                    padding: "6px 14px",
-                    borderRadius: 6,
-                    fontSize: 13,
-                    fontWeight: 600,
+                    background: "transparent",
+                    border: "none",
+                    color: "var(--text-muted)",
                     cursor: "pointer",
-                    background: activeDetailTab === tab.id ? "var(--gold-bg)" : "transparent",
-                    color: activeDetailTab === tab.id ? "var(--gold-light)" : "var(--text-secondary)",
-                    border: `1px solid ${activeDetailTab === tab.id ? "var(--gold-border)" : "transparent"}`,
                   }}
                 >
-                  {tab.label}
+                  <X size={20} />
                 </button>
-              ))}
-            </div>
+              </div>
 
-            {/* Subtab 1: Standings */}
-            {activeDetailTab === "standings" && (
-              <div>
-                {selectedTournament.standings.length > 0 ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {selectedTournament.standings.map((player) => (
+              {/* Tabs */}
+              <div
+                style={{
+                  display: "flex",
+                  gap: 12,
+                  padding: "10px 20px",
+                  borderBottom: "1px solid var(--divider)",
+                  background: "var(--bg-surface)",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setActiveDetailTab("standings")}
+                  style={{
+                    padding: "4px 12px",
+                    borderRadius: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    background: activeDetailTab === "standings" ? "var(--bg-raised)" : "transparent",
+                    color: activeDetailTab === "standings" ? "var(--gold-light)" : "var(--text-secondary)",
+                    border: "none",
+                  }}
+                >
+                  Bảng Điểm Xếp Hạng
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveDetailTab("pairings")}
+                  style={{
+                    padding: "4px 12px",
+                    borderRadius: 4,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    background: activeDetailTab === "pairings" ? "var(--bg-raised)" : "transparent",
+                    color: activeDetailTab === "pairings" ? "var(--gold-light)" : "var(--text-secondary)",
+                    border: "none",
+                  }}
+                >
+                  Cặp Đấu Trực Tiếp
+                </button>
+              </div>
+
+              {/* Content */}
+              <div style={{ padding: "16px 20px", overflowY: "auto", flex: 1 }}>
+                {activeDetailTab === "standings" ? (
+                  <div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "50px 1fr 80px 70px 70px",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: "var(--text-muted)",
+                        paddingBottom: 8,
+                        borderBottom: "1px solid var(--divider)",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      <span>Hạng</span>
+                      <span>Kỳ Thủ</span>
+                      <span style={{ textAlign: "right" }}>Điểm</span>
+                      <span style={{ textAlign: "right" }}>Chuỗi</span>
+                      <span style={{ textAlign: "right" }}>Thắng</span>
+                    </div>
+
+                    {selectedTournament.standings.map((st) => (
                       <div
-                        key={player.rank}
+                        key={st.rank}
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "50px 1fr 80px 70px 70px",
+                          alignItems: "center",
+                          padding: "10px 0",
+                          borderBottom: "1px solid var(--divider)",
+                          fontSize: 13,
+                        }}
+                      >
+                        <span style={{ fontWeight: 700, color: st.rank <= 3 ? "var(--gold-light)" : "var(--text-muted)" }}>
+                          #{st.rank}
+                        </span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                          {st.title && (
+                            <span
+                              style={{
+                                background: "var(--gold-light)",
+                                color: "var(--text-inverse)",
+                                fontSize: 10,
+                                fontWeight: 800,
+                                padding: "1px 4px",
+                                borderRadius: 3,
+                              }}
+                            >
+                              {st.title}
+                            </span>
+                          )}
+                          <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{st.name}</span>
+                        </div>
+                        <span style={{ textAlign: "right", fontWeight: 700, color: "var(--gold-light)" }}>
+                          {st.points}
+                        </span>
+                        <span style={{ textAlign: "right", color: "var(--orange-light)", fontWeight: 600 }}>
+                          {st.streak}🔥
+                        </span>
+                        <span style={{ textAlign: "right", color: "var(--green-light)", fontWeight: 600 }}>
+                          {st.winRate}%
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div>
+                    {selectedTournament.pairings.map((p) => (
+                      <div
+                        key={p.board}
                         style={{
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
                           padding: "10px 14px",
-                          borderRadius: 8,
-                          background:
-                            player.rank === 1
-                              ? "rgba(212, 174, 26, 0.12)"
-                              : player.rank <= 3
-                              ? "rgba(255,255,255,0.03)"
-                              : "rgba(255,255,255,0.01)",
-                          border: `1px solid ${
-                            player.rank === 1 ? "var(--gold-border)" : "var(--border-subtle)"
-                          }`,
+                          background: "var(--bg-raised)",
+                          borderRadius: 6,
+                          marginBottom: 8,
+                          fontSize: 13,
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <span
-                            style={{
-                              fontSize: 14,
-                              fontWeight: 800,
-                              color:
-                                player.rank === 1
-                                  ? "var(--gold)"
-                                  : player.rank === 2
-                                  ? "#cbd5e1"
-                                  : player.rank === 3
-                                  ? "#d97706"
-                                  : "var(--text-muted)",
-                              width: 24,
-                            }}
-                          >
-                            #{player.rank}
-                          </span>
-                          <div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                              {player.title && (
-                                <span
-                                  style={{
-                                    fontSize: 10,
-                                    fontWeight: 800,
-                                    padding: "1px 5px",
-                                    borderRadius: 3,
-                                    background: "rgba(239, 68, 68, 0.2)",
-                                    color: "#f87171",
-                                  }}
-                                >
-                                  {player.title}
-                                </span>
-                              )}
-                              <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
-                                {player.name}
-                              </span>
-                              {player.streak >= 3 && (
-                                <span
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    gap: 2,
-                                    fontSize: 11,
-                                    color: "#f87171",
-                                    fontWeight: 700,
-                                  }}
-                                >
-                                  <Flame size={12} /> {player.streak}
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                              {player.rating} ELO • {player.gamesPlayed} ván đấu • Thắng {player.winRate}%
-                            </div>
-                          </div>
-                        </div>
-
-                        <div style={{ textAlign: "right" }}>
-                          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--gold-light)" }}>
-                            {player.points} pts
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "center", padding: "30px 0", color: "var(--text-muted)", fontSize: 14 }}>
-                    Giải đấu chưa bắt đầu. Bảng xếp hạng sẽ cập nhật ngay khi ván 1 khởi tranh!
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Subtab 2: Pairings */}
-            {activeDetailTab === "pairings" && (
-              <div>
-                {selectedTournament.pairings.length > 0 ? (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                    {selectedTournament.pairings.map((pairing) => (
-                      <div
-                        key={pairing.board}
-                        style={{
-                          background: "rgba(255,255,255,0.03)",
-                          border: "1px solid var(--border-subtle)",
-                          borderRadius: 8,
-                          padding: "12px 16px",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
-                      >
-                        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--text-muted)" }}>
-                          Bàn {pairing.board}
+                        <span style={{ fontWeight: 700, color: "var(--text-muted)", width: 70 }}>
+                          Bàn {p.board}
                         </span>
-
-                        <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 13 }}>
+                        <div style={{ flex: 1, display: "flex", justifyContent: "space-around", alignItems: "center" }}>
                           <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
-                            {pairing.whitePlayer.title ? `[${pairing.whitePlayer.title}] ` : ""}
-                            {pairing.whitePlayer.name} ({pairing.whitePlayer.rating})
+                            {p.whitePlayer.name} ({p.whitePlayer.rating})
                           </span>
-                          <span style={{ fontSize: 11, color: "var(--gold)", fontWeight: 700 }}>VS</span>
+                          <span style={{ color: "var(--text-muted)", fontSize: 11 }}>VS</span>
                           <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
-                            {pairing.blackPlayer.title ? `[${pairing.blackPlayer.title}] ` : ""}
-                            {pairing.blackPlayer.name} ({pairing.blackPlayer.rating})
+                            {p.blackPlayer.name} ({p.blackPlayer.rating})
                           </span>
                         </div>
-
                         <span
                           style={{
                             fontSize: 11,
                             padding: "2px 8px",
                             borderRadius: 4,
-                            background: "rgba(129, 182, 76, 0.15)",
-                            color: "var(--green-light)",
+                            background: "rgba(220, 38, 38, 0.15)",
+                            color: "#f87171",
                             fontWeight: 600,
                           }}
                         >
-                          Nước {pairing.currentMove}
+                          {p.status}
                         </span>
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div style={{ textAlign: "center", padding: "30px 0", color: "var(--text-muted)", fontSize: 14 }}>
-                    Hiện chưa có cặp đấu nào đang diễn ra.
-                  </div>
                 )}
               </div>
-            )}
-
-            {/* Subtab 3: Rules */}
-            {activeDetailTab === "rules" && (
-              <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                <h4 style={{ color: "var(--text-primary)", margin: "0 0 8px 0" }}>Luật Thi Đấu Chuẩn FIDE Arena</h4>
-                <ul style={{ paddingLeft: 20, margin: 0 }}>
-                  <li>Thời gian kiểm soát: {selectedTournament.timeControl}.</li>
-                  <li>Kỳ thủ được cộng 2 điểm cho mỗi ván thắng, 1 điểm cho ván hòa, 0 điểm khi thua.</li>
-                  <li><b>Hệ Thống Chuỗi Thắng (Streak Fire 🔥)</b>: Thắng 2 ván liên tiếp, ván thứ 3 trở đi sẽ được nhân đôi (4 điểm cho 1 ván thắng).</li>
-                  <li>Nghiêm cấm tuyệt đối việc sử dụng công cụ hỗ trợ gian lận (Chess Engine/Bot). Hệ thống chống gian lận tự động sẽ đình chỉ tài khoản vi phạm vĩnh viễn.</li>
-                </ul>
-              </div>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
-    </div>
+    </section>
   );
 }

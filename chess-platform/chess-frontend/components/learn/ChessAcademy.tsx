@@ -9,16 +9,11 @@ import {
   CheckCircle2,
   Play,
   RotateCcw,
-  Sparkles,
   ArrowRight,
   ArrowLeft,
   GraduationCap,
   Clock,
-  ChevronRight,
-  ShieldCheck,
-  Crown,
-  Quote,
-  Zap,
+  Sparkles,
 } from "lucide-react";
 import { CHESS_LESSONS, ChessLesson } from "@/lib/lessonsData";
 import { soundManager } from "@/lib/soundEffects";
@@ -35,7 +30,7 @@ const Chessboard = dynamic(
           width: "100%",
           aspectRatio: "1",
           background: "#262421",
-          borderRadius: 8,
+          borderRadius: 6,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -146,219 +141,157 @@ export default function ChessAcademy() {
     (completedLessonIds.length / CHESS_LESSONS.length) * 100
   );
 
+  const categories = [
+    { id: "all", label: "Tất Cả Bài Học" },
+    { id: "openings", label: "Khai Cuộc Kinh Điển" },
+    { id: "tactics", label: "Chiến Thuật & Đòn Đánh" },
+    { id: "endgame", label: "Tàn Cuộc Căn Bản" },
+    { id: "basics", label: "Luật Chơi & Nhập Môn" },
+  ];
+
   return (
-    <div
+    <section
       style={{
+        background: "var(--bg-base)",
         minHeight: "100vh",
-        background:
-          "radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 130, 246, 0.12), transparent 70%), radial-gradient(ellipse 60% 40% at 90% 20%, rgba(212, 174, 26, 0.08), transparent 60%), #12110e",
-        padding: "80px 24px 64px",
+        padding: "88px 0 64px",
       }}
     >
-      <div className="game-arena-container" style={{ maxWidth: 1400, margin: "0 auto" }}>
-        {/* Header Banner */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 24,
-            flexWrap: "wrap",
-            gap: 12,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      <div className="container">
+        {/* Section Header - Chuẩn giao diện Trang Chủ */}
+        <div style={{ marginBottom: 32 }}>
           <div
             style={{
-              width: 44,
-              height: 44,
-              borderRadius: 10,
-              background: "rgba(59, 130, 246, 0.15)",
-              border: "1px solid rgba(59, 130, 246, 0.3)",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              color: "#60a5fa",
+              gap: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "1.2px",
+              color: "var(--teal-light)",
+              marginBottom: 8,
             }}
           >
-            <GraduationCap size={24} />
+            <GraduationCap size={15} />
+            <span>HỌC VIỆN CỜ VUA</span>
           </div>
-          <div>
-            <h1
-              style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: 24,
-                fontWeight: 700,
-                color: "var(--text-primary)",
-                margin: 0,
-              }}
-            >
-              Học Viện Cờ Vua (Chess Academy)
-            </h1>
-            <p style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
-              Lộ trình bài giảng tương tác từ Nhập Môn đến Kiện Tướng, phân tích chuyên sâu bởi Đại Kiện Tướng
-            </p>
-          </div>
-        </div>
 
-        {/* Progress tracker */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            background: "var(--bg-surface)",
-            padding: "8px 16px",
-            borderRadius: 8,
-            border: "1px solid var(--border-subtle)",
-          }}
-        >
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>Tiến Độ Khóa Học</div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "var(--gold-light)" }}>
-              {completedLessonIds.length} / {CHESS_LESSONS.length} Bài Đã Đạt
-            </div>
-          </div>
           <div
             style={{
-              width: 42,
-              height: 42,
-              borderRadius: "50%",
-              background: `conic-gradient(var(--gold) ${progressPercent * 3.6}deg, rgba(255,255,255,0.08) 0deg)`,
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "space-between",
+              alignItems: "flex-end",
+              flexWrap: "wrap",
+              gap: 16,
             }}
           >
-            <div
-              style={{
-                width: 34,
-                height: 34,
-                borderRadius: "50%",
-                background: "var(--bg-surface)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                fontWeight: 700,
-                color: "var(--text-primary)",
-              }}
-            >
-              {progressPercent}%
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Category Pills */}
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          marginBottom: 20,
-          overflowX: "auto",
-          paddingBottom: 4,
-        }}
-      >
-        {[
-          { id: "all", label: "Tất Cả Bài Học" },
-          { id: "openings", label: "Khai Cuộc Kinh Điển" },
-          { id: "tactics", label: "Chiến Thuật & Đòn Đánh" },
-          { id: "endgame", label: "Tàn Cuộc Căn Bản" },
-          { id: "basics", label: "Luật Chơi & Nhập Môn" },
-        ].map((cat) => (
-          <button
-            key={cat.id}
-            type="button"
-            onClick={() => setSelectedCategory(cat.id)}
-            style={{
-              padding: "6px 14px",
-              borderRadius: 20,
-              fontSize: 13,
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-              cursor: "pointer",
-              background:
-                selectedCategory === cat.id
-                  ? "var(--gold-bg)"
-                  : "var(--bg-surface)",
-              color:
-                selectedCategory === cat.id
-                  ? "var(--gold-light)"
-                  : "var(--text-secondary)",
-              border: `1px solid ${
-                selectedCategory === cat.id
-                  ? "var(--gold-border)"
-                  : "var(--border-subtle)"
-              }`,
-              transition: "all 0.15s ease",
-            }}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Main Two-Column Layout */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "minmax(320px, 580px) minmax(320px, 1fr)",
-          gap: 24,
-          alignItems: "start",
-        }}
-      >
-        {/* LEFT COLUMN: Chessboard */}
-        <div>
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              borderRadius: 12,
-              border: "1px solid var(--border-medium)",
-              padding: 16,
-              boxShadow: "0 12px 32px rgba(0,0,0,0.5)",
-            }}
-          >
-            {/* Top Indicator */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 12,
-                padding: "8px 12px",
-                background: "rgba(0,0,0,0.25)",
-                borderRadius: 6,
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <BookOpen size={16} color="var(--gold-light)" />
-                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
-                  {isPracticing ? "Chế Độ Thực Hành Tương Tác" : `Bước ${currentStepIndex + 1} / ${activeLesson.steps.length}`}
-                </span>
-              </div>
-              <span
+            <div>
+              <h1
                 style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  padding: "2px 8px",
-                  borderRadius: 4,
-                  background: isPracticing ? "rgba(129, 182, 76, 0.2)" : "rgba(59, 130, 246, 0.2)",
-                  color: isPracticing ? "var(--green-light)" : "#93c5fd",
+                  fontSize: "clamp(26px, 3.5vw, 36px)",
+                  fontWeight: 700,
+                  fontFamily: "var(--font-serif)",
+                  color: "var(--text-primary)",
+                  margin: 0,
+                  letterSpacing: "-0.5px",
                 }}
               >
-                {isPracticing ? "Kéo Thả Quân Cờ" : "Quan Sát & Ghi Nhớ"}
-              </span>
+                Giáo Trình Cờ Vua Tương Tác
+              </h1>
+              <p
+                style={{
+                  fontSize: 14,
+                  color: "var(--text-secondary)",
+                  marginTop: 6,
+                  marginBottom: 0,
+                }}
+              >
+                Lộ trình bài giảng từ Nhập Môn đến Kiện Tướng, phân tích trực quan từng nước đi
+              </p>
             </div>
 
-            {/* Chessboard View */}
+            {/* Course progress indicator */}
             <div
               style={{
-                width: "100%",
-                aspectRatio: "1",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                background: "var(--bg-surface)",
+                padding: "8px 16px",
+                borderRadius: 6,
+                border: "1px solid var(--divider)",
+              }}
+            >
+              <div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
+                  TIẾN ĐỘ KHÓA HỌC
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--teal-light)", marginTop: 2 }}>
+                  {completedLessonIds.length} / {CHESS_LESSONS.length} Bài Đạt ({progressPercent}%)
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Category Filter Pills */}
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            marginBottom: 28,
+            borderBottom: "1px solid var(--divider)",
+            paddingBottom: 14,
+            overflowX: "auto",
+          }}
+        >
+          {categories.map((c) => {
+            const isActive = selectedCategory === c.id;
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => setSelectedCategory(c.id)}
+                style={{
+                  padding: "7px 14px",
+                  borderRadius: 6,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                  background: isActive ? "var(--bg-raised)" : "transparent",
+                  color: isActive ? "var(--teal-light)" : "var(--text-secondary)",
+                  border: `1px solid ${isActive ? "var(--teal-border)" : "transparent"}`,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {c.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Main 2-Column Study Arena */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
+            gap: 36,
+            alignItems: "start",
+            marginBottom: 48,
+          }}
+        >
+          {/* Left: Interactive Board */}
+          <div>
+            <div
+              style={{
                 borderRadius: 6,
                 overflow: "hidden",
-                boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+                border: "2px solid #588c32",
+                boxShadow: "0 12px 32px rgba(0,0,0,0.4)",
+                maxWidth: 520,
+                margin: "0 auto",
               }}
             >
               <Chessboard
@@ -366,326 +299,440 @@ export default function ChessAcademy() {
                   position: isPracticing ? practiceFen : activeStep.fen,
                   boardOrientation: "white",
                   onPieceDrop: handlePieceDrop,
-                  showNotation: true,
                   darkSquareStyle: { backgroundColor: boardTheme.dark },
                   lightSquareStyle: { backgroundColor: boardTheme.light },
-                  darkSquareNotationStyle: {
-                    color: boardTheme.lightNotationColor,
-                    fontWeight: "600",
-                    fontSize: 11,
-                  },
-                  lightSquareNotationStyle: {
-                    color: boardTheme.darkNotationColor,
-                    fontWeight: "600",
-                    fontSize: 11,
-                  },
+                  darkSquareNotationStyle: { color: boardTheme.lightNotationColor, fontSize: 10, fontWeight: "600" },
+                  lightSquareNotationStyle: { color: boardTheme.darkNotationColor, fontSize: 10, fontWeight: "600" },
+                  squareStyles: squareStyles,
                   pieces: customPieces,
-                  squareStyles,
-                  animationDurationInMs: 250,
+                  animationDurationInMs: 200,
                 }}
               />
             </div>
 
-            {/* Step Controls Toolbar */}
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginTop: 14,
-                gap: 8,
+                marginTop: 10,
+                fontSize: 12,
+                color: "var(--text-muted)",
+                maxWidth: 520,
+                margin: "10px auto 0",
               }}
             >
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  type="button"
-                  disabled={currentStepIndex === 0 || isPracticing}
-                  onClick={() => setCurrentStepIndex((prev) => Math.max(0, prev - 1))}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 12px",
-                    borderRadius: 6,
-                    background: "var(--bg-elevated)",
-                    border: "1px solid var(--border-subtle)",
-                    color: currentStepIndex === 0 || isPracticing ? "var(--text-muted)" : "var(--text-primary)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: currentStepIndex === 0 || isPracticing ? "not-allowed" : "pointer",
-                    opacity: currentStepIndex === 0 || isPracticing ? 0.5 : 1,
-                  }}
-                >
-                  <ArrowLeft size={14} />
-                  <span>Bước Trước</span>
-                </button>
-
-                <button
-                  type="button"
-                  disabled={currentStepIndex >= activeLesson.steps.length - 1 || isPracticing}
-                  onClick={() => setCurrentStepIndex((prev) => prev + 1)}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                    padding: "8px 12px",
-                    borderRadius: 6,
-                    background: "var(--bg-elevated)",
-                    border: "1px solid var(--border-subtle)",
-                    color: currentStepIndex >= activeLesson.steps.length - 1 || isPracticing ? "var(--text-muted)" : "var(--text-primary)",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: currentStepIndex >= activeLesson.steps.length - 1 || isPracticing ? "not-allowed" : "pointer",
-                    opacity: currentStepIndex >= activeLesson.steps.length - 1 || isPracticing ? 0.5 : 1,
-                  }}
-                >
-                  <span>Bước Tiếp</span>
-                  <ArrowRight size={14} />
-                </button>
-              </div>
-
-              {/* Toggle Interactive Practice */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsPracticing((v) => !v);
-                  setPracticeFen(activeLesson.initialFen);
-                  setTaskFeedback({ status: "idle", message: "" });
-                }}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "8px 14px",
-                  borderRadius: 6,
-                  background: isPracticing ? "var(--green-bg)" : "var(--gold-bg)",
-                  border: `1px solid ${isPracticing ? "var(--green-border)" : "var(--gold-border)"}`,
-                  color: isPracticing ? "var(--green-light)" : "var(--gold-light)",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                <Zap size={14} />
-                <span>{isPracticing ? "Thoát Thực Hành" : "Thực Hành Trắc Nghiệm"}</span>
-              </button>
+              <span>{isPracticing ? "Kéo thả quân cờ để giải bài tập" : "Quan sát thế cờ và đọc phân tích"}</span>
+              <span>
+                {isPracticing
+                  ? "Chế độ: Thực hành"
+                  : `Bước ${currentStepIndex + 1} / ${activeLesson.steps.length}`}
+              </span>
             </div>
           </div>
-        </div>
 
-        {/* RIGHT COLUMN: Lesson Content & Interactive Task */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {/* Active Lesson Header & Explanation */}
+          {/* Right: Lesson Guide & Steps Card */}
           <div
             style={{
               background: "var(--bg-surface)",
-              borderRadius: 12,
-              border: "1px solid var(--border-subtle)",
-              padding: "20px 22px",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+              border: "1px solid var(--divider)",
+              borderRadius: 8,
+              padding: 24,
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-              <span
+            {/* Header info */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <span
+                  style={{
+                    background: "var(--teal-bg)",
+                    border: "1px solid var(--teal-border)",
+                    color: "var(--teal-light)",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: "2px 8px",
+                    borderRadius: 4,
+                  }}
+                >
+                  {activeLesson.difficulty}
+                </span>
+                <span
+                  style={{
+                    background: "var(--bg-raised)",
+                    color: "var(--text-muted)",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    padding: "2px 8px",
+                    borderRadius: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                  }}
+                >
+                  <Clock size={12} /> {activeLesson.estimatedMinutes} phút
+                </span>
+              </div>
+
+              <h2
                 style={{
-                  fontSize: 11,
+                  fontSize: 20,
                   fontWeight: 700,
-                  padding: "3px 8px",
-                  borderRadius: 4,
-                  background: "rgba(212, 174, 26, 0.15)",
-                  color: "var(--gold-light)",
+                  color: "var(--text-primary)",
+                  margin: 0,
+                  lineHeight: 1.3,
                 }}
               >
-                {activeLesson.categoryName}
-              </span>
-              <span style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", alignItems: "center", gap: 4 }}>
-                <Clock size={12} /> {activeLesson.estimatedMinutes} phút học
-              </span>
+                {activeLesson.title}
+              </h2>
             </div>
 
-            <h2
+            {/* Mode Toggle Tabs: Lý Thuyết vs Thực Hành */}
+            <div
               style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: 22,
-                fontWeight: 700,
-                color: "var(--text-primary)",
-                margin: "0 0 10px 0",
+                display: "flex",
+                gap: 8,
+                marginBottom: 20,
+                borderBottom: "1px solid var(--divider)",
+                paddingBottom: 10,
               }}
             >
-              {activeLesson.title}
-            </h2>
-
-            <p style={{ margin: "0 0 16px 0", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
-              {activeLesson.summary}
-            </p>
-
-            {/* Step or Practice View */}
-            {!isPracticing ? (
-              <div
+              <button
+                type="button"
+                onClick={() => {
+                  setIsPracticing(false);
+                  setTaskFeedback({ status: "idle", message: "" });
+                }}
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid var(--border-subtle)",
-                  borderRadius: 8,
-                  padding: "14px 16px",
+                  padding: "6px 14px",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  background: !isPracticing ? "var(--bg-raised)" : "transparent",
+                  color: !isPracticing ? "var(--teal-light)" : "var(--text-secondary)",
+                  border: "none",
                 }}
               >
-                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--gold-light)", marginBottom: 8 }}>
+                1. Bài Giảng & Phân Tích
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsPracticing(true);
+                  setPracticeFen(activeLesson.initialFen);
+                }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  background: isPracticing ? "var(--bg-raised)" : "transparent",
+                  color: isPracticing ? "var(--green-light)" : "var(--text-secondary)",
+                  border: "none",
+                }}
+              >
+                2. Bài Tập Thực Hành
+              </button>
+            </div>
+
+            {/* Content view */}
+            {!isPracticing ? (
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                    marginBottom: 8,
+                  }}
+                >
                   {activeStep.title}
                 </div>
-                <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.6,
+                    marginBottom: 20,
+                  }}
+                >
                   {activeStep.explanation}
                 </p>
-              </div>
-            ) : (
-              <div
-                style={{
-                  background: "rgba(212, 174, 26, 0.08)",
-                  border: "1px solid var(--gold-border)",
-                  borderRadius: 8,
-                  padding: "16px",
-                }}
-              >
-                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--gold-light)", marginBottom: 6 }}>
-                  🎯 Nhiệm Vụ Của Bạn:
-                </div>
-                <p style={{ margin: "0 0 12px 0", fontSize: 13, color: "var(--text-primary)", fontWeight: 500 }}>
-                  {activeLesson.interactiveTask.prompt}
-                </p>
 
-                {taskFeedback.status === "success" && (
+                {/* Move Notation Pill */}
+                {activeStep.keyMoveSan && (
                   <div
                     style={{
-                      background: "rgba(129, 182, 76, 0.2)",
-                      border: "1px solid var(--green-border)",
-                      color: "var(--green-light)",
-                      padding: "10px 12px",
-                      borderRadius: 6,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      display: "flex",
+                      display: "inline-flex",
                       alignItems: "center",
                       gap: 8,
+                      padding: "6px 12px",
+                      background: "var(--bg-raised)",
+                      borderRadius: 4,
+                      border: "1px solid var(--divider)",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: "var(--gold-light)",
+                      marginBottom: 24,
+                    }}
+                  >
+                    <span>Nước đi:</span>
+                    <span>{activeStep.keyMoveSan}</span>
+                  </div>
+                )}
+
+                {/* Step Navigation Controls */}
+                <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+                  <button
+                    type="button"
+                    disabled={currentStepIndex === 0}
+                    onClick={() => setCurrentStepIndex((prev) => Math.max(0, prev - 1))}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "8px 14px",
+                      borderRadius: 6,
+                      background: "var(--bg-raised)",
+                      border: "1px solid var(--divider)",
+                      color: currentStepIndex === 0 ? "var(--text-muted)" : "var(--text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: currentStepIndex === 0 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    <ArrowLeft size={14} />
+                    <span>Bước Trước</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (currentStepIndex < activeLesson.steps.length - 1) {
+                        setCurrentStepIndex((prev) => prev + 1);
+                      } else {
+                        setIsPracticing(true);
+                      }
+                    }}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 6,
+                      padding: "8px 16px",
+                      borderRadius: 6,
+                      background: "var(--teal-vivid)",
+                      border: "none",
+                      color: "#fff",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      marginLeft: "auto",
+                    }}
+                  >
+                    <span>
+                      {currentStepIndex < activeLesson.steps.length - 1
+                        ? "Bước Tiếp Theo"
+                        : "Bắt Đầu Thực Hành"}
+                    </span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                    marginBottom: 8,
+                  }}
+                >
+                  Nhiệm vụ: {activeLesson.interactiveTask.prompt}
+                </div>
+
+                {/* Feedback box */}
+                {taskFeedback.status === "success" ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 10,
+                      padding: "12px 16px",
+                      borderRadius: 6,
+                      background: "var(--green-bg)",
+                      border: "1px solid var(--green-border)",
+                      color: "var(--green-light)",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      marginBottom: 20,
                     }}
                   >
                     <CheckCircle2 size={16} />
                     <span>{taskFeedback.message}</span>
                   </div>
-                )}
-
-                {taskFeedback.status === "wrong" && (
+                ) : taskFeedback.status === "wrong" ? (
                   <div
                     style={{
-                      background: "rgba(239, 68, 68, 0.15)",
-                      border: "1px solid rgba(239, 68, 68, 0.3)",
-                      color: "#f87171",
-                      padding: "10px 12px",
-                      borderRadius: 6,
-                      fontSize: 13,
                       display: "flex",
                       alignItems: "center",
-                      gap: 8,
+                      gap: 10,
+                      padding: "12px 16px",
+                      borderRadius: 6,
+                      background: "rgba(200, 75, 58, 0.15)",
+                      border: "1px solid rgba(200, 75, 58, 0.3)",
+                      color: "#f87171",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      marginBottom: 20,
                     }}
                   >
                     <span>{taskFeedback.message}</span>
                   </div>
-                )}
-              </div>
-            )}
+                ) : null}
 
-            {/* Grandmaster Tip */}
-            <div
-              style={{
-                marginTop: 16,
-                padding: "12px 14px",
-                borderRadius: 8,
-                background: "rgba(212, 174, 26, 0.06)",
-                borderLeft: "3px solid var(--gold)",
-                display: "flex",
-                gap: 10,
-                alignItems: "flex-start",
-              }}
-            >
-              <Quote size={18} color="var(--gold-light)" style={{ flexShrink: 0, marginTop: 2 }} />
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", fontStyle: "italic", lineHeight: 1.5 }}>
-                {activeLesson.grandmasterTip}
-              </div>
-            </div>
-          </div>
-
-          {/* Lessons List Navigation */}
-          <div
-            style={{
-              background: "var(--bg-surface)",
-              borderRadius: 12,
-              border: "1px solid var(--border-subtle)",
-              padding: "18px 20px",
-            }}
-          >
-            <h3 style={{ margin: "0 0 12px 0", fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
-              Danh Sách Bài Học ({filteredLessons.length})
-            </h3>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {filteredLessons.map((les) => {
-                const isCurrent = les.id === activeLesson.id;
-                const isDone = completedLessonIds.includes(les.id);
-                return (
+                <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
                   <button
-                    key={les.id}
                     type="button"
-                    onClick={() => handleSelectLesson(les)}
+                    onClick={() => {
+                      setPracticeFen(activeLesson.initialFen);
+                      setTaskFeedback({ status: "idle", message: "" });
+                    }}
                     style={{
-                      display: "flex",
+                      display: "inline-flex",
                       alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "10px 14px",
-                      borderRadius: 8,
-                      background: isCurrent ? "var(--gold-bg)" : "rgba(255,255,255,0.02)",
-                      border: `1px solid ${isCurrent ? "var(--gold-border)" : "transparent"}`,
+                      gap: 6,
+                      padding: "8px 14px",
+                      borderRadius: 6,
+                      background: "var(--bg-raised)",
+                      border: "1px solid var(--divider)",
+                      color: "var(--text-secondary)",
+                      fontSize: 13,
+                      fontWeight: 600,
                       cursor: "pointer",
-                      textAlign: "left",
-                      transition: "all 0.15s ease",
                     }}
                   >
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div
+                    <RotateCcw size={14} />
+                    <span>Làm Lại</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* All Lessons Grid */}
+        <div style={{ marginTop: 24 }}>
+          <h2
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              fontFamily: "var(--font-serif)",
+              color: "var(--text-primary)",
+              marginBottom: 16,
+            }}
+          >
+            Danh Sách Tất Cả Bài Học
+          </h2>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: 16,
+            }}
+          >
+            {filteredLessons.map((lesson) => {
+              const isSelected = lesson.id === activeLessonId;
+              const isCompleted = completedLessonIds.includes(lesson.id);
+
+              return (
+                <div
+                  key={lesson.id}
+                  onClick={() => handleSelectLesson(lesson)}
+                  style={{
+                    background: "var(--bg-surface)",
+                    border: `1px solid ${isSelected ? "var(--teal-border)" : "var(--divider)"}`,
+                    borderRadius: 8,
+                    padding: 16,
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) e.currentTarget.style.borderColor = "var(--border-medium)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) e.currentTarget.style.borderColor = "var(--divider)";
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: 8,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: "var(--teal-light)",
+                        background: "var(--teal-bg)",
+                        padding: "2px 6px",
+                        borderRadius: 3,
+                      }}
+                    >
+                      {lesson.difficulty}
+                    </span>
+                    {isCompleted && (
+                      <span
                         style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: "50%",
-                          background: isDone ? "rgba(129, 182, 76, 0.2)" : "rgba(255,255,255,0.06)",
-                          color: isDone ? "var(--green-light)" : "var(--text-muted)",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "var(--green-light)",
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
+                          gap: 3,
                         }}
                       >
-                        {isDone ? <CheckCircle2 size={14} /> : <Play size={11} />}
-                      </div>
-                      <div>
-                        <div
-                          style={{
-                            fontSize: 13,
-                            fontWeight: 600,
-                            color: isCurrent ? "var(--gold-light)" : "var(--text-primary)",
-                          }}
-                        >
-                          {les.title}
-                        </div>
-                        <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                          {les.difficulty} • {les.estimatedMinutes} phút
-                        </div>
-                      </div>
-                    </div>
-                    <ChevronRight size={14} color="var(--text-muted)" />
-                  </button>
-                );
-              })}
-            </div>
+                        <CheckCircle2 size={12} /> Đã Đạt
+                      </span>
+                    )}
+                  </div>
+
+                  <h3
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 700,
+                      color: isSelected ? "var(--teal-light)" : "var(--text-primary)",
+                      margin: "0 0 6px 0",
+                    }}
+                  >
+                    {lesson.title}
+                  </h3>
+
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: "var(--text-muted)",
+                      margin: 0,
+                      lineHeight: 1.5,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {lesson.summary}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
-      </div>
-    </div>
+    </section>
   );
 }
