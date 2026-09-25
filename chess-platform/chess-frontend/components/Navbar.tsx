@@ -14,7 +14,10 @@ import {
   Layers,
   Menu,
   X,
+  User as UserIcon,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
   { label: "Chơi", href: "/play", icon: Swords },
@@ -29,6 +32,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 10);
@@ -151,24 +155,105 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Desktop Auth Buttons (Hidden on mobile) */}
+        {/* Desktop Auth Buttons / User Profile */}
         <div className="hide-on-mobile" style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <Link
-            href="/login"
-            className="btn btn-ghost"
-            style={{ padding: "8px 16px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
-          >
-            <LogIn size={15} />
-            <span>Đăng Nhập</span>
-          </Link>
-          <Link
-            href="/register"
-            className="btn btn-green"
-            style={{ padding: "8px 18px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
-          >
-            <UserPlus size={15} />
-            <span>Đăng Ký Miễn Phí</span>
-          </Link>
+          {user ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "5px 12px",
+                  borderRadius: 6,
+                  background: "var(--bg-raised)",
+                  border: "1px solid var(--border-medium)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    background: "var(--green-bg)",
+                    border: "1px solid var(--green-border)",
+                    color: "var(--green-light)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 12,
+                    fontWeight: 700,
+                  }}
+                >
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
+                  {user.username}
+                </span>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: "1px 6px",
+                    borderRadius: 4,
+                    background: "rgba(255,255,255,0.08)",
+                    color: "var(--gold-light)",
+                  }}
+                >
+                  {user.eloRating}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => logout()}
+                title="Đăng xuất"
+                style={{
+                  background: "transparent",
+                  border: "1px solid var(--border-subtle)",
+                  borderRadius: 6,
+                  padding: "6px 10px",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  fontSize: 12,
+                  transition: "all 0.15s ease",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "var(--red-light, #f87171)";
+                  (e.currentTarget as HTMLElement).style.color = "var(--red-light, #f87171)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border-subtle)";
+                  (e.currentTarget as HTMLElement).style.color = "var(--text-muted)";
+                }}
+              >
+                <LogOut size={13} />
+                <span>Thoát</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="btn btn-ghost"
+                style={{ padding: "8px 16px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <LogIn size={15} />
+                <span>Đăng Nhập</span>
+              </Link>
+              <Link
+                href="/register"
+                className="btn btn-green"
+                style={{ padding: "8px 18px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <UserPlus size={15} />
+                <span>Đăng Ký Miễn Phí</span>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Hamburger Toggle Button (Shown on mobile only) */}
@@ -256,42 +341,103 @@ export default function Navbar() {
           {/* Auth options on Mobile */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 10,
               marginTop: 12,
               paddingTop: 12,
               borderTop: "1px solid var(--divider)",
             }}
           >
-            <Link
-              href="/login"
-              onClick={() => setMobileMenuOpen(false)}
-              className="btn btn-ghost"
-              style={{
-                padding: "10px 0",
-                fontSize: 14,
-                width: "100%",
-                justifyContent: "center",
-              }}
-            >
-              <LogIn size={15} />
-              <span>Đăng Nhập</span>
-            </Link>
-            <Link
-              href="/register"
-              onClick={() => setMobileMenuOpen(false)}
-              className="btn btn-green"
-              style={{
-                padding: "10px 0",
-                fontSize: 14,
-                width: "100%",
-                justifyContent: "center",
-              }}
-            >
-              <UserPlus size={15} />
-              <span>Đăng Ký</span>
-            </Link>
+            {user ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "8px 12px",
+                    background: "var(--bg-surface)",
+                    borderRadius: 6,
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: "50%",
+                        background: "var(--green-bg)",
+                        color: "var(--green-light)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 700,
+                        fontSize: 14,
+                      }}
+                    >
+                      {user.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
+                        {user.username}
+                      </div>
+                      <div style={{ fontSize: 12, color: "var(--gold-light)" }}>
+                        {user.eloRating} ELO • {user.role}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                  className="btn btn-ghost"
+                  style={{ width: "100%", justifyContent: "center", color: "#f87171" }}
+                >
+                  <LogOut size={15} />
+                  <span>Đăng Xuất Khỏi Tài Khoản</span>
+                </button>
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 10,
+                }}
+              >
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="btn btn-ghost"
+                  style={{
+                    padding: "10px 0",
+                    fontSize: 14,
+                    width: "100%",
+                    justifyContent: "center",
+                  }}
+                >
+                  <LogIn size={15} />
+                  <span>Đăng Nhập</span>
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="btn btn-green"
+                  style={{
+                    padding: "10px 0",
+                    fontSize: 14,
+                    width: "100%",
+                    justifyContent: "center",
+                  }}
+                >
+                  <UserPlus size={15} />
+                  <span>Đăng Ký</span>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
