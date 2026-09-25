@@ -3,14 +3,33 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, UserPlus, Sparkles, Users, Radio, Swords } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function CTASection() {
+  const { language, t } = useLanguage();
+
+  const checklist =
+    language === "vi"
+      ? [
+          "100% Không quảng cáo, không pop-up phiền toái",
+          "Không có gói VIP hay bán vật phẩm can thiệp ván cờ",
+          "Mã nguồn mở minh bạch — WebSocket Golang và Rust Engine",
+          "Tự do xuất dữ liệu PGN và phân tích ván đấu chuẩn FIDE",
+        ]
+      : [
+          "100% Ad-free, no intrusive pop-ups or paywalls",
+          "No pay-to-win items or artificial rating boosts",
+          "Open source & transparent — Golang WebSocket + Rust Engine",
+          "Export PGNs freely with FIDE-standard move classification",
+        ];
+
   return (
     <section
       style={{
         background: "var(--bg-base)",
         padding: "72px 0",
         borderBottom: "1px solid var(--divider)",
+        transition: "background-color 0.25s ease, border-color 0.25s ease",
       }}
     >
       <div className="container">
@@ -42,7 +61,7 @@ export default function CTASection() {
                 marginBottom: 16,
               }}
             >
-              Bắt Đầu Ngay Hôm Nay
+              {language === "vi" ? "Bắt Đầu Ngay Hôm Nay" : "Start Playing Today"}
             </div>
             <h2
               style={{
@@ -54,7 +73,7 @@ export default function CTASection() {
                 marginBottom: 16,
               }}
             >
-              Tham Gia Miễn Phí.<br />Không Cần Thẻ Tín Dụng.
+              {t("cta.title")}
             </h2>
             <p
               style={{
@@ -64,8 +83,7 @@ export default function CTASection() {
                 marginBottom: 32,
               }}
             >
-              Đăng ký chỉ mất 30 giây. Nhận ngay tài khoản đầy đủ tính năng,
-              không quảng cáo, không phí ẩn. Mãi mãi miễn phí cho mọi người.
+              {t("cta.subtitle")}
             </p>
 
             <div style={{ display: "flex", gap: 10, marginBottom: 28, flexWrap: "wrap" }}>
@@ -75,7 +93,7 @@ export default function CTASection() {
                 style={{ fontSize: 15, padding: "12px 24px", display: "inline-flex", alignItems: "center", gap: 8 }}
               >
                 <UserPlus size={16} />
-                <span>Tạo Tài Khoản Miễn Phí</span>
+                <span>{t("cta.joinFree")}</span>
               </Link>
               <Link
                 href="/play"
@@ -83,18 +101,13 @@ export default function CTASection() {
                 style={{ fontSize: 15, padding: "12px 24px", display: "inline-flex", alignItems: "center", gap: 8 }}
               >
                 <Sparkles size={16} />
-                <span>Chơi Ngay Không Cần Đăng Ký</span>
+                <span>{language === "vi" ? "Chơi Ngay Không Cần Đăng Ký" : "Play as Guest"}</span>
               </Link>
             </div>
 
             {/* Checklist */}
             <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 10 }}>
-              {[
-                "100% Không quảng cáo, không pop-up phiền toái",
-                "Không có gói VIP hay bán vật phẩm can thiệp ván cờ",
-                "Mã nguồn mở minh bạch — máy chủ độ trễ thấp",
-                "Tự do xuất dữ liệu PGN và phân tích ván đấu",
-              ].map((item) => (
+              {checklist.map((item) => (
                 <li
                   key={item}
                   style={{
@@ -160,9 +173,9 @@ export default function CTASection() {
               }}
             >
               {[
-                { n: "2.4M", label: "Người chơi", icon: Users },
-                { n: "14K+", label: "Đang online", icon: Radio },
-                { n: "150K", label: "Ván hôm nay", icon: Swords },
+                { n: "2.4M", label: language === "vi" ? "Người chơi" : "Players", icon: Users },
+                { n: "14K+", label: language === "vi" ? "Đang online" : "Online now", icon: Radio },
+                { n: "150K", label: language === "vi" ? "Ván hôm nay" : "Games today", icon: Swords },
               ].map((s, i) => {
                 const Icon = s.icon;
                 return (

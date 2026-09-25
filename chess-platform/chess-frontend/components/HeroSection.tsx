@@ -18,6 +18,8 @@ import {
   Radio,
   Sparkles,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+import { useTheme } from "@/context/ThemeContext";
 
 /* ── SVG Country Flags (avoid OS unicode emoji font fallback) ── */
 function VietnamFlag() {
@@ -59,6 +61,10 @@ export default function HeroSection() {
   const [whiteTime, setWhiteTime] = useState(184); // seconds
   const [blackTime, setBlackTime] = useState(167);
 
+  const { language, t } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const activeGame = LIVE_GAMES[liveIdx];
 
   // Rotate ticker
@@ -89,6 +95,7 @@ export default function HeroSection() {
         background: "var(--bg-base)",
         paddingTop: 64,
         borderBottom: "1px solid var(--divider)",
+        transition: "background-color 0.25s ease, border-color 0.25s ease",
       }}
     >
       {/* Top Banner Bar — like Lichess */}
@@ -129,13 +136,13 @@ export default function HeroSection() {
                   boxShadow: "0 0 8px rgba(98, 153, 36, 0.6)",
                 }}
               />
-              Đang có{" "}
+              {language === "vi" ? "Đang có" : "Live:"}{" "}
               <strong style={{ color: "var(--green-light)" }}>14,920</strong>{" "}
-              người chơi trực tuyến
+              {language === "vi" ? "người chơi trực tuyến" : "players online"}
             </span>
             <span style={{ color: "var(--text-muted)" }}>•</span>
             <span style={{ color: "var(--text-secondary)" }}>
-              Ván đỉnh cao:{" "}
+              {language === "vi" ? "Ván đỉnh cao:" : "Top game:"}{" "}
               <strong style={{ color: "var(--text-primary)" }}>
                 {activeGame.w}
               </strong>{" "}
@@ -143,7 +150,7 @@ export default function HeroSection() {
               <strong style={{ color: "var(--text-primary)" }}>
                 {activeGame.b}
               </strong>{" "}
-              ({activeGame.bElo}) • {activeGame.tc} • Nước {activeGame.move}
+              ({activeGame.bElo}) • {activeGame.tc} • {language === "vi" ? "Nước" : "Move"} {activeGame.move}
             </span>
           </div>
 
@@ -158,12 +165,12 @@ export default function HeroSection() {
           >
             <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
               <Wifi size={13} color="var(--green-light)" />
-              Độ trễ: <strong style={{ color: "var(--green-light)" }}>12ms</strong> (Hà Nội)
+              {language === "vi" ? "Độ trễ:" : "Latency:"} <strong style={{ color: "var(--green-light)" }}>12ms</strong>
             </span>
             <span>•</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
               <Server size={13} />
-              Engine: <strong style={{ color: "var(--text-primary)" }}>Stockfish 17 NNUE</strong>
+              Engine: <strong style={{ color: "var(--text-primary)" }}>Rust 10µs + Stockfish 17</strong>
             </span>
           </div>
         </div>
@@ -195,7 +202,9 @@ export default function HeroSection() {
                 letterSpacing: "0.2px",
               }}
             >
-              NỀN TẢNG CỜ VUA TRỰC TUYẾN VIỆT NAM — 100% MIỄN PHÍ
+              {language === "vi"
+                ? "NỀN TẢNG CỜ VUA TRỰC TUYẾN VIỆT NAM — 100% MIỄN PHÍ"
+                : "NEXT-GEN CHESS PLATFORM — 100% FREE & OPEN SOURCE"}
             </span>
           </div>
 
@@ -211,11 +220,23 @@ export default function HeroSection() {
               letterSpacing: "-0.5px",
             }}
           >
-            Chơi Cờ Vua<br />
-            <span style={{ color: "var(--green-light)" }}>Trực Tuyến</span>{" "}
-            <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>
-              Cùng Mọi Người
-            </span>
+            {language === "vi" ? (
+              <>
+                Chơi Cờ Vua<br />
+                <span style={{ color: "var(--green-light)" }}>Trực Tuyến</span>{" "}
+                <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>
+                  Cùng Mọi Người
+                </span>
+              </>
+            ) : (
+              <>
+                Play World-Class<br />
+                <span style={{ color: "var(--green-light)" }}>Chess Online</span>{" "}
+                <span style={{ color: "var(--text-secondary)", fontWeight: 400 }}>
+                  With Everyone
+                </span>
+              </>
+            )}
           </h1>
 
           {/* Subtitle */}
@@ -228,13 +249,10 @@ export default function HeroSection() {
               marginBottom: 32,
             }}
           >
-            Không quảng cáo, không gói hội viên trả phí, chuẩn luật thi đấu FIDE. 
-            Ghép cặp đấu thủ trong vài giây, thách đấu bạn bè, luyện tập cùng{" "}
-            <strong style={{ color: "var(--text-primary)" }}>Stockfish 17 AI</strong>{" "}
-            hoặc nâng cao trình độ qua kho câu đố chiến thuật.
+            {t("hero.subtitle")}
           </p>
 
-          {/* Quick Start Pairing Cards (Lichess signature feature) */}
+          {/* Quick Start Pairing Cards */}
           <div style={{ marginBottom: 28 }}>
             <div
               style={{
@@ -246,7 +264,7 @@ export default function HeroSection() {
                 marginBottom: 10,
               }}
             >
-              Ghép Cặp Nhanh
+              {language === "vi" ? "Ghép Cặp Nhanh" : "Quick Pairing"}
             </div>
             <div
               style={{
@@ -321,7 +339,7 @@ export default function HeroSection() {
               }}
             >
               <Swords size={18} />
-              <span>Tìm Trận Ngay</span>
+              <span>{t("hero.ctaPlayOnline")}</span>
             </Link>
 
             <Link
@@ -337,7 +355,7 @@ export default function HeroSection() {
               }}
             >
               <Bot size={18} />
-              <span>Đấu Với Máy (AI)</span>
+              <span>{t("hero.ctaPlayAi")}</span>
             </Link>
 
             <Link
@@ -353,7 +371,7 @@ export default function HeroSection() {
               }}
             >
               <Puzzle size={18} />
-              <span>Giải Câu Đố</span>
+              <span>{language === "vi" ? "Giải Câu Đố" : "Tactical Puzzles"}</span>
             </Link>
           </div>
         </div>

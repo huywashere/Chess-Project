@@ -77,6 +77,64 @@
   --font-mono:    'Source Code Pro', monospace;
 }
 
+/* ─── Light Mode Theme ─── */
+[data-theme="light"] {
+  /* ─── Base (Lichess/Chess.com-inspired warm, crisp light mode) ─── */
+  --bg-base:      #f0ece6;
+  --bg-surface:   #ffffff;
+  --bg-raised:    #f8f6f2;
+  --bg-overlay:   #ebe6dc;
+  --bg-input:     #ffffff;
+
+  /* ─── Text ─── */
+  --text-primary:   #23211e;
+  --text-secondary: #57524b;
+  --text-muted:     #888176;
+  --text-inverse:   #ffffff;
+
+  /* ─── Context Colors (Light Mode) ─── */
+  --green-vivid:  #53891d;
+  --green-dark:   #3e6815;
+  --green-light:  #68a825;
+  --green-bg:     #edf7e2;
+  --green-border: #b8e09f;
+
+  --blue-vivid:   #2d7ab8;
+  --blue-dark:    #215c8c;
+  --blue-light:   #4094d4;
+  --blue-bg:      #e9f3fd;
+  --blue-border:  #b0d4f5;
+
+  --orange-vivid: #b86e20;
+  --orange-dark:  #945415;
+  --orange-light: #d1822b;
+  --orange-bg:    #fef2e2;
+  --orange-border:#f4cca0;
+
+  --gold-vivid:   #a88708;
+  --gold-dark:    #7e6405;
+  --gold-light:   #b8960c;
+  --gold-bg:      #fcf7df;
+  --gold-border:  #ecd570;
+
+  --teal-vivid:   #208b7e;
+  --teal-dark:    #166a60;
+  --teal-light:   #2ea697;
+  --teal-bg:      #e4f6f4;
+  --teal-border:  #9adcd4;
+
+  --red-vivid:    #c43c29;
+  --red-dark:     #9e2c1c;
+
+  --board-light:  #f0d9b5;
+  --board-dark:   #b58863;
+  --board-coord:  #8b6540;
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-medium: rgba(0, 0, 0, 0.15);
+  --divider:       #ded8ce;
+}
+
 /* ─── Reset ─── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -88,6 +146,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   line-height: 1.5;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 ::-webkit-scrollbar { width: 6px; }

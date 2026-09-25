@@ -14,25 +14,22 @@ import {
   Layers,
   Menu,
   X,
-  User as UserIcon,
   LogOut,
+  Sun,
+  Moon,
+  Globe,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-
-const navLinks = [
-  { label: "Chơi", href: "/play", icon: Swords },
-  { label: "Bàn Cờ 3D", href: "/play/3d", icon: Layers, isNew: true },
-  { label: "Bài Toán", href: "/puzzles", icon: Puzzle },
-  { label: "Học Cờ", href: "/learn", icon: BookOpen },
-  { label: "Giải Đấu", href: "/tournaments", icon: Trophy },
-  { label: "Bảng Xếp Hạng", href: "/leaderboard", icon: BarChart2 },
-];
+import { useTheme } from "@/context/ThemeContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, toggleLanguage, t } = useLanguage();
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 10);
@@ -51,6 +48,20 @@ export default function Navbar() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const navLinks = [
+    { label: t("nav.play"), href: "/play", icon: Swords },
+    { label: t("nav.play3d"), href: "/play/3d", icon: Layers, isNew: true },
+    { label: t("nav.puzzles"), href: "/puzzles", icon: Puzzle },
+    { label: t("nav.learn"), href: "/learn", icon: BookOpen },
+    { label: t("nav.tournaments"), href: "/tournaments", icon: Trophy },
+    { label: t("nav.leaderboard"), href: "/leaderboard", icon: BarChart2 },
+  ];
+
+  const isDark = theme === "dark";
+  const navBg = scrolled || mobileMenuOpen
+    ? isDark ? "rgba(22,21,18,0.98)" : "rgba(255,255,255,0.98)"
+    : isDark ? "rgba(22,21,18,0.88)" : "rgba(240,236,230,0.88)";
+
   return (
     <nav
       style={{
@@ -59,10 +70,10 @@ export default function Navbar() {
         left: 0,
         right: 0,
         zIndex: 100,
-        background: scrolled || mobileMenuOpen ? "rgba(22,21,18,0.98)" : "rgba(22,21,18,0.9)",
-        borderBottom: `1px solid ${scrolled || mobileMenuOpen ? "#2a2825" : "rgba(255,255,255,0.06)"}`,
-        backdropFilter: "blur(8px)",
-        transition: "border-color 0.25s, background 0.25s",
+        background: navBg,
+        borderBottom: `1px solid ${scrolled || mobileMenuOpen ? "var(--divider)" : "var(--border-subtle)"}`,
+        backdropFilter: "blur(12px)",
+        transition: "border-color 0.25s ease, background 0.25s ease",
       }}
     >
       <div
@@ -74,7 +85,7 @@ export default function Navbar() {
           height: 64,
         }}
       >
-        {/* Logo */}
+        {/* Logo & Platform Name */}
         <Link
           href="/"
           onClick={() => setMobileMenuOpen(false)}
@@ -88,7 +99,9 @@ export default function Navbar() {
               sizes="32px"
               style={{
                 objectFit: "contain",
-                filter: "sepia(1) saturate(4) hue-rotate(60deg) brightness(0.9)",
+                filter: isDark
+                  ? "sepia(1) saturate(4) hue-rotate(60deg) brightness(0.9)"
+                  : "brightness(0.9) saturate(2)",
               }}
             />
           </div>
@@ -97,7 +110,7 @@ export default function Navbar() {
               fontFamily: "var(--font-serif)",
               fontSize: 20,
               fontWeight: 700,
-              color: "#d4ae1a",
+              color: isDark ? "#d4ae1a" : "#b8960c",
               letterSpacing: "0.5px",
             }}
           >
@@ -118,19 +131,25 @@ export default function Navbar() {
                   alignItems: "center",
                   gap: 7,
                   padding: "7px 12px",
-                  borderRadius: 5,
+                  borderRadius: 6,
                   fontSize: 14,
                   fontWeight: 500,
                   textDecoration: "none",
-                  color: isActive ? "#e8e6e3" : "var(--text-secondary)",
+                  color: isActive ? "var(--text-primary)" : "var(--text-secondary)",
                   background: isActive ? "var(--bg-raised)" : "transparent",
+                  border: isActive ? "1px solid var(--border-medium)" : "1px solid transparent",
                   transition: "all 0.15s ease",
                 }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#e8e6e3")}
-                onMouseLeave={(e) =>
-                  ((e.currentTarget as HTMLElement).style.color =
-                    isActive ? "#e8e6e3" : "var(--text-secondary)")
-                }
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = "var(--text-primary)";
+                  if (!isActive) (e.currentTarget as HTMLElement).style.background = "var(--bg-raised)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.color = isActive
+                    ? "var(--text-primary)"
+                    : "var(--text-secondary)";
+                  if (!isActive) (e.currentTarget as HTMLElement).style.background = "transparent";
+                }}
               >
                 <Icon size={15} strokeWidth={2} />
                 <span>{label}</span>
@@ -155,8 +174,99 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Desktop Auth Buttons / User Profile */}
+        {/* Desktop Actions: Language + Theme Toggle + Auth Buttons */}
         <div className="hide-on-mobile" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {/* Language Switcher Pill */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-medium)",
+              borderRadius: 6,
+              padding: "2px",
+              gap: 2,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setLanguage("vi")}
+              title="Tiếng Việt"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "4px 8px",
+                borderRadius: 4,
+                border: "none",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                background: language === "vi" ? "var(--bg-raised)" : "transparent",
+                color: language === "vi" ? "var(--text-primary)" : "var(--text-muted)",
+                boxShadow: language === "vi" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <span>🇻🇳</span>
+              <span>VI</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage("en")}
+              title="English"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "4px 8px",
+                borderRadius: 4,
+                border: "none",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                background: language === "en" ? "var(--bg-raised)" : "transparent",
+                color: language === "en" ? "var(--text-primary)" : "var(--text-muted)",
+                boxShadow: language === "en" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <span>🇬🇧</span>
+              <span>EN</span>
+            </button>
+          </div>
+
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            title={isDark ? t("theme.switchToLight") : t("theme.switchToDark")}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 36,
+              height: 36,
+              borderRadius: 6,
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-medium)",
+              color: isDark ? "#facc15" : "#eab308",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "var(--bg-raised)";
+              (e.currentTarget as HTMLElement).style.borderColor = "var(--gold-light)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.background = "var(--bg-surface)";
+              (e.currentTarget as HTMLElement).style.borderColor = "var(--border-medium)";
+            }}
+          >
+            {isDark ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+
+          {/* User Profile or Login/Register */}
           {user ? (
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div
@@ -196,7 +306,7 @@ export default function Navbar() {
                     fontWeight: 700,
                     padding: "1px 6px",
                     borderRadius: 4,
-                    background: "rgba(255,255,255,0.08)",
+                    background: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
                     color: "var(--gold-light)",
                   }}
                 >
@@ -207,7 +317,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => logout()}
-                title="Đăng xuất"
+                title={t("nav.logout")}
                 style={{
                   background: "transparent",
                   border: "1px solid var(--border-subtle)",
@@ -231,7 +341,7 @@ export default function Navbar() {
                 }}
               >
                 <LogOut size={13} />
-                <span>Thoát</span>
+                <span>{t("nav.logout")}</span>
               </button>
             </div>
           ) : (
@@ -242,7 +352,7 @@ export default function Navbar() {
                 style={{ padding: "8px 16px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
               >
                 <LogIn size={15} />
-                <span>Đăng Nhập</span>
+                <span>{t("nav.login")}</span>
               </Link>
               <Link
                 href="/register"
@@ -250,33 +360,77 @@ export default function Navbar() {
                 style={{ padding: "8px 18px", fontSize: 14, display: "inline-flex", alignItems: "center", gap: 6 }}
               >
                 <UserPlus size={15} />
-                <span>Đăng Ký Miễn Phí</span>
+                <span>{t("nav.registerFree")}</span>
               </Link>
             </>
           )}
         </div>
 
-        {/* Mobile Hamburger Toggle Button (Shown on mobile only) */}
-        <button
-          type="button"
-          className="hide-on-desktop"
-          onClick={() => setMobileMenuOpen((prev) => !prev)}
-          aria-label={mobileMenuOpen ? "Đóng menu" : "Mở menu"}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 40,
-            height: 40,
-            borderRadius: 6,
-            background: "var(--bg-surface)",
-            border: "1px solid var(--divider)",
-            color: "var(--text-primary)",
-            cursor: "pointer",
-          }}
-        >
-          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        {/* Mobile Header Right Controls: Theme + Lang + Hamburger */}
+        <div className="hide-on-desktop" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* Quick Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label="Toggle Theme"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 36,
+              height: 36,
+              borderRadius: 6,
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-medium)",
+              color: isDark ? "#facc15" : "#eab308",
+              cursor: "pointer",
+            }}
+          >
+            {isDark ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+
+          {/* Quick Language Toggle */}
+          <button
+            type="button"
+            onClick={toggleLanguage}
+            aria-label="Toggle Language"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 36,
+              height: 36,
+              borderRadius: 6,
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-medium)",
+              fontSize: 16,
+              cursor: "pointer",
+            }}
+          >
+            {language === "vi" ? "🇻🇳" : "🇬🇧"}
+          </button>
+
+          {/* Mobile Hamburger Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 40,
+              height: 40,
+              borderRadius: 6,
+              background: "var(--bg-surface)",
+              border: "1px solid var(--divider)",
+              color: "var(--text-primary)",
+              cursor: "pointer",
+            }}
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Dropdown Menu Drawer */}
@@ -294,6 +448,59 @@ export default function Navbar() {
             gap: 6,
           }}
         >
+          {/* Quick Language and Theme selector in drawer */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "10px 14px",
+              background: "var(--bg-surface)",
+              borderRadius: 6,
+              border: "1px solid var(--border-subtle)",
+              marginBottom: 6,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-secondary)" }}>
+              <Globe size={15} />
+              <span>{t("lang.switch")}:</span>
+            </div>
+            <div style={{ display: "flex", gap: 4 }}>
+              <button
+                type="button"
+                onClick={() => setLanguage("vi")}
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  border: "none",
+                  background: language === "vi" ? "var(--green-bg)" : "transparent",
+                  color: language === "vi" ? "var(--green-light)" : "var(--text-muted)",
+                  cursor: "pointer",
+                }}
+              >
+                🇻🇳 Tiếng Việt
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage("en")}
+                style={{
+                  padding: "4px 8px",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  border: "none",
+                  background: language === "en" ? "var(--green-bg)" : "transparent",
+                  color: language === "en" ? "var(--green-light)" : "var(--text-muted)",
+                  cursor: "pointer",
+                }}
+              >
+                🇬🇧 English
+              </button>
+            </div>
+          </div>
+
           {navLinks.map(({ label, href, icon: Icon, isNew }) => {
             const isActive = pathname === href;
             return (
@@ -331,7 +538,7 @@ export default function Navbar() {
                       padding: "2px 6px",
                     }}
                   >
-                    3D MỚI
+                    3D {t("nav.newBadge")}
                   </span>
                 )}
               </Link>
@@ -394,10 +601,10 @@ export default function Navbar() {
                     setMobileMenuOpen(false);
                   }}
                   className="btn btn-ghost"
-                  style={{ width: "100%", justifyContent: "center", color: "#f87171" }}
+                  style={{ width: "100%", justifyContent: "center", color: "var(--red-vivid, #ef4444)" }}
                 >
                   <LogOut size={15} />
-                  <span>Đăng Xuất Khỏi Tài Khoản</span>
+                  <span>{t("nav.logoutAccount")}</span>
                 </button>
               </div>
             ) : (
@@ -420,7 +627,7 @@ export default function Navbar() {
                   }}
                 >
                   <LogIn size={15} />
-                  <span>Đăng Nhập</span>
+                  <span>{t("nav.login")}</span>
                 </Link>
                 <Link
                   href="/register"
@@ -434,7 +641,7 @@ export default function Navbar() {
                   }}
                 >
                   <UserPlus size={15} />
-                  <span>Đăng Ký</span>
+                  <span>{t("nav.register")}</span>
                 </Link>
               </div>
             )}

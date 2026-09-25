@@ -7,60 +7,83 @@ import {
   Smartphone,
   Globe2,
   ShieldCheck,
+  Zap,
 } from "lucide-react";
-
-const FEATURES = [
-  {
-    icon: Trophy,
-    title: "Hệ Thống ELO Chuẩn Quốc Tế",
-    desc: "Rating Glicko-2 chuẩn xác như FIDE và Lichess. Thuật toán phân cấp trình độ thông minh, ghép cặp công bằng.",
-    color: "var(--gold-vivid)",
-    bg: "rgba(184, 150, 12, 0.1)",
-  },
-  {
-    icon: BarChart3,
-    title: "Phân Tích Chuyên Sâu Stockfish 17",
-    desc: "Phân tích đồ thị biến động lợi thế, chỉ rõ nước đi thiên tài (Brilliant), nước sai lầm (Blunder) và đề xuất phương án tối ưu.",
-    color: "var(--blue-vivid)",
-    bg: "rgba(61, 139, 201, 0.1)",
-  },
-  {
-    icon: BookOpen,
-    title: "Thư Viện Khai Cuộc Đồ Sộ",
-    desc: "Hơn 3,000+ biến thế khai cuộc phổ biến kèm tỷ lệ thắng thực tế. Luyện bài bản từ Ruy Lopez đến Sicilian Defense.",
-    color: "var(--teal-vivid)",
-    bg: "rgba(42, 157, 143, 0.1)",
-  },
-  {
-    icon: Smartphone,
-    title: "Trải Nghiệm Mượt Trên Mọi Thiết Bị",
-    desc: "Giao diện cảm ứng nhạy bén, cử chỉ kéo thả nhẹ nhàng. Tối ưu hoàn hảo cho smartphone, iPad và màn hình máy tính.",
-    color: "var(--green-vivid)",
-    bg: "rgba(98, 153, 36, 0.1)",
-  },
-  {
-    icon: Globe2,
-    title: "Cộng Đồng Kỳ Thủ Việt Nam",
-    desc: "Giao diện 100% tiếng Việt, các giải đấu tổ chức theo múi giờ Việt Nam, phòng chat phân tích và câu lạc bộ địa phương sôi nổi.",
-    color: "var(--orange-vivid)",
-    bg: "rgba(201, 124, 42, 0.1)",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Hệ Thống Chống Gian Lận Đa Tầng",
-    desc: "Kiểm tra xác thực nước đi server-side, phát hiện engine cheating qua phân tích phân bố thời gian và độ chính xác centipawn.",
-    color: "var(--red-vivid)",
-    bg: "rgba(200, 75, 58, 0.1)",
-  },
-];
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function FeaturesSection() {
+  const { language, t } = useLanguage();
+
+  const features = [
+    {
+      icon: Trophy,
+      title: language === "vi" ? "Hệ Thống ELO Chuẩn Quốc Tế" : "International ELO Rating System",
+      desc:
+        language === "vi"
+          ? "Rating Glicko-2 chuẩn xác như FIDE và Lichess. Ghép cặp đối thủ công bằng và chính xác."
+          : "Standard Glicko-2 rating system matching FIDE and Lichess. Fair and competitive matchmaking.",
+      color: "var(--gold-vivid)",
+      bg: "rgba(184, 150, 12, 0.1)",
+    },
+    {
+      icon: Zap,
+      title: language === "vi" ? "Đồng Hồ Thời Gian Thực Golang" : "Golang Realtime Game Gateway",
+      desc:
+        language === "vi"
+          ? "Gateway WebSocket Golang siêu nhẹ xử lý đồng hồ ticker chính xác microsecond, độ trễ < 15ms."
+          : "Lightweight Golang WebSocket gateway driving microsecond-precision chess clocks with sub-15ms latency.",
+      color: "var(--green-vivid)",
+      bg: "rgba(98, 153, 36, 0.1)",
+    },
+    {
+      icon: BarChart3,
+      title: language === "vi" ? "Phân Tích Nước Đi Siêu Tốc (Rust)" : "Rust Sub-Millisecond Analysis",
+      desc:
+        language === "vi"
+          ? "Động cơ Rust đánh giá thế cờ, phân loại nước đi (Thiên tài, Tốt, Sai lầm) chỉ trong 10 microseconds."
+          : "Pure Rust analysis engine reviewing moves, win probability, and classifications in just 10 microseconds.",
+      color: "var(--blue-vivid)",
+      bg: "rgba(61, 139, 201, 0.1)",
+    },
+    {
+      icon: BookOpen,
+      title: language === "vi" ? "Thư Viện Khai Cuộc Đồ Sộ" : "Extensive Openings Library",
+      desc:
+        language === "vi"
+          ? "Hơn 3,000+ biến thế khai cuộc phổ biến kèm tỷ lệ thắng thực tế từ Ruy Lopez đến Sicilian Defense."
+          : "Over 3,000+ opening variations with win-rate statistics from the Italian Game to the Sicilian Defense.",
+      color: "var(--teal-vivid)",
+      bg: "rgba(42, 157, 143, 0.1)",
+    },
+    {
+      icon: ShieldCheck,
+      title: language === "vi" ? "Chống Gian Lận Đa Tầng (Entropy)" : "Multi-Layer Anti-Cheat",
+      desc:
+        language === "vi"
+          ? "Thuật toán tính toán Entropy nhịp thời gian nước đi và phương sai chuẩn nhận diện bot tự động."
+          : "Shannon entropy of move intervals and variance analysis protecting game integrity against bot assistance.",
+      color: "var(--red-vivid)",
+      bg: "rgba(200, 75, 58, 0.1)",
+    },
+    {
+      icon: Smartphone,
+      title: language === "vi" ? "Tối Ưu Cảm Ứng & Bàn Cờ 3D" : "Touch Optimized & 3D Boards",
+      desc:
+        language === "vi"
+          ? "Cử chỉ chạm vuốt mượt mà trên iPhone, Android, iPad cùng chế độ 3D WebGL chân thực."
+          : "Smooth gestures and responsive boards across mobile, tablet, and desktop with photorealistic 3D WebGL.",
+      color: "var(--orange-vivid)",
+      bg: "rgba(201, 124, 42, 0.1)",
+    },
+  ];
+
   return (
     <section
       style={{
         background: "var(--bg-surface)",
         padding: "72px 0",
         borderBottom: "1px solid var(--divider)",
+        transition: "background-color 0.25s ease, border-color 0.25s ease",
       }}
     >
       <div className="container">
@@ -75,7 +98,7 @@ export default function FeaturesSection() {
               marginBottom: 10,
             }}
           >
-            Tính Năng Nổi Bật
+            {t("features.title")}
           </div>
           <h2
             style={{
@@ -85,7 +108,7 @@ export default function FeaturesSection() {
               color: "var(--text-primary)",
             }}
           >
-            Mọi Công Cụ Bạn Cần Để Tiến Bộ Mỗi Ngày
+            {t("features.subtitle")}
           </h2>
         </div>
 
@@ -100,7 +123,7 @@ export default function FeaturesSection() {
             border: "1px solid var(--border-subtle)",
           }}
         >
-          {FEATURES.map((f, i) => {
+          {features.map((f, i) => {
             const Icon = f.icon;
             return (
               <div

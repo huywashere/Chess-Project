@@ -3,6 +3,8 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CheckCircle2, MessageSquare, Globe, Heart } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+import { useTheme } from "@/context/ThemeContext";
 
 function GithubIcon({ size = 14 }: { size?: number }) {
   return (
@@ -21,43 +23,55 @@ function TwitterIcon({ size = 14 }: { size?: number }) {
   );
 }
 
-const COLS: Record<string, { label: string; href: string }[]> = {
-  "Chơi": [
-    { label: "Online PvP", href: "/play" },
-    { label: "Đấu vs AI", href: "/play/ai" },
-    { label: "Kho Câu Đố", href: "/puzzles" },
-    { label: "Giải Đấu Arena", href: "/tournaments" },
-    { label: "Chơi Ẩn Danh", href: "/play/guest" },
-  ],
-  "Học Tập": [
-    { label: "Luật Cờ Cơ Bản", href: "/learn" },
-    { label: "Từ Điển Khai Cuộc", href: "/openings" },
-    { label: "Kỹ Thuật Tàn Cuộc", href: "/endgames" },
-    { label: "Video Hướng Dẫn", href: "/videos" },
-    { label: "Bàn Phân Tích", href: "/analysis" },
-  ],
-  "Cộng Đồng": [
-    { label: "Bảng Xếp Hạng Kỳ Thủ", href: "/leaderboard" },
-    { label: "Câu Lạc Bộ Cờ Vua", href: "/clubs" },
-    { label: "Diễn Đàn Thảo Luận", href: "/forum" },
-    { label: "Lịch Thi Đấu & Sự Kiện", href: "/events" },
-    { label: "Bài Viết & Tin Tức", href: "/blog" },
-  ],
-  "Hỗ Trợ": [
-    { label: "Về ChessMaster", href: "/about" },
-    { label: "Liên Hệ Đội Ngũ", href: "/contact" },
-    { label: "Điều Khoản Sử Dụng", href: "/terms" },
-    { label: "Chính Sách Bảo Mật", href: "/privacy" },
-    { label: "Tài Liệu API", href: "/api-docs" },
-  ],
-};
-
 export default function Footer() {
+  const { language, setLanguage, t } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  const columns = [
+    {
+      title: t("footer.linksPlay"),
+      links: [
+        { label: "Online PvP", href: "/play" },
+        { label: "Stockfish AI", href: "/play?mode=ai" },
+        { label: "3D Board", href: "/play/3d" },
+        { label: t("nav.puzzles"), href: "/puzzles" },
+        { label: t("nav.tournaments"), href: "/tournaments" },
+      ],
+    },
+    {
+      title: t("footer.linksLearn"),
+      links: [
+        { label: t("nav.learn"), href: "/learn" },
+        { label: "Openings", href: "/learn" },
+        { label: "Endgames", href: "/learn" },
+        { label: "Tactics", href: "/puzzles" },
+      ],
+    },
+    {
+      title: t("footer.linksCommunity"),
+      links: [
+        { label: t("nav.leaderboard"), href: "/leaderboard" },
+        { label: "Tournaments", href: "/tournaments" },
+        { label: "Clubs", href: "/leaderboard" },
+      ],
+    },
+    {
+      title: t("footer.linksLegal"),
+      links: [
+        { label: t("footer.terms"), href: "#" },
+        { label: t("footer.privacy"), href: "#" },
+        { label: "API Docs", href: "#" },
+      ],
+    },
+  ];
+
   return (
     <footer
       style={{
         background: "var(--bg-surface)",
         borderTop: "1px solid var(--divider)",
+        transition: "background-color 0.25s ease, border-color 0.25s ease",
       }}
     >
       {/* Main footer grid */}
@@ -83,7 +97,9 @@ export default function Footer() {
                   sizes="28px"
                   style={{
                     objectFit: "contain",
-                    filter: "sepia(1) saturate(4) hue-rotate(60deg) brightness(0.9)",
+                    filter: isDark
+                      ? "sepia(1) saturate(4) hue-rotate(60deg) brightness(0.9)"
+                      : "brightness(0.9) saturate(2)",
                   }}
                 />
               </div>
@@ -92,69 +108,87 @@ export default function Footer() {
                   fontFamily: "var(--font-serif)",
                   fontSize: 18,
                   fontWeight: 700,
-                  color: "var(--gold-light)",
+                  color: isDark ? "var(--gold-light)" : "#a88708",
                 }}
               >
                 ChessMaster
               </span>
             </Link>
 
-            <p style={{ fontSize: 13, color: "var(--text-muted)", lineHeight: 1.7, marginBottom: 16 }}>
-              Nền tảng cờ vua trực tuyến 100% miễn phí, không quảng cáo, mã nguồn mở dành cho cộng đồng kỳ thủ.
+            <p
+              style={{
+                fontSize: 13,
+                color: "var(--text-secondary)",
+                lineHeight: 1.6,
+                marginBottom: 16,
+                maxWidth: 220,
+              }}
+            >
+              {t("footer.desc")}
             </p>
 
-            {/* System Status indicator */}
+            {/* Server status pill */}
             <div
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
                 padding: "4px 10px",
-                background: "rgba(98, 153, 36, 0.12)",
-                border: "1px solid rgba(98, 153, 36, 0.25)",
                 borderRadius: 20,
-                fontSize: 12,
+                background: "var(--green-bg)",
+                border: "1px solid var(--green-border)",
+                fontSize: 11,
                 color: "var(--green-light)",
-                marginBottom: 16,
+                fontWeight: 600,
               }}
             >
-              <CheckCircle2 size={13} strokeWidth={2.5} />
-              <span>Hệ thống hoạt động bình thường</span>
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: "var(--green-light)",
+                  display: "inline-block",
+                }}
+              />
+              <span>Golang & Rust Microservices Online</span>
             </div>
           </div>
 
-          {/* Link columns */}
-          {Object.entries(COLS).map(([section, links]) => (
-            <div key={section}>
+          {/* Nav columns */}
+          {columns.map((col) => (
+            <div key={col.title}>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 700,
-                  letterSpacing: "1.5px",
-                  color: "var(--text-muted)",
+                  letterSpacing: "1px",
                   textTransform: "uppercase",
+                  color: "var(--text-primary)",
                   marginBottom: 14,
                 }}
               >
-                {section}
+                {col.title}
               </div>
               <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: 9 }}>
-                {links.map(({ label, href }) => (
-                  <li key={href}>
+                {col.links.map((link) => (
+                  <li key={link.label}>
                     <Link
-                      href={href}
+                      href={link.href}
                       style={{
                         fontSize: 13,
                         color: "var(--text-secondary)",
                         textDecoration: "none",
-                        transition: "color 0.15s",
+                        transition: "color 0.15s ease",
                       }}
-                      onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#e8e6e3")}
+                      onMouseEnter={(e) =>
+                        ((e.currentTarget as HTMLElement).style.color = "var(--text-primary)")
+                      }
                       onMouseLeave={(e) =>
                         ((e.currentTarget as HTMLElement).style.color = "var(--text-secondary)")
                       }
                     >
-                      {label}
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -162,42 +196,44 @@ export default function Footer() {
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Bottom bar */}
-      <div style={{ borderTop: "1px solid var(--divider)" }}>
+        {/* Bottom bar */}
         <div
-          className="container"
           style={{
+            marginTop: 40,
+            paddingTop: 24,
+            borderTop: "1px solid var(--divider)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "16px 24px",
             flexWrap: "wrap",
-            gap: 12,
+            gap: 16,
           }}
         >
           <div
             style={{
-              fontSize: 12,
-              color: "var(--text-muted)",
               display: "flex",
               alignItems: "center",
-              gap: 6,
+              gap: 8,
+              fontSize: 12,
+              color: "var(--text-muted)",
+              flexWrap: "wrap",
             }}
           >
-            <span>© 2026 ChessMaster</span>
+            <span>© {new Date().getFullYear()} ChessMaster.</span>
             <span>•</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-              Được phát triển với <Heart size={12} color="#e04040" fill="#e04040" /> tại Việt Nam
+              {language === "vi" ? "Được phát triển với" : "Crafted with"}{" "}
+              <Heart size={12} color="#e04040" fill="#e04040" />{" "}
+              {language === "vi" ? "tại Việt Nam" : "in Vietnam"}
             </span>
             <span>•</span>
-            <span>Giấy phép GPL-3.0</span>
+            <span>GPL-3.0</span>
           </div>
 
-          <div style={{ display: "flex", gap: 18, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
             <a
-              href="https://github.com"
+              href="https://github.com/huywashere/Chess-Project"
               target="_blank"
               rel="noreferrer"
               style={{
@@ -216,55 +252,27 @@ export default function Footer() {
               <span>GitHub</span>
             </a>
 
-            <a
-              href="#"
+            {/* Language switch button in footer */}
+            <button
+              type="button"
+              onClick={() => setLanguage(language === "vi" ? "en" : "vi")}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 5,
                 fontSize: 12,
-                color: "var(--text-muted)",
-                textDecoration: "none",
-                transition: "color 0.15s",
-              }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-primary)")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-muted)")}
-            >
-              <MessageSquare size={14} />
-              <span>Discord</span>
-            </a>
-
-            <a
-              href="#"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 5,
-                fontSize: 12,
-                color: "var(--text-muted)",
-                textDecoration: "none",
-                transition: "color 0.15s",
-              }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-primary)")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--text-muted)")}
-            >
-              <TwitterIcon size={14} />
-              <span>Twitter</span>
-            </a>
-
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 4,
-                fontSize: 12,
-                color: "var(--text-muted)",
-                marginLeft: 8,
+                color: "var(--text-secondary)",
+                background: "var(--bg-raised)",
+                border: "1px solid var(--border-medium)",
+                borderRadius: 4,
+                padding: "3px 8px",
+                cursor: "pointer",
+                transition: "all 0.15s ease",
               }}
             >
               <Globe size={13} />
-              <span>Tiếng Việt</span>
-            </div>
+              <span>{language === "vi" ? "🇻🇳 Tiếng Việt" : "🇬🇧 English"}</span>
+            </button>
           </div>
         </div>
       </div>

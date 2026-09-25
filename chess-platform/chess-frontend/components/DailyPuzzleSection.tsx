@@ -12,8 +12,8 @@ import {
   AlertCircle,
   Award,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Dynamically import Chessboard to prevent SSR mismatch
 const Chessboard = dynamic(
@@ -25,7 +25,7 @@ const Chessboard = dynamic(
         style={{
           width: "100%",
           aspectRatio: "1",
-          background: "#262421",
+          background: "var(--bg-raised)",
           borderRadius: 4,
           display: "flex",
           alignItems: "center",
@@ -34,7 +34,7 @@ const Chessboard = dynamic(
           fontSize: 13,
         }}
       >
-        Đang tải bàn cờ câu đố...
+        Loading puzzle board...
       </div>
     ),
   }
@@ -50,6 +50,9 @@ export default function DailyPuzzleSection() {
   const [status, setStatus] = useState<"idle" | "success" | "wrong" | "complete">("idle");
   const [hint, setHint] = useState<string | null>(null);
   const [lastMoveSquares, setLastMoveSquares] = useState<Record<string, { background: string }>>({});
+
+  const { language, t } = useLanguage();
+  const isVi = language === "vi";
 
   function handlePieceDrop({
     sourceSquare,
@@ -71,7 +74,11 @@ export default function DailyPuzzleSection() {
           e8: { background: "rgba(129, 182, 76, 0.5)" },
         });
         setStatus("success");
-        setHint("Tuyệt vời! Hậu thí để mở đường cho Xe chiếu bí.");
+        setHint(
+          isVi
+            ? "Tuyệt vời! Hậu thí để mở đường cho Xe chiếu bí."
+            : "Brilliant! Queen sacrifice deflecting Black's defending rook."
+        );
 
         // Black plays forced Rxe8 after 550ms
         setTimeout(() => {
@@ -81,13 +88,21 @@ export default function DailyPuzzleSection() {
             e8: { background: "rgba(224, 122, 43, 0.4)" },
           });
           setStep(1);
-          setHint("Đen vừa ăn Hậu! Giờ hãy tung đòn quyết định cuối cùng.");
+          setHint(
+            isVi
+              ? "Đen vừa ăn Hậu! Giờ hãy tung đòn quyết định cuối cùng."
+              : "Black captured the Queen! Deliver the final checkmate."
+          );
         }, 550);
 
         return true;
       } else {
         setStatus("wrong");
-        setHint("Nước đi chưa tối ưu! Hãy tìm cách tấn công hàng ngang số 8 yếu ớt của Đen.");
+        setHint(
+          isVi
+            ? "Nước đi chưa tối ưu! Hãy tìm cách tấn công hàng ngang số 8 yếu ớt của Đen."
+            : "Not the optimal move! Exploit Black's weak back rank."
+        );
         return false;
       }
     }
@@ -101,11 +116,15 @@ export default function DailyPuzzleSection() {
           e8: { background: "rgba(129, 182, 76, 0.6)" },
         });
         setStatus("complete");
-        setHint("Chính xác! Chiếu bí hàng đáy (Back-rank Mate). Bạn nhận +15 điểm Puzzle Rating!");
+        setHint(
+          isVi
+            ? "Chiếu bí mẫu mực! Bạn đã giải thành công câu đố hôm nay (+12 ELO Tactics)."
+            : "Checkmate! You solved today's daily puzzle (+12 Tactics Rating)."
+        );
         return true;
       } else {
         setStatus("wrong");
-        setHint("Hãy dùng Xe ăn lại quân Xe ở e8 để chiếu bí!");
+        setHint(isVi ? "Hãy dùng Xe ăn lại quân Xe ở e8 để chiếu bí!" : "Use your Rook on e1 to deliver mate on e8!");
         return false;
       }
     }
@@ -113,7 +132,7 @@ export default function DailyPuzzleSection() {
     return false;
   }
 
-  function handleReset() {
+  function resetPuzzle() {
     setFen(PUZZLE_START_FEN);
     setStep(0);
     setStatus("idle");
@@ -121,79 +140,82 @@ export default function DailyPuzzleSection() {
     setLastMoveSquares({});
   }
 
-  function handleShowSolution() {
+  function showSolution() {
     setFen("4R1k1/5ppp/8/8/8/8/5PPP/6K1 b - - 0 2");
     setLastMoveSquares({
-      e1: { background: "rgba(212, 174, 26, 0.5)" },
-      e8: { background: "rgba(212, 174, 26, 0.5)" },
+      b3: { background: "rgba(129, 182, 76, 0.5)" },
+      e8: { background: "rgba(129, 182, 76, 0.7)" },
     });
     setStatus("complete");
-    setHint("Lời giải: 1.Qe8+ Rxe8  2.Rxe8# (Chiếu bí hàng ngang 8).");
+    setHint(
+      isVi
+        ? "Lời giải: 1. Qe8+ Rxe8  2. Rxe8# (Thí Hậu mở hàng ngang đáy)"
+        : "Solution: 1. Qe8+ Rxe8  2. Rxe8# (Deflection & Back-Rank Mate)"
+    );
   }
 
   return (
     <section
       style={{
-        background: "var(--bg-raised)",
-        padding: "68px 0",
+        background: "var(--bg-base)",
+        padding: "72px 0",
         borderBottom: "1px solid var(--divider)",
+        transition: "background-color 0.25s ease, border-color 0.25s ease",
       }}
     >
       <div className="container">
         <div className="puzzle-section-grid">
-          {/* Left: Interactive Puzzle Board */}
-          <div>
+          {/* Left: Interactive Chess Board */}
+          <div style={{ position: "relative" }}>
             <div
               style={{
-                borderRadius: 6,
+                borderRadius: 8,
                 overflow: "hidden",
-                border: "2px solid #588c32",
-                boxShadow: "0 12px 32px rgba(0,0,0,0.5)",
+                border: "2px solid var(--board-coord)",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.25)",
               }}
             >
               <Chessboard
-                options={{
-                  position: fen,
-                  boardOrientation: "white",
-                  onPieceDrop: handlePieceDrop,
-                  darkSquareStyle: { backgroundColor: "#779952" },
-                  lightSquareStyle: { backgroundColor: "#edeed1" },
-                  darkSquareNotationStyle: { color: "#edeed1", fontSize: 10, fontWeight: "600" },
-                  lightSquareNotationStyle: { color: "#779952", fontSize: 10, fontWeight: "600" },
-                  squareStyles: lastMoveSquares,
-                  animationDurationInMs: 200,
-                }}
+                position={fen}
+                onPieceDrop={handlePieceDrop}
+                boardOrientation="white"
+                customDarkSquareStyle={{ backgroundColor: "var(--board-dark)" }}
+                customLightSquareStyle={{ backgroundColor: "var(--board-light)" }}
+                customSquareStyles={lastMoveSquares}
+                animationDuration={200}
+                arePiecesDraggable={status !== "complete"}
               />
             </div>
+
+            {/* Turn indicator badge */}
             <div
               style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                background: "rgba(22,21,18,0.9)",
+                border: "1px solid var(--border-medium)",
+                borderRadius: 4,
+                padding: "4px 8px",
                 display: "flex",
-                justifyContent: "space-between",
                 alignItems: "center",
-                marginTop: 8,
+                gap: 6,
                 fontSize: 12,
-                color: "var(--text-muted)",
+                fontWeight: 600,
+                color: "#e8e6e3",
+                backdropFilter: "blur(4px)",
               }}
             >
-              <span>Kéo thả quân cờ để giải trực tiếp</span>
-              <button
-                type="button"
-                onClick={handleReset}
+              <div
                 style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "var(--gold-light)",
-                  cursor: "pointer",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 4,
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  background: "#ffffff",
+                  border: "1px solid #999",
                 }}
-              >
-                <RotateCcw size={12} />
-                <span>Đặt Lại</span>
-              </button>
+              />
+              <span>{isVi ? "Trắng đi trước" : "White to move"}</span>
             </div>
           </div>
 
@@ -215,7 +237,7 @@ export default function DailyPuzzleSection() {
               }}
             >
               <Puzzle size={13} strokeWidth={2.5} />
-              <span>CÂU ĐỐ TRONG NGÀY (DAILY PUZZLE)</span>
+              <span>{isVi ? "CÂU ĐỐ TRONG NGÀY (DAILY PUZZLE)" : "DAILY TACTICAL PUZZLE"}</span>
             </div>
 
             <h2
@@ -228,7 +250,7 @@ export default function DailyPuzzleSection() {
                 lineHeight: 1.2,
               }}
             >
-              Trắng Đi Và Chiếu Bí Sau 2 Nước
+              {isVi ? "Trắng Đi Và Chiếu Bí Sau 2 Nước" : "White to Move & Mate in 2"}
             </h2>
 
             <p
@@ -240,9 +262,19 @@ export default function DailyPuzzleSection() {
                 maxWidth: 480,
               }}
             >
-              Độ khó: <strong style={{ color: "var(--orange-light)" }}>1550 ELO</strong> • Chủ đề:{" "}
-              <strong style={{ color: "var(--text-primary)" }}>Thí Hậu & Chiếu Bí Hàng Đáy (Deflection)</strong>.
-              Quan sát kỹ vị trí vua đối phương bị chặn bởi chính các quân tốt của mình.
+              {isVi ? (
+                <>
+                  Độ khó: <strong style={{ color: "var(--orange-light)" }}>1550 ELO</strong> • Chủ đề:{" "}
+                  <strong style={{ color: "var(--text-primary)" }}>Thí Hậu & Chiếu Bí Hàng Đáy (Deflection)</strong>.
+                  Quan sát kỹ vị trí vua đối phương bị chặn bởi chính các quân tốt của mình.
+                </>
+              ) : (
+                <>
+                  Rating: <strong style={{ color: "var(--orange-light)" }}>1550 ELO</strong> • Theme:{" "}
+                  <strong style={{ color: "var(--text-primary)" }}>Queen Sacrifice & Back-Rank Deflection</strong>.
+                  Black's king is restricted by its own pawn shield.
+                </>
+              )}
             </p>
 
             {/* Hint / Feedback box */}
@@ -292,53 +324,56 @@ export default function DailyPuzzleSection() {
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 24 }}>
               <button
                 type="button"
-                onClick={() => setHint("Gợi ý: Tìm nước thí Hậu buộc Xe đối phương phải rời bỏ hàng ngang số 8.")}
+                onClick={() =>
+                  setHint(
+                    isVi
+                      ? "Gợi ý: Tìm nước thí Hậu buộc Xe đối phương phải rời bỏ hàng ngang số 8."
+                      : "Hint: Find a queen sacrifice that deflects Black's rook away from the back rank."
+                  )
+                }
                 className="btn btn-ghost"
                 style={{ fontSize: 14, padding: "9px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}
               >
                 <Lightbulb size={16} />
-                <span>Nhận Gợi Ý</span>
+                <span>{isVi ? "Nhận Gợi Ý" : "Get Hint"}</span>
               </button>
 
               <button
                 type="button"
-                onClick={handleShowSolution}
+                onClick={resetPuzzle}
+                className="btn btn-ghost"
+                style={{ fontSize: 14, padding: "9px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <RotateCcw size={16} />
+                <span>{isVi ? "Làm Lại" : "Reset"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={showSolution}
                 className="btn btn-ghost"
                 style={{ fontSize: 14, padding: "9px 18px", display: "inline-flex", alignItems: "center", gap: 6 }}
               >
                 <Eye size={16} />
-                <span>Xem Lời Giải</span>
+                <span>{isVi ? "Xem Giải Pháp" : "Solution"}</span>
               </button>
-
-              <Link
-                href="/puzzles"
-                className="btn btn-orange"
-                style={{ fontSize: 14, padding: "9px 20px", display: "inline-flex", alignItems: "center", gap: 6 }}
-              >
-                <span>Luyện Thêm 50,000+ Câu Đố</span>
-                <ArrowRight size={15} />
-              </Link>
             </div>
 
-            {/* Mini stats about community */}
-            <div
+            <Link
+              href="/puzzles"
               style={{
-                display: "flex",
-                gap: 24,
-                paddingTop: 16,
-                borderTop: "1px solid var(--border-subtle)",
-                fontSize: 13,
-                color: "var(--text-muted)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                color: "var(--orange-light)",
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
               }}
             >
-              <div>
-                Đã giải hôm nay: <strong style={{ color: "var(--text-primary)" }}>14,280</strong> người
-              </div>
-              <div>•</div>
-              <div>
-                Tỷ lệ giải đúng: <strong style={{ color: "var(--green-light)" }}>78.4%</strong>
-              </div>
-            </div>
+              <span>{isVi ? "Xem tất cả 50,000+ bài tập thế cờ" : "Explore all 50,000+ tactical puzzles"}</span>
+              <ArrowRight size={15} />
+            </Link>
           </div>
         </div>
       </div>
