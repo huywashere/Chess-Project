@@ -1,11 +1,13 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Swords, Bot, Puzzle, Trophy, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/context/LanguageContext";
+import PlayLiveModal from "@/components/play/PlayLiveModal";
 
 export default function GameModesSection() {
   const { language, t } = useLanguage();
+  const [showLiveModal, setShowLiveModal] = useState(false);
 
   const modes = [
     {
@@ -247,25 +249,45 @@ export default function GameModesSection() {
                   </div>
                 </div>
 
-                <Link
-                  href={mode.href}
-                  className={`btn ${mode.btnClass}`}
-                  style={{
-                    width: "100%",
-                    justifyContent: "center",
-                    gap: 6,
-                    padding: "10px 0",
-                    fontSize: 14,
-                  }}
-                >
-                  <span>{mode.cta}</span>
-                  <ArrowRight size={14} />
-                </Link>
+                {mode.href === "/play" ? (
+                  <button
+                    onClick={() => setShowLiveModal(true)}
+                    className={`btn ${mode.btnClass}`}
+                    style={{
+                      width: "100%",
+                      justifyContent: "center",
+                      gap: 6,
+                      padding: "10px 0",
+                      fontSize: 14,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span>{mode.cta}</span>
+                    <ArrowRight size={14} />
+                  </button>
+                ) : (
+                  <Link
+                    href={mode.href}
+                    className={`btn ${mode.btnClass}`}
+                    style={{
+                      width: "100%",
+                      justifyContent: "center",
+                      gap: 6,
+                      padding: "10px 0",
+                      fontSize: 14,
+                    }}
+                  >
+                    <span>{mode.cta}</span>
+                    <ArrowRight size={14} />
+                  </Link>
+                )}
               </div>
             );
           })}
         </div>
       </div>
+
+      <PlayLiveModal isOpen={showLiveModal} onClose={() => setShowLiveModal(false)} />
     </section>
   );
 }

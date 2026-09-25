@@ -70,7 +70,7 @@ app:
   frontend-url: ${FRONTEND_URL:http://localhost:3000}
 
   jwt:
-    secret: ${JWT_SECRET:change-this-secret-key-in-production-min-256-bits}
+    secret: ${JWT_SECRET:chess_master_jwt_secret_dev_32_characters_random_key_2026}
     expiration: 86400000       # 24 hours (ms)
     refresh-expiration: 604800000  # 7 days (ms)
 

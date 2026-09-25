@@ -39,7 +39,7 @@ services:
       - DB_PORT=5432
       - DB_NAME=chessdb
       - DB_USER=chess
-      - DB_PASS=${DB_PASS:-chess_secret}
+      - DB_PASS=${DB_PASS:-chess_secret_dev}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - AI_SERVICE_URL=http://ai-service:8001
@@ -105,7 +105,7 @@ services:
     environment:
       POSTGRES_DB: chessdb
       POSTGRES_USER: chess
-      POSTGRES_PASSWORD: ${DB_PASS:-chess_secret}
+      POSTGRES_PASSWORD: ${DB_PASS:-chess_secret_dev}
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:

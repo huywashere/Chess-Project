@@ -505,3 +505,19 @@ hr {
   pointer-events: none;
   user-select: none;
 }
+
+/* ─── Mobile Touch & Chessboard Interaction Optimization ─── */
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+.chessboard-container,
+[data-boardid],
+svg.chessboard {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}

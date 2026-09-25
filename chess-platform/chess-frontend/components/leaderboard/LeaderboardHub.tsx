@@ -19,6 +19,7 @@ import {
   LeaderboardPlayer,
 } from "@/lib/leaderboardData";
 import { useLanguage } from "@/context/LanguageContext";
+import { apiFetch } from "@/lib/apiClient";
 
 function getCountryName(country: string, isVi: boolean): string {
   const map: Record<string, { vi: string; en: string }> = {
@@ -43,20 +44,68 @@ export default function LeaderboardHub() {
   const isVi = language === "vi";
   const [category, setCategory] = useState<LeaderboardCategory>("blitz");
   const [searchQuery, setSearchQuery] = useState("");
+  const [livePlayers, setLivePlayers] = useState<LeaderboardPlayer[] | null>(null);
 
-  const players = LEADERBOARD_PLAYERS[category] || LEADERBOARD_PLAYERS.blitz;
+  React.useEffect(() => {
+    let isMounted = true;
+    async function loadLiveLeaderboard() {
+      try {
+        const res = await apiFetch<{
+          success: boolean;
+          data: Array<{
+            rank: number;
+            id: string;
+            username: string;
+            avatarUrl?: string;
+            eloRating: number;
+            title?: string;
+            country?: string;
+          }>;
+        }>("/leaderboard");
+
+        if (isMounted && res.data?.data && res.data.data.length > 0) {
+          const mapped: LeaderboardPlayer[] = res.data.data.map((p, idx) => ({
+            id: p.id || `live-${idx}`,
+            rank: p.rank || idx + 1,
+            name: p.username,
+            username: p.username,
+            avatar: p.avatarUrl || "/avatars/user_1.jpg",
+            country: p.country || "Việt Nam",
+            rating: p.eloRating || 1500,
+            winRate: 68,
+            gamesPlayed: 120,
+            streak: 4,
+            isOnline: true,
+            title: p.title || (p.eloRating >= 2500 ? "GM" : undefined),
+          }));
+          setLivePlayers(mapped);
+        }
+      } catch {
+        // Fallback to static leaderboard
+      }
+    }
+    loadLiveLeaderboard();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const basePlayers =
+    category === "blitz" && livePlayers && livePlayers.length > 0
+      ? livePlayers
+      : LEADERBOARD_PLAYERS[category] || LEADERBOARD_PLAYERS.blitz;
 
   // Filter players by search query
   const filteredPlayers = useMemo(() => {
-    if (!searchQuery.trim()) return players;
+    if (!searchQuery.trim()) return basePlayers;
     const q = searchQuery.toLowerCase();
-    return players.filter(
+    return basePlayers.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.username.toLowerCase().includes(q) ||
         p.country.toLowerCase().includes(q)
     );
-  }, [players, searchQuery]);
+  }, [basePlayers, searchQuery]);
 
   const top1 = filteredPlayers[0];
   const top2 = filteredPlayers[1];

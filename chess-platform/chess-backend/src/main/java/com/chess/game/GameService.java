@@ -55,6 +55,36 @@ public class GameService {
         return state;
     }
 
+    // ===== Create PvP Live Multiplayer Game =====
+    @Transactional
+    public GameStateDto createPvPGame(String whitePlayerId, String whiteUsername,
+                                      String blackPlayerId, String blackUsername,
+                                      String timeControl) {
+        String gameId = UUID.randomUUID().toString();
+
+        GameStateDto state = GameStateDto.builder()
+            .gameId(gameId)
+            .fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+            .whitePlayerId(whitePlayerId)
+            .blackPlayerId(blackPlayerId)
+            .whiteUsername(whiteUsername)
+            .blackUsername(blackUsername)
+            .currentTurn("white")
+            .status(GameStatus.ONGOING)
+            .vsAi(false)
+            .timeControl(timeControl)
+            .whiteClock(parseInitialTime(timeControl))
+            .blackClock(parseInitialTime(timeControl))
+            .lastMoveTimestamp(System.currentTimeMillis())
+            .moves(new ArrayList<>())
+            .startedAt(Instant.now().toString())
+            .build();
+
+        redisTemplate.opsForValue().set(GAME_STATE_PREFIX + gameId, state, GAME_TTL);
+        log.info("Created PvP live game {} ({} vs {}, timeControl={})", gameId, whiteUsername, blackUsername, timeControl);
+        return state;
+    }
+
     // ===== Process Player Move =====
     public MoveResult processMove(String gameId, String moveUci, String playerId) {
         GameStateDto state = getGameState(gameId);

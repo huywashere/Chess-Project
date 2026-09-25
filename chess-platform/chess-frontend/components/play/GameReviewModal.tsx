@@ -247,7 +247,7 @@ export default function GameReviewModal({
               border: "1px solid rgba(129, 182, 76, 0.3)",
               borderRadius: 8,
               padding: "12px 16px",
-              marginBottom: 20,
+              marginBottom: 16,
               fontSize: 13,
               color: "var(--green-light)",
               display: "flex",
@@ -257,6 +257,110 @@ export default function GameReviewModal({
           >
             <Sparkles size={18} />
             <span>{isVi ? report.summary : report.summaryEn || report.summary}</span>
+          </div>
+
+          {/* Advantage Timeline Graph (Evaluation Chart) */}
+          <div style={{ marginBottom: 20 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginBottom: 6,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: "var(--text-muted)",
+                  textTransform: "uppercase",
+                }}
+              >
+                {isVi
+                  ? "Biểu Đồ Ưu Thế Trận Đấu (Advantage Graph)"
+                  : "Advantage Timeline Graph"}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                {isVi ? "Bấm vào cột để xem nước cờ" : "Click bar to inspect move"}
+              </div>
+            </div>
+
+            <div
+              style={{
+                background: "var(--bg-base)",
+                border: "1px solid var(--border-subtle)",
+                borderRadius: 8,
+                padding: "8px 12px",
+                position: "relative",
+              }}
+            >
+              <svg
+                width="100%"
+                height="80"
+                viewBox={`0 0 ${Math.max(300, report.moves.length * 14)} 80`}
+                style={{ overflow: "visible", display: "block" }}
+              >
+                {/* Zero line */}
+                <line
+                  x1="0"
+                  y1="40"
+                  x2={Math.max(300, report.moves.length * 14)}
+                  y2="40"
+                  stroke="rgba(255, 255, 255, 0.15)"
+                  strokeDasharray="3 3"
+                />
+
+                {/* Move Bars */}
+                {report.moves.map((m, idx) => {
+                  const x = idx * 14 + 4;
+                  const clampedEval = Math.max(-10, Math.min(10, m.evalAfter));
+                  // Height scale: 10 eval = 34px
+                  const barHeight = Math.max(3, Math.abs(clampedEval / 10) * 34);
+                  const isWhiteAdv = clampedEval >= 0;
+                  const y = isWhiteAdv ? 40 - barHeight : 40;
+                  const isSelected = selectedMoveIdx === idx;
+                  const color = isWhiteAdv ? "#81b64c" : "#38bdf8";
+
+                  return (
+                    <g
+                      key={idx}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        setSelectedMoveIdx(idx);
+                        if (onSelectMoveIndex) onSelectMoveIndex(idx);
+                      }}
+                    >
+                      <rect
+                        x={x}
+                        y={y}
+                        width="8"
+                        height={barHeight}
+                        rx="2"
+                        fill={color}
+                        opacity={isSelected ? 1 : 0.75}
+                        stroke={isSelected ? "#fff" : "none"}
+                        strokeWidth={isSelected ? 1.5 : 0}
+                      />
+                    </g>
+                  );
+                })}
+              </svg>
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: 10,
+                  color: "var(--text-muted)",
+                  marginTop: 4,
+                }}
+              >
+                <span>{isVi ? "+10 (Trắng thắng)" : "+10 (White win)"}</span>
+                <span>0.0 (Cân bằng)</span>
+                <span>{isVi ? "-10 (Đen thắng)" : "-10 (Black win)"}</span>
+              </div>
+            </div>
           </div>
 
           {/* Move Classification Breakdown */}
