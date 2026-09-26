@@ -10,9 +10,13 @@ import java.util.UUID;
 @Repository
 public interface RatingHistoryRepository extends JpaRepository<RatingHistory, UUID> {
 
-    @Query("SELECT r FROM RatingHistory r WHERE r.user.id = :userId ORDER BY r.createdAt DESC")
-    List<RatingHistory> findByUserIdOrderByCreatedAtDesc(UUID userId);
+    List<RatingHistory> findByUser_IdOrderByCreatedAtDesc(UUID userId);
 
-    @Query("SELECT r FROM RatingHistory r WHERE r.user.id = :userId ORDER BY r.createdAt DESC LIMIT 30")
-    List<RatingHistory> findRecentByUserId(UUID userId);
+    List<RatingHistory> findTop30ByUser_IdOrderByCreatedAtDesc(UUID userId);
+
+    long countByUser_Id(UUID userId);
+
+    default List<RatingHistory> findRecentByUserId(UUID userId) {
+        return findTop30ByUser_IdOrderByCreatedAtDesc(userId);
+    }
 }

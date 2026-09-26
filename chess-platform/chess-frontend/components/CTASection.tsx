@@ -13,13 +13,13 @@ export default function CTASection() {
       ? [
           "100% Không quảng cáo, không pop-up phiền toái",
           "Không có gói VIP hay bán vật phẩm can thiệp ván cờ",
-          "Mã nguồn mở minh bạch — WebSocket Golang và Rust Engine",
+          "Môi trường thi đấu trung thực — Giám sát chống gian lận Fair Play",
           "Tự do xuất dữ liệu PGN và phân tích ván đấu chuẩn FIDE",
         ]
       : [
           "100% Ad-free, no intrusive pop-ups or paywalls",
           "No pay-to-win items or artificial rating boosts",
-          "Open source & transparent — Golang WebSocket + Rust Engine",
+          "Fair Play guaranteed — Continuous anti-cheat match supervision",
           "Export PGNs freely with FIDE-standard move classification",
         ];
 
@@ -195,17 +195,73 @@ export default function CTASection() {
                 style={{ objectFit: "contain" }}
               />
             </div>
-            {/* Chess pieces image */}
-            <div style={{ position: "relative", width: "100%", height: 220 }}>
+            {/* Chess pieces digital artwork showcase */}
+            <div
+              style={{
+                position: "relative",
+                width: "100%",
+                height: 230,
+                borderRadius: 10,
+                overflow: "hidden",
+                border: "1px solid rgba(212, 174, 26, 0.28)",
+                boxShadow: "0 14px 32px -8px rgba(0, 0, 0, 0.55), 0 0 20px -6px rgba(139, 92, 246, 0.2)",
+              }}
+            >
               <Image
-                src="/home-dark-900.webp"
+                src="/diversity/digital-art-style-abstract-chess-pieces.jpg"
                 alt={
-                  language === "vi" ? "Bộ quân cờ ChessMaster" : "ChessMaster chess set"
+                  language === "vi"
+                    ? "Kiệt tác cờ vua ChessMaster Digital Art"
+                    : "ChessMaster Digital Art Chess Arena"
                 }
                 fill
                 sizes="(max-width: 768px) 100vw, 480px"
-                style={{ objectFit: "contain" }}
+                style={{ objectFit: "cover", objectPosition: "center 40%" }}
               />
+              {/* Bottom glassmorphic badge */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  padding: "10px 14px",
+                  background:
+                    "linear-gradient(180deg, transparent 0%, rgba(14, 11, 22, 0.88) 60%, rgba(14, 11, 22, 0.98) 100%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: "var(--gold-light)",
+                    letterSpacing: "0.5px",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                  }}
+                >
+                  <Sparkles size={12} />
+                  {language === "vi"
+                    ? "Trải Nghiệm Thi Đấu Chuẩn Quốc Tế"
+                    : "International Tournament Quality"}
+                </span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: "var(--text-muted)",
+                    background: "rgba(255, 255, 255, 0.08)",
+                    padding: "2px 7px",
+                    borderRadius: 10,
+                    fontWeight: 600,
+                  }}
+                >
+                  120 FPS
+                </span>
+              </div>
             </div>
 
             {/* Quick stats row */}

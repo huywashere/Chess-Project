@@ -41,12 +41,16 @@ import {
   PIECE_THEMES,
   PieceThemeKey,
   getCustomPieces,
+  CHESSGROUND_ARROW_OPTIONS,
+  CHESSGROUND_DEMO_ARROWS,
+  CHESSGROUND_DEMO_SQUARES,
 } from "@/lib/boardThemes";
 import BoardCustomizerModal from "./play/BoardCustomizerModal";
 import CapturedPieces from "./play/CapturedPieces";
 import PromotionModal, { PromotionPiece } from "./play/PromotionModal";
 import GameReviewModal from "./play/GameReviewModal";
 import CustomFenModal from "./play/CustomFenModal";
+import ChessgroundShowcaseModal from "./chessground/ChessgroundShowcaseModal";
 import { analyzeGameHistory, GameReviewReport } from "@/lib/chessReviewEngine";
 
 const Chessboard = dynamic(
@@ -526,7 +530,7 @@ export default function PlayAiGame() {
     { startSquare: string; endSquare: string; color: string }[]
   >([]);
   const [rightClickSquares, setRightClickSquares] = useState<
-    Record<string, { backgroundColor: string }>
+    Record<string, React.CSSProperties>
   >({});
   const [arrowStartSquare, setArrowStartSquare] = useState<string | null>(null);
 
@@ -538,12 +542,28 @@ export default function PlayAiGame() {
   // Custom FEN / PGN Modal
   const [isFenModalOpen, setIsFenModalOpen] = useState(false);
 
+  // Chessground UI Showcase & Tactical Arrows
+  const [isChessgroundModalOpen, setIsChessgroundModalOpen] = useState(false);
+  const [showChessgroundTactics, setShowChessgroundTactics] = useState(false);
+
   // Bot Roster Tabs & Speech Bubble
   const [botTab, setBotTab] = useState<"standard" | "legend">("standard");
   const [botSpeech, setBotSpeech] = useState<string>("");
 
   const [, startTransition] = useTransition();
   const currentBot = BOTS.find((b) => b.id === difficulty) || BOTS[2];
+
+  // Sync sound preference with localStorage
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("chess_sound_enabled");
+      if (stored !== null) {
+        const val = stored === "true";
+        setSoundEnabled(val);
+        soundManager.setMuted(!val);
+      }
+    } catch {}
+  }, []);
 
   // Check Game State
   const updateGameStatus = useCallback(
@@ -613,8 +633,17 @@ export default function PlayAiGame() {
 
         if (move) {
           if (soundEnabled) {
-            if (move.captured) soundManager.playCapture();
-            else soundManager.playMove();
+            if (move.san.startsWith("O-O")) {
+              soundManager.playCastle();
+            } else if (move.captured) {
+              soundManager.playCapture();
+            } else {
+              soundManager.playMove();
+            }
+
+            if (currentGame.inCheck()) {
+              setTimeout(() => soundManager.playCheck(), 140);
+            }
           }
 
           // Add increment to bot's clock
@@ -722,8 +751,17 @@ export default function PlayAiGame() {
         if (!move) return false;
 
         if (soundEnabled) {
-          if (move.captured) soundManager.playCapture();
-          else soundManager.playMove();
+          if (move.san.startsWith("O-O")) {
+            soundManager.playCastle();
+          } else if (move.captured) {
+            soundManager.playCapture();
+          } else {
+            soundManager.playMove();
+          }
+
+          if (game.inCheck()) {
+            setTimeout(() => soundManager.playCheck(), 140);
+          }
         }
 
         // Start clock on first move
@@ -791,6 +829,7 @@ export default function PlayAiGame() {
     sourceSquare: string;
     targetSquare: string | null;
   }) {
+    soundManager.unlock();
     if (game.isGameOver() || isAiThinking || !targetSquare) return false;
 
     // Check if player's turn
@@ -820,6 +859,7 @@ export default function PlayAiGame() {
 
   // Handle Square Click move
   function handleSquareClick({ square }: { square: string }) {
+    soundManager.unlock();
     if (game.isGameOver() || isAiThinking) return;
 
     if (playMode === "ai") {
@@ -892,16 +932,20 @@ export default function PlayAiGame() {
     }
   };
 
-  // Right-Click Square Annotation (Arrows & Highlights)
+  // Right-Click Square Annotation (Chessground-Style Circle Highlights & Custom Arrows)
   const handleSquareRightClick = (square: string) => {
     if (!arrowStartSquare) {
-      // Toggle square highlight
+      // Toggle Chessground hollow circle ring highlight on square
       setRightClickSquares((prev) => {
         const next = { ...prev };
         if (next[square]) {
           delete next[square];
         } else {
-          next[square] = { backgroundColor: "rgba(235, 97, 80, 0.75)" };
+          next[square] = {
+            boxShadow:
+              "inset 0 0 0 3.5px #1b78d0, 0 0 10px rgba(27, 120, 208, 0.45)",
+            borderRadius: "50%",
+          };
         }
         return next;
       });
@@ -914,7 +958,7 @@ export default function PlayAiGame() {
           {
             startSquare: arrowStartSquare,
             endSquare: square,
-            color: "rgba(255, 170, 0, 0.85)",
+            color: "rgba(27, 120, 208, 0.88)",
           },
         ]);
       }
@@ -1083,6 +1127,7 @@ export default function PlayAiGame() {
   const squareStyles: Record<string, React.CSSProperties> = {
     ...lastMoveSquares,
     ...rightClickSquares,
+    ...(showChessgroundTactics ? CHESSGROUND_DEMO_SQUARES : {}),
   };
 
   if (moveFrom) {
@@ -1260,15 +1305,22 @@ export default function PlayAiGame() {
           {/* Sound Toggle */}
           <button
             type="button"
-            onClick={() => setSoundEnabled((v) => !v)}
+            onClick={() => {
+              const next = !soundEnabled;
+              setSoundEnabled(next);
+              soundManager.setMuted(!next);
+              if (next) {
+                soundManager.test();
+              }
+            }}
             title={
               soundEnabled
                 ? isVi
                   ? "Tắt âm thanh"
                   : "Mute Sound"
                 : isVi
-                  ? "Bật âm thanh"
-                  : "Unmute Sound"
+                  ? "Bật âm thanh (Bấm để thử tiếng)"
+                  : "Unmute Sound (Click to test)"
             }
             style={{
               background: "var(--bg-surface)",
@@ -1279,6 +1331,7 @@ export default function PlayAiGame() {
               cursor: "pointer",
               display: "inline-flex",
               alignItems: "center",
+              transition: "all 0.2s ease",
             }}
           >
             {soundEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
@@ -1293,6 +1346,32 @@ export default function PlayAiGame() {
           >
             <FileText size={13} />
             <span>PGN / FEN</span>
+          </button>
+
+          {/* Chessground UI Showcase Button */}
+          <button
+            type="button"
+            onClick={() => setIsChessgroundModalOpen(true)}
+            className="btn btn-secondary"
+            style={{
+              padding: "5px 12px",
+              fontSize: 12,
+              background: "rgba(27, 120, 208, 0.16)",
+              border: "1px solid rgba(27, 120, 208, 0.45)",
+              color: "#38bdf8",
+              fontWeight: 700,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+            title={
+              isVi
+                ? "Khám phá giao diện Chessground (Lichess 2D & 3D Wood)"
+                : "Explore Chessground (Lichess 2D & 3D Wood UI)"
+            }
+          >
+            <Sparkles size={13} />
+            <span>Chessground UI</span>
           </button>
         </div>
       </div>
@@ -1309,17 +1388,17 @@ export default function PlayAiGame() {
               justifyContent: "space-between",
               background: "var(--bg-surface)",
               borderRadius: "8px 8px 0 0",
-              padding: "10px 16px",
+              padding: "7px 12px",
               border: "1px solid var(--border-subtle)",
               borderBottom: "none",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div
                 style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 8,
+                  width: 32,
+                  height: 32,
+                  borderRadius: 6,
                   background: playMode === "ai" ? currentBot.avatarColor : "#4a7a1a",
                   display: "flex",
                   alignItems: "center",
@@ -1577,8 +1656,11 @@ export default function PlayAiGame() {
                       pieces: customPiecesObject,
                       squareStyles,
                       allowDrawingArrows: true,
-                      arrows: customArrows,
-                      clearArrowsOnClick: true,
+                      arrows: showChessgroundTactics
+                        ? [...CHESSGROUND_DEMO_ARROWS, ...customArrows]
+                        : customArrows,
+                      arrowOptions: CHESSGROUND_ARROW_OPTIONS,
+                      clearArrowsOnClick: false,
                       animationDurationInMs: 200,
                     }}
                   />
@@ -1595,17 +1677,17 @@ export default function PlayAiGame() {
               justifyContent: "space-between",
               background: "var(--bg-surface)",
               borderRadius: "0 0 8px 8px",
-              padding: "10px 16px",
+              padding: "7px 12px",
               border: "1px solid var(--border-subtle)",
               borderTop: "none",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div
                 style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 8,
+                  width: 32,
+                  height: 32,
+                  borderRadius: 6,
                   background: "#2a2825",
                   border: "1px solid var(--border-medium)",
                   display: "flex",
@@ -1614,7 +1696,7 @@ export default function PlayAiGame() {
                   color: "var(--gold-light)",
                 }}
               >
-                <User size={22} />
+                <User size={18} />
               </div>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -1810,6 +1892,145 @@ export default function PlayAiGame() {
                 />
                 {isVi ? "Gỗ Walnut" : "Walnut"}
               </button>
+
+              {/* Chessground Quick Presets */}
+              <button
+                type="button"
+                onClick={() => {
+                  setBoardTheme("chessground_blue");
+                  setPieceTheme("cburnett");
+                  soundManager.playVictory();
+                }}
+                style={{
+                  background:
+                    boardTheme === "chessground_blue"
+                      ? "rgba(27, 120, 208, 0.25)"
+                      : "transparent",
+                  border: `1px solid ${
+                    boardTheme === "chessground_blue"
+                      ? "#38bdf8"
+                      : "rgba(27, 120, 208, 0.4)"
+                  }`,
+                  color:
+                    boardTheme === "chessground_blue"
+                      ? "#38bdf8"
+                      : "var(--text-secondary)",
+                  borderRadius: 4,
+                  padding: "3px 8px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+                title={isVi ? "Chessground 2D Lichess Blue" : "Chessground 2D Blue"}
+              >
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    backgroundColor: "#8ca2ad",
+                    border: "1px solid #38bdf8",
+                  }}
+                />
+                Lichess 2D
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setBoardTheme("chessground_wood");
+                  setPieceTheme("chessground_wood3d");
+                  soundManager.playVictory();
+                }}
+                style={{
+                  background:
+                    boardTheme === "chessground_wood" && pieceTheme === "chessground_wood3d"
+                      ? "rgba(212, 174, 26, 0.25)"
+                      : "transparent",
+                  border: `1px solid ${
+                    boardTheme === "chessground_wood" && pieceTheme === "chessground_wood3d"
+                      ? "var(--gold-border)"
+                      : "rgba(212, 174, 26, 0.4)"
+                  }`,
+                  color:
+                    boardTheme === "chessground_wood" && pieceTheme === "chessground_wood3d"
+                      ? "var(--gold-light)"
+                      : "var(--text-secondary)",
+                  borderRadius: 4,
+                  padding: "3px 8px",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+                title={
+                  isVi
+                    ? "Chessground 3D Wood với bóng đổ thực tế"
+                    : "Chessground 3D Wood with cast shadows"
+                }
+              >
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: "50%",
+                    backgroundColor: "#b58863",
+                    border: "1px solid #d4ae1a",
+                  }}
+                />
+                Lichess 3D
+              </button>
+
+              {/* Tactical Arrows Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowChessgroundTactics((prev) => !prev);
+                  soundManager.playMove();
+                }}
+                style={{
+                  background: showChessgroundTactics
+                    ? "rgba(34, 197, 94, 0.2)"
+                    : "transparent",
+                  border: `1px solid ${
+                    showChessgroundTactics
+                      ? "rgba(34, 197, 94, 0.5)"
+                      : "var(--border-subtle)"
+                  }`,
+                  color: showChessgroundTactics
+                    ? "var(--green-light)"
+                    : "var(--text-muted)",
+                  borderRadius: 4,
+                  padding: "3px 8px",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                }}
+                title={
+                  isVi
+                    ? "Bật/Tắt mũi tên chiến thuật & vòng tròn phân tích như Chessground"
+                    : "Toggle Chessground tactical arrows & analysis circles"
+                }
+              >
+                <Sparkles size={12} />
+                <span>
+                  {showChessgroundTactics
+                    ? isVi
+                      ? "Mũi Tên: BẬT"
+                      : "Arrows: ON"
+                    : isVi
+                      ? "Mũi Tên: TẮT"
+                      : "Arrows: OFF"}
+                </span>
+              </button>
               <button
                 type="button"
                 onClick={() => setIsCustomizerOpen(true)}
@@ -1873,7 +2094,7 @@ export default function PlayAiGame() {
         </div>
 
         {/* RIGHT COLUMN: Bot Selectors, Action Controls, and Move History */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {/* Game Status Banner */}
           <div
             style={{
@@ -1897,7 +2118,7 @@ export default function PlayAiGame() {
                     : "var(--border-subtle)"
               }`,
               borderRadius: 8,
-              padding: "14px 18px",
+              padding: "8px 12px",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -1906,10 +2127,10 @@ export default function PlayAiGame() {
             <div>
               <div
                 style={{
-                  fontSize: 11,
+                  fontSize: 10,
                   fontWeight: 700,
                   color: "var(--text-muted)",
-                  letterSpacing: "1px",
+                  letterSpacing: "0.8px",
                   textTransform: "uppercase",
                 }}
               >
@@ -1917,10 +2138,10 @@ export default function PlayAiGame() {
               </div>
               <div
                 style={{
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: 700,
                   color: "var(--text-primary)",
-                  marginTop: 2,
+                  marginTop: 1,
                 }}
               >
                 {gameStatus}
@@ -2020,7 +2241,7 @@ export default function PlayAiGame() {
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(5, 1fr)",
-              gap: 6,
+              gap: 5,
             }}
           >
             <button
@@ -2028,14 +2249,14 @@ export default function PlayAiGame() {
               onClick={handleNewGame}
               className="btn btn-green"
               style={{
-                padding: "9px 4px",
-                fontSize: 12,
+                padding: "6px 2px",
+                fontSize: 11,
                 display: "flex",
                 flexDirection: "column",
-                gap: 3,
+                gap: 2,
               }}
             >
-              <Play size={15} />
+              <Play size={14} />
               <span>{isVi ? "Ván Mới" : "New Game"}</span>
             </button>
 
@@ -2045,15 +2266,15 @@ export default function PlayAiGame() {
               disabled={moveHistory.length === 0 || isAiThinking}
               className="btn btn-ghost"
               style={{
-                padding: "9px 4px",
-                fontSize: 12,
+                padding: "6px 2px",
+                fontSize: 11,
                 display: "flex",
                 flexDirection: "column",
-                gap: 3,
+                gap: 2,
                 opacity: moveHistory.length === 0 || isAiThinking ? 0.4 : 1,
               }}
             >
-              <Undo2 size={15} />
+              <Undo2 size={14} />
               <span>{isVi ? "Đi Lại" : "Undo"}</span>
             </button>
 
@@ -2063,14 +2284,14 @@ export default function PlayAiGame() {
               disabled={game.isGameOver() || isAiThinking}
               className="btn btn-ghost"
               style={{
-                padding: "9px 4px",
-                fontSize: 12,
+                padding: "6px 2px",
+                fontSize: 11,
                 display: "flex",
                 flexDirection: "column",
-                gap: 3,
+                gap: 2,
               }}
             >
-              <Lightbulb size={15} />
+              <Lightbulb size={14} />
               <span>{isVi ? "Gợi Ý" : "Hint"}</span>
             </button>
 
@@ -2080,14 +2301,14 @@ export default function PlayAiGame() {
               disabled={moveHistory.length === 0 || isAnalyzing}
               className="btn btn-ghost"
               style={{
-                padding: "9px 4px",
-                fontSize: 12,
+                padding: "6px 2px",
+                fontSize: 11,
                 display: "flex",
                 flexDirection: "column",
-                gap: 3,
+                gap: 2,
               }}
             >
-              <Award size={15} />
+              <Award size={14} />
               <span>{isAnalyzing ? "..." : isVi ? "Review" : "Review"}</span>
             </button>
 
@@ -2097,14 +2318,14 @@ export default function PlayAiGame() {
               disabled={game.isGameOver()}
               className="btn btn-ghost"
               style={{
-                padding: "9px 4px",
-                fontSize: 12,
+                padding: "6px 2px",
+                fontSize: 11,
                 display: "flex",
                 flexDirection: "column",
-                gap: 3,
+                gap: 2,
               }}
             >
-              <Flag size={15} />
+              <Flag size={14} />
               <span>{isVi ? "Đầu Hàng" : "Resign"}</span>
             </button>
           </div>
@@ -2116,7 +2337,7 @@ export default function PlayAiGame() {
                 background: "var(--bg-surface)",
                 border: "1px solid var(--border-subtle)",
                 borderRadius: 8,
-                padding: "16px 18px",
+                padding: "10px 12px",
               }}
             >
               <div
@@ -2124,16 +2345,16 @@ export default function PlayAiGame() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  marginBottom: 12,
+                  marginBottom: 8,
                 }}
               >
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: 700,
                     color: "var(--text-muted)",
                     textTransform: "uppercase",
-                    letterSpacing: "1px",
+                    letterSpacing: "0.8px",
                   }}
                 >
                   {isVi ? "Đối Thủ Máy (AI Bots)" : "AI Opponents"}
@@ -2144,7 +2365,7 @@ export default function PlayAiGame() {
                   style={{
                     display: "flex",
                     background: "var(--bg-raised)",
-                    borderRadius: 6,
+                    borderRadius: 5,
                     padding: 2,
                     border: "1px solid var(--border-subtle)",
                   }}
@@ -2160,9 +2381,9 @@ export default function PlayAiGame() {
                         botTab === "standard"
                           ? "var(--text-primary)"
                           : "var(--text-muted)",
-                      padding: "4px 8px",
+                      padding: "3px 6px",
                       borderRadius: 4,
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: 600,
                       cursor: "pointer",
                       transition: "all 0.15s ease",
@@ -2179,9 +2400,9 @@ export default function PlayAiGame() {
                       border: "none",
                       color:
                         botTab === "legend" ? "var(--gold-light)" : "var(--text-muted)",
-                      padding: "4px 8px",
+                      padding: "3px 6px",
                       borderRadius: 4,
-                      fontSize: 11,
+                      fontSize: 10,
                       fontWeight: 600,
                       cursor: "pointer",
                       display: "flex",
@@ -2190,13 +2411,22 @@ export default function PlayAiGame() {
                       transition: "all 0.15s ease",
                     }}
                   >
-                    <Crown size={11} /> {isVi ? "Huyền Thoại (6)" : "Legends (6)"}
+                    <Crown size={10} /> {isVi ? "Huyền Thoại (6)" : "Legends (6)"}
                   </button>
                 </div>
               </div>
 
               {/* Bot List according to active tab */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 4,
+                  maxHeight: 195,
+                  overflowY: "auto",
+                  paddingRight: 2,
+                }}
+              >
                 {BOTS.filter((b) => b.category === botTab).map((bot) => {
                   const isSelected = difficulty === bot.id;
                   const currentSpeech = isVi
@@ -2220,7 +2450,7 @@ export default function PlayAiGame() {
                           isSelected ? bot.avatarColor : "var(--border-subtle)"
                         }`,
                         borderRadius: 6,
-                        padding: "8px 12px",
+                        padding: "6px 8px",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
@@ -2229,12 +2459,12 @@ export default function PlayAiGame() {
                         transition: "all 0.15s ease",
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <div
                           style={{
-                            width: 28,
-                            height: 28,
-                            borderRadius: 6,
+                            width: 24,
+                            height: 24,
+                            borderRadius: 5,
                             background: `${bot.avatarColor}25`,
                             color: bot.avatarColor,
                             display: "flex",
@@ -2249,8 +2479,8 @@ export default function PlayAiGame() {
                             <Image
                               src={bot.avatarUrl}
                               alt={bot.name}
-                              width={28}
-                              height={28}
+                              width={24}
+                              height={24}
                               style={{
                                 objectFit: "cover",
                                 width: "100%",
@@ -2258,25 +2488,25 @@ export default function PlayAiGame() {
                               }}
                             />
                           ) : (
-                            renderBotIcon(bot.iconType, 16)
+                            renderBotIcon(bot.iconType, 14)
                           )}
                         </div>
                         <div>
                           <div
                             style={{
-                              fontSize: 13,
+                              fontSize: 12,
                               fontWeight: 700,
                               color: "var(--text-primary)",
                               display: "flex",
                               alignItems: "center",
-                              gap: 6,
+                              gap: 5,
                             }}
                           >
                             <span>{isVi ? bot.name : bot.nameEn || bot.name}</span>
                             {(bot.title || bot.titleEn) && (
                               <span
                                 style={{
-                                  fontSize: 10,
+                                  fontSize: 9,
                                   fontWeight: 500,
                                   color: "var(--text-muted)",
                                 }}
@@ -2292,7 +2522,7 @@ export default function PlayAiGame() {
                           </div>
                           <div
                             style={{
-                              fontSize: 11,
+                              fontSize: 10,
                               color: "var(--text-muted)",
                               marginTop: 1,
                             }}
@@ -2335,17 +2565,17 @@ export default function PlayAiGame() {
               background: "var(--bg-surface)",
               border: "1px solid var(--border-subtle)",
               borderRadius: 8,
-              padding: "16px 18px",
+              padding: "10px 12px",
             }}
           >
             <div
               style={{
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: 700,
                 color: "var(--text-muted)",
                 textTransform: "uppercase",
-                letterSpacing: "1px",
-                marginBottom: 10,
+                letterSpacing: "0.8px",
+                marginBottom: 8,
                 display: "flex",
                 justifyContent: "space-between",
               }}
@@ -2358,15 +2588,15 @@ export default function PlayAiGame() {
 
             <div
               style={{
-                maxHeight: 150,
+                maxHeight: 120,
                 overflowY: "auto",
                 fontFamily: "var(--font-mono)",
-                fontSize: 13,
+                fontSize: 12,
                 display: "grid",
-                gridTemplateColumns: "40px 1fr 1fr",
-                rowGap: 4,
-                columnGap: 8,
-                padding: "8px 10px",
+                gridTemplateColumns: "36px 1fr 1fr",
+                rowGap: 3,
+                columnGap: 6,
+                padding: "6px 8px",
                 background: "var(--bg-raised)",
                 borderRadius: 4,
               }}
@@ -2457,6 +2687,16 @@ export default function PlayAiGame() {
         currentPieceTheme={pieceTheme}
         onSelectBoardTheme={(theme) => setBoardTheme(theme)}
         onSelectPieceTheme={(theme) => setPieceTheme(theme)}
+      />
+
+      {/* Chessground Showcase Modal */}
+      <ChessgroundShowcaseModal
+        isOpen={isChessgroundModalOpen}
+        onClose={() => setIsChessgroundModalOpen(false)}
+        onApplyTheme={(board, piece) => {
+          setBoardTheme(board);
+          setPieceTheme(piece);
+        }}
       />
     </div>
   );

@@ -117,10 +117,12 @@ export default function Play3DExperience() {
   const [fen, setFen] = useState(game.fen());
   const [difficulty, setDifficulty] = useState<AiDifficulty>("medium");
   const [playerColor, setPlayerColor] = useState<"white" | "black">("white");
+  const [setTheme, setSetTheme] = useState<"polyhaven" | "opengameart">("polyhaven");
   const [boardTheme, setBoardTheme] = useState<"green" | "wood" | "blue" | "dark">(
     "green"
   );
   const [isAiThinking, setIsAiThinking] = useState(false);
+
   const [evalScore, setEvalScore] = useState<number>(0);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
   const [lastMove, setLastMove] = useState<{ from: string; to: string } | null>(null);
@@ -192,8 +194,16 @@ export default function Play3DExperience() {
 
         if (move) {
           if (soundEnabled) {
-            if (move.captured) soundManager.playCapture();
-            else soundManager.playMove();
+            if (move.san.startsWith("O-O")) {
+              soundManager.playCastle();
+            } else if (move.captured) {
+              soundManager.playCapture();
+            } else {
+              soundManager.playMove();
+            }
+            if (currentGame.inCheck()) {
+              setTimeout(() => soundManager.playCheck(), 140);
+            }
           }
 
           startTransition(() => {
@@ -216,6 +226,7 @@ export default function Play3DExperience() {
 
   // Handle Square Click in 3D
   function handleSquareClick(square: string) {
+    soundManager.unlock();
     if (game.isGameOver() || isAiThinking) return;
 
     const isPlayerTurn =
@@ -247,8 +258,16 @@ export default function Play3DExperience() {
 
       if (move) {
         if (soundEnabled) {
-          if (move.captured) soundManager.playCapture();
-          else soundManager.playMove();
+          if (move.san.startsWith("O-O")) {
+            soundManager.playCastle();
+          } else if (move.captured) {
+            soundManager.playCapture();
+          } else {
+            soundManager.playMove();
+          }
+          if (game.inCheck()) {
+            setTimeout(() => soundManager.playCheck(), 140);
+          }
         }
 
         setFen(game.fen());
@@ -440,15 +459,8 @@ export default function Play3DExperience() {
       </div>
 
       {/* Main 3D Arena */}
-      <div className="game-arena-container" style={{ padding: "28px 0 60px 0" }}>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "minmax(520px, 1.3fr) minmax(380px, 1fr)",
-            gap: 28,
-            alignItems: "start",
-          }}
-        >
+      <div className="game-arena-container" style={{ padding: "16px 0 50px 0" }}>
+        <div className="arena-3d-grid">
           {/* LEFT: 3D Canvas Board */}
           <div>
             <ChessBoard3D
@@ -458,62 +470,134 @@ export default function Play3DExperience() {
               lastMove={lastMove}
               onSquareClick={handleSquareClick}
               boardTheme={boardTheme}
+              setTheme={setTheme}
+              onSetThemeChange={setSetTheme}
               flipped={playerColor === "black"}
               onFlip={() => setPlayerColor((c) => (c === "white" ? "black" : "white"))}
             />
 
-            {/* Board Theme Selectors Bar */}
+            {/* 3D Model Set Switcher & Attribution Bar */}
             <div
               style={{
-                marginTop: 14,
+                marginTop: 10,
                 display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
+                flexDirection: "column",
+                gap: 8,
                 background: "var(--bg-surface)",
-                padding: "10px 16px",
+                padding: "8px 12px",
                 borderRadius: 8,
                 border: "1px solid var(--border-subtle)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 13, color: "var(--text-muted)" }}>
-                  {isVi ? "Màu Bàn Cờ 3D:" : "3D Board Theme:"}
-                </span>
-                {(
-                  [
-                    { id: "green", label: isVi ? "Xanh Thi Đấu" : "Tournament Green" },
-                    { id: "wood", label: isVi ? "Gỗ Óc Chó" : "Walnut Wood" },
-                    { id: "blue", label: isVi ? "Xanh Biển" : "Ocean Blue" },
-                    { id: "dark", label: isVi ? "Đá Đen" : "Dark Slate" },
-                  ] as const
-                ).map((t) => (
+              {/* Row 1: Open-Source 3D Sets */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: 10,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>
+                    {isVi ? "Mô Hình 3D (CC0):" : "3D Model Set (CC0):"}
+                  </span>
                   <button
-                    key={t.id}
-                    onClick={() => setBoardTheme(t.id)}
+                    onClick={() => setSetTheme("polyhaven")}
                     style={{
-                      background: boardTheme === t.id ? "var(--green-bg)" : "transparent",
-                      border: `1px solid ${boardTheme === t.id ? "var(--green-border)" : "transparent"}`,
+                      background:
+                        setTheme === "polyhaven"
+                          ? "rgba(16, 185, 129, 0.2)"
+                          : "rgba(255,255,255,0.04)",
+                      border: `1px solid ${
+                        setTheme === "polyhaven"
+                          ? "#10b981"
+                          : "var(--border-subtle)"
+                      }`,
                       color:
-                        boardTheme === t.id
-                          ? "var(--green-light)"
+                        setTheme === "polyhaven"
+                          ? "#34d399"
                           : "var(--text-secondary)",
-                      borderRadius: 4,
-                      padding: "4px 10px",
+                      borderRadius: 6,
+                      padding: "6px 12px",
                       fontSize: 12,
                       fontWeight: 600,
                       cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      transition: "all 0.2s",
                     }}
                   >
-                    {t.label}
+                    <span>🏛️</span>
+                    <span>{isVi ? "Cẩm Thạch Poly Haven" : "Poly Haven Marble"}</span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        opacity: 0.7,
+                        background: "rgba(0,0,0,0.3)",
+                        padding: "1px 5px",
+                        borderRadius: 4,
+                      }}
+                    >
+                      CC0
+                    </span>
                   </button>
-                ))}
-              </div>
+                  <button
+                    onClick={() => setSetTheme("opengameart")}
+                    style={{
+                      background:
+                        setTheme === "opengameart"
+                          ? "rgba(16, 185, 129, 0.2)"
+                          : "rgba(255,255,255,0.04)",
+                      border: `1px solid ${
+                        setTheme === "opengameart"
+                          ? "#10b981"
+                          : "var(--border-subtle)"
+                      }`,
+                      color:
+                        setTheme === "opengameart"
+                          ? "#34d399"
+                          : "var(--text-secondary)",
+                      borderRadius: 6,
+                      padding: "6px 12px",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    <span>🪵</span>
+                    <span>{isVi ? "Gỗ Thủ Công OpenGameArt" : "OpenGameArt Wood"}</span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        opacity: 0.7,
+                        background: "rgba(0,0,0,0.3)",
+                        padding: "1px 5px",
+                        borderRadius: 4,
+                      }}
+                    >
+                      CC0
+                    </span>
+                  </button>
+                </div>
 
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
-                {isVi ? "Động cơ: " : "Engine: "}
-                <strong style={{ color: "#fff" }}>{engineInfo}</strong>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                  {isVi ? "Tác giả: " : "Author: "}
+                  <strong style={{ color: "#34d399" }}>
+                    {setTheme === "polyhaven"
+                      ? "Riley Queen (Poly Haven)"
+                      : "KillGorack (OpenGameArt)"}
+                  </strong>
+                </div>
               </div>
             </div>
+
 
             {/* Staunton Piece Showcase Spotlight */}
             <div
@@ -611,12 +695,12 @@ export default function Play3DExperience() {
           </div>
 
           {/* RIGHT: Game Controls & Bot Selector */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {/* Status Card */}
             <div
               style={{
                 background: "var(--bg-surface)",
-                padding: "16px 20px",
+                padding: "8px 12px",
                 borderRadius: 8,
                 border: "1px solid var(--border-subtle)",
                 display: "flex",
@@ -627,7 +711,7 @@ export default function Play3DExperience() {
               <div>
                 <div
                   style={{
-                    fontSize: 12,
+                    fontSize: 10,
                     color: "var(--text-muted)",
                     textTransform: "uppercase",
                     letterSpacing: 0.8,
@@ -636,7 +720,7 @@ export default function Play3DExperience() {
                   {isVi ? "Trạng Thái 3D" : "3D Game Status"}
                 </div>
                 <div
-                  style={{ fontSize: 16, fontWeight: 700, marginTop: 2, color: "#fff" }}
+                  style={{ fontSize: 14, fontWeight: 700, marginTop: 1, color: "#fff" }}
                 >
                   {gameStatus}
                 </div>
@@ -674,13 +758,13 @@ export default function Play3DExperience() {
             )}
 
             {/* Action Buttons */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               <button
                 onClick={handleNewGame}
                 className="btn btn-primary"
-                style={{ justifyContent: "center", padding: "10px 14px", fontSize: 13 }}
+                style={{ justifyContent: "center", padding: "8px 10px", fontSize: 12 }}
               >
-                <Play size={14} />
+                <Play size={13} />
                 <span>{isVi ? "Ván Mới" : "New Game"}</span>
               </button>
               <button
@@ -689,21 +773,21 @@ export default function Play3DExperience() {
                 className="btn btn-secondary"
                 style={{
                   justifyContent: "center",
-                  padding: "10px 14px",
-                  fontSize: 13,
+                  padding: "8px 10px",
+                  fontSize: 12,
                   opacity: moveHistory.length < 2 || isAiThinking ? 0.4 : 1,
                 }}
               >
-                <Undo2 size={14} />
+                <Undo2 size={13} />
                 <span>{isVi ? "Đi Lại" : "Undo"}</span>
               </button>
               <button
                 onClick={handleGetHint}
                 disabled={isAiThinking}
                 className="btn btn-secondary"
-                style={{ justifyContent: "center", padding: "10px 14px", fontSize: 13 }}
+                style={{ justifyContent: "center", padding: "8px 10px", fontSize: 12 }}
               >
-                <Lightbulb size={14} />
+                <Lightbulb size={13} />
                 <span>{isVi ? "Gợi Ý AI" : "AI Hint"}</span>
               </button>
               <button
@@ -713,9 +797,9 @@ export default function Play3DExperience() {
                   )
                 }
                 className="btn btn-secondary"
-                style={{ justifyContent: "center", padding: "10px 14px", fontSize: 13 }}
+                style={{ justifyContent: "center", padding: "8px 10px", fontSize: 12 }}
               >
-                <Flag size={14} />
+                <Flag size={13} />
                 <span>{isVi ? "Đầu Hàng" : "Resign"}</span>
               </button>
             </div>
@@ -725,23 +809,23 @@ export default function Play3DExperience() {
               style={{
                 background: "var(--bg-surface)",
                 borderRadius: 8,
-                padding: 16,
+                padding: "10px 12px",
                 border: "1px solid var(--border-subtle)",
               }}
             >
               <div
                 style={{
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: 700,
                   color: "var(--text-muted)",
-                  marginBottom: 10,
+                  marginBottom: 8,
                   textTransform: "uppercase",
                 }}
               >
                 {isVi ? "Chọn Trình Độ Đối Thủ Máy" : "Select AI Bot Difficulty"}
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                 {[
                   {
                     id: "beginner",
@@ -783,7 +867,7 @@ export default function Play3DExperience() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
-                        padding: "8px 12px",
+                        padding: "5px 8px",
                         borderRadius: 6,
                         background: isCur ? "rgba(129, 182, 76, 0.12)" : "transparent",
                         border: `1px solid ${isCur ? "var(--green-primary)" : "var(--border-subtle)"}`,
@@ -792,20 +876,20 @@ export default function Play3DExperience() {
                         textAlign: "left",
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <div
                           style={{
-                            width: 8,
-                            height: 8,
+                            width: 7,
+                            height: 7,
                             borderRadius: "50%",
                             background: b.color,
                           }}
                         />
-                        <span style={{ fontSize: 13, fontWeight: isCur ? 700 : 500 }}>
+                        <span style={{ fontSize: 12, fontWeight: isCur ? 700 : 500 }}>
                           {b.name}
                         </span>
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: b.color }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: b.color }}>
                         {b.elo} ELO
                       </span>
                     </button>
@@ -819,7 +903,7 @@ export default function Play3DExperience() {
               style={{
                 background: "var(--bg-surface)",
                 borderRadius: 8,
-                padding: 16,
+                padding: "10px 12px",
                 border: "1px solid var(--border-subtle)",
               }}
             >

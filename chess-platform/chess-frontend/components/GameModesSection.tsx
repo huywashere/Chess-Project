@@ -16,15 +16,15 @@ export default function GameModesSection() {
       title: language === "vi" ? "Chơi vs Người (Online PvP)" : "Play Online (PvP Match)",
       desc:
         language === "vi"
-          ? "Hệ thống ghép cặp thông minh theo rating ELO chuẩn quốc tế qua WebSocket Golang siêu nhẹ."
-          : "Smart matchmaking queue via lightweight Golang WebSocket gateway with international ELO rating.",
+          ? "Hệ thống ghép cặp thông minh theo rating ELO chuẩn FIDE quốc tế, tìm trận tức thì."
+          : "Smart matchmaking queue based on international FIDE ELO ratings with instant pairing.",
       cta: language === "vi" ? "Tìm Đối Thủ" : "Find Opponent",
       btnClass: "btn-green",
       accent: "var(--green-vivid)",
       bg: "var(--green-bg)",
       border: "var(--green-border)",
       labelColor: "var(--green-light)",
-      label: "GOLANG REALTIME",
+      label: language === "vi" ? "ĐẤU XẾP HẠNG" : "RATED PVP",
       details: ["Bullet 1+0", "Blitz 3+2", "Rapid 10+0", "Classical 30+0"],
     },
     {
@@ -84,7 +84,7 @@ export default function GameModesSection() {
       bg: "var(--gold-bg)",
       border: "var(--gold-border)",
       labelColor: "var(--gold-light)",
-      label: "RUST ENGINE REVIEW",
+      label: language === "vi" ? "GIẢI ĐẤU TOÀN CẦU" : "CHAMPIONSHIPS",
       details: ["Swiss System", "Arena Format", "Weekly Cups", "National Clubs"],
     },
   ];

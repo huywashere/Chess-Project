@@ -241,16 +241,16 @@ export default function HeroSection() {
             }}
           >
             <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-              <Wifi size={13} color="var(--green-light)" />
-              {language === "vi" ? "Độ trễ:" : "Latency:"}{" "}
-              <strong style={{ color: "var(--green-light)" }}>12ms</strong>
+              <Timer size={13} color="var(--green-light)" />
+              {language === "vi" ? "Đồng hồ:" : "Clocks:"}{" "}
+              <strong style={{ color: "var(--green-light)" }}>FIDE Standard</strong>
             </span>
             <span>•</span>
             <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-              <Server size={13} />
-              Engine:{" "}
+              <Bot size={13} color="var(--green-light)" />
+              {language === "vi" ? "Phân tích:" : "Engine:"}{" "}
               <strong style={{ color: "var(--text-primary)" }}>
-                Rust 10µs + Stockfish 17
+                Stockfish 17 NNUE
               </strong>
             </span>
           </div>

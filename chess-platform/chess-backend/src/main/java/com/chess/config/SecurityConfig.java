@@ -41,6 +41,12 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex -> ex
+                .defaultAuthenticationEntryPointFor(
+                    new org.springframework.security.web.authentication.HttpStatusEntryPoint(org.springframework.http.HttpStatus.UNAUTHORIZED),
+                    new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")
+                )
+            )
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh").permitAll()

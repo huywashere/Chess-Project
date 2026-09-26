@@ -72,9 +72,9 @@ public class RatingService {
         double whiteScore = scores[0];
         double blackScore = scores[1];
 
-        // Count total rated games to determine K-factor (approximate from history)
-        long whiteGames = ratingHistoryRepository.findByUserIdOrderByCreatedAtDesc(white.getId()).size();
-        long blackGames = ratingHistoryRepository.findByUserIdOrderByCreatedAtDesc(black.getId()).size();
+        // Count total rated games to determine K-factor
+        long whiteGames = ratingHistoryRepository.countByUser_Id(white.getId());
+        long blackGames = ratingHistoryRepository.countByUser_Id(black.getId());
 
         int whiteK = kFactor(whiteOld, whiteGames);
         int blackK = kFactor(blackOld, blackGames);

@@ -181,14 +181,16 @@ export default function DailyPuzzleSection() {
               }}
             >
               <Chessboard
-                position={fen}
-                onPieceDrop={handlePieceDrop}
-                boardOrientation="white"
-                customDarkSquareStyle={{ backgroundColor: "var(--board-dark)" }}
-                customLightSquareStyle={{ backgroundColor: "var(--board-light)" }}
-                customSquareStyles={lastMoveSquares}
-                animationDuration={200}
-                arePiecesDraggable={status !== "complete"}
+                options={{
+                  position: fen,
+                  boardOrientation: "white",
+                  onPieceDrop: handlePieceDrop,
+                  darkSquareStyle: { backgroundColor: "var(--board-dark)" },
+                  lightSquareStyle: { backgroundColor: "var(--board-light)" },
+                  squareStyles: lastMoveSquares,
+                  animationDurationInMs: 200,
+                  allowDragging: status !== "complete",
+                }}
               />
             </div>
 

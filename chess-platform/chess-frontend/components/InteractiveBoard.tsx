@@ -33,7 +33,18 @@ const Chessboard = dynamic(
 );
 
 export type BoardTheme =
-  "green" | "wood" | "blue" | "dark" | "listudy" | "brown" | "slate" | "icy" | "violet";
+  | "green"
+  | "wood"
+  | "blue"
+  | "dark"
+  | "listudy"
+  | "brown"
+  | "slate"
+  | "icy"
+  | "violet"
+  | "chessground_blue"
+  | "chessground_wood"
+  | "chessground_canvas";
 
 interface InteractiveBoardProps {
   initialFen?: string;
@@ -44,6 +55,9 @@ interface InteractiveBoardProps {
 
 const THEME_COLORS: Record<BoardTheme, { dark: string; light: string; border: string }> =
   {
+    chessground_blue: { dark: "#8ca2ad", light: "#dee3e6", border: "#6b828d" },
+    chessground_wood: { dark: "#b58863", light: "#f0d9b5", border: "#6f4827" },
+    chessground_canvas: { dark: "#5e8062", light: "#cddbbd", border: "#3f5c42" },
     listudy: { dark: "#8ca2ad", light: "#dee3e6", border: "#6b828d" },
     green: { dark: "#779952", light: "#edeed1", border: "#496332" },
     wood: { dark: "#b58863", light: "#f0d9b5", border: "#734e2c" },

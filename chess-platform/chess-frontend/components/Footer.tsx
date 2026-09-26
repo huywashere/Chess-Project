@@ -79,7 +79,7 @@ export default function Footer() {
       links: [
         { label: t("footer.terms"), href: "#" },
         { label: t("footer.privacy"), href: "#" },
-        { label: "API Docs", href: "#" },
+        { label: language === "vi" ? "Luật Cờ Vua FIDE" : "FIDE Chess Rules", href: "/learn" },
       ],
     },
   ];
@@ -169,7 +169,7 @@ export default function Footer() {
                   display: "inline-block",
                 }}
               />
-              <span>Golang & Rust Microservices Online</span>
+              <span>{language === "vi" ? "Máy Chủ Thi Đấu Trực Tuyến 24/7" : "Live Game Servers Operational"}</span>
             </div>
           </div>
 

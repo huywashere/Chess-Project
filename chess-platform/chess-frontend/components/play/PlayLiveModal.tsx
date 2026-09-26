@@ -106,8 +106,14 @@ export default function PlayLiveModal({ isOpen, onClose }: PlayLiveModalProps) {
     cancelMatchmaking();
   };
 
-  const handleMakeMove = (sourceSquare: string, targetSquare: string): boolean => {
-    if (!matchData || !activeGameId || gameResult) return false;
+  const handleMakeMove = ({
+    sourceSquare,
+    targetSquare,
+  }: {
+    sourceSquare: string;
+    targetSquare: string | null;
+  }): boolean => {
+    if (!matchData || !activeGameId || gameResult || !targetSquare) return false;
 
     // Check color turn
     const isMyTurn =
@@ -207,11 +213,11 @@ export default function PlayLiveModal({ isOpen, onClose }: PlayLiveModalProps) {
             >
               {isConnected
                 ? isVi
-                  ? "Đã kết nối STOMP"
-                  : "Connected"
+                  ? "Sẵn sàng ghép trận"
+                  : "Ready to Match"
                 : isVi
-                  ? "Đang kết nối..."
-                  : "Connecting..."}
+                  ? "Đang kết nối phòng chờ..."
+                  : "Connecting to Lobby..."}
             </span>
           </div>
 
@@ -237,8 +243,8 @@ export default function PlayLiveModal({ isOpen, onClose }: PlayLiveModalProps) {
           <div style={{ padding: 24 }}>
             <p style={{ color: "var(--text-secondary)", fontSize: 14, marginBottom: 20 }}>
               {isVi
-                ? "Chọn chế độ thời gian và bấm tìm kiếm đối thủ trực tuyến trên hệ thống Spring Boot & WebSocket STOMP."
-                : "Choose your time control and find an online opponent over Spring Boot WebSocket STOMP."}
+                ? "Chọn thể thức thi đấu ưa thích và bấm tìm kiếm đối thủ trực tuyến ngang sức theo hệ số ELO."
+                : "Choose your preferred time control and find a matched opponent based on international ELO rating."}
             </p>
 
             {/* Time control selector */}
@@ -326,8 +332,8 @@ export default function PlayLiveModal({ isOpen, onClose }: PlayLiveModalProps) {
                   style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}
                 >
                   {isVi
-                    ? `Thời gian: ${selectedTc} • Đang kết nối hàng chờ Matchmaking Redis...`
-                    : `Time: ${selectedTc} • Queued in Redis Matchmaking...`}
+                    ? `Thời gian: ${selectedTc} • Đang kết nối kỳ thủ cùng cấp bậc ELO...`
+                    : `Time: ${selectedTc} • Matching with players in your ELO bracket...`}
                 </div>
                 <button
                   onClick={handleCancel}
@@ -421,11 +427,13 @@ export default function PlayLiveModal({ isOpen, onClose }: PlayLiveModalProps) {
             {/* Board */}
             <div style={{ maxWidth: 460, margin: "0 auto 12px" }}>
               <Chessboard
-                position={fen}
-                onPieceDrop={handleMakeMove}
-                boardOrientation={matchData.color}
-                customDarkSquareStyle={{ backgroundColor: "#779952" }}
-                customLightSquareStyle={{ backgroundColor: "#edeed1" }}
+                options={{
+                  position: fen,
+                  onPieceDrop: handleMakeMove,
+                  boardOrientation: matchData.color,
+                  darkSquareStyle: { backgroundColor: "#779952" },
+                  lightSquareStyle: { backgroundColor: "#edeed1" },
+                }}
               />
             </div>
 

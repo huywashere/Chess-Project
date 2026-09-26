@@ -65,18 +65,23 @@ export default function LeaderboardHub() {
 
         if (isMounted && res.data?.data && res.data.data.length > 0) {
           const mapped: LeaderboardPlayer[] = res.data.data.map((p, idx) => ({
-            id: p.id || `live-${idx}`,
             rank: p.rank || idx + 1,
             name: p.username,
             username: p.username,
-            avatar: p.avatarUrl || "/avatars/user_1.jpg",
+            title: (p.title as "GM" | "IM" | "FM" | "WGM" | "CM" | undefined) ||
+              (p.eloRating >= 2500 ? "GM" : undefined),
+            avatarColor: "#3b82f6",
+            avatarUrl: p.avatarUrl || "/avatars/user_1.jpg",
             country: p.country || "Việt Nam",
+            flag: p.country === "Na Uy" ? "🇳🇴" : p.country === "Hoa Kỳ" ? "🇺🇸" : "🇻🇳",
             rating: p.eloRating || 1500,
-            winRate: 68,
-            gamesPlayed: 120,
-            streak: 4,
-            isOnline: true,
-            title: p.title || (p.eloRating >= 2500 ? "GM" : undefined),
+            change: 12,
+            gamesWon: 85,
+            gamesLost: 20,
+            gamesDrawn: 15,
+            winRate: 71,
+            recentForm: ["W", "W", "W", "D", "W"],
+            bestWin: "Xếp hạng máy chủ",
           }));
           setLivePlayers(mapped);
         }
@@ -687,7 +692,7 @@ export default function LeaderboardHub() {
               const rank = idx + 1;
               const isTop3 = rank <= 3;
               const gamesTotal = player.gamesWon + player.gamesLost + player.gamesDrawn;
-              const winsInForm = player.recentForm.filter((f) => f === "W").length;
+              const winsInForm = (player.recentForm ?? []).filter((f) => f === "W").length;
 
               return (
                 <div

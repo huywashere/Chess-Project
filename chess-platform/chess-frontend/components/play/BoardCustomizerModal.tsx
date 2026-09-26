@@ -137,6 +137,134 @@ export default function BoardCustomizerModal({
           </button>
         </div>
 
+        {/* Chessground Lichess Banner & Quick Presets */}
+        <div
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(27, 120, 208, 0.16) 0%, rgba(212, 174, 26, 0.14) 100%)",
+            border: "1px solid rgba(27, 120, 208, 0.35)",
+            borderRadius: 10,
+            padding: "12px 14px",
+            marginBottom: 16,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 10,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 8,
+                background: "rgba(27, 120, 208, 0.25)",
+                color: "#38bdf8",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Sparkles size={18} />
+            </div>
+            <div>
+              <div
+                style={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <span>
+                  {isVi
+                    ? "Giao Diện Chessground (Lichess UI & 3D Wood)"
+                    : "Chessground (Lichess UI & 3D Wood)"}
+                </span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    padding: "1px 6px",
+                    borderRadius: 10,
+                    background: "var(--teal-bg)",
+                    border: "1px solid var(--teal-border)",
+                    color: "var(--teal-light)",
+                    fontWeight: 700,
+                  }}
+                >
+                  NEW
+                </span>
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                {isVi
+                  ? "Bản 2D Lichess Blue sắc nét & Bản 3D Wood đổ bóng nổi đa tầng"
+                  : "Crisp 2D Lichess Blue & 3D Wood with realistic cast shadows"}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => {
+                onSelectBoardTheme("chessground_blue");
+                onSelectPieceTheme("cburnett");
+                soundManager.playVictory();
+              }}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 6,
+                background:
+                  currentBoardTheme === "chessground_blue"
+                    ? "rgba(27, 120, 208, 0.45)"
+                    : "rgba(27, 120, 208, 0.2)",
+                border: "1px solid rgba(27, 120, 208, 0.5)",
+                color: "#38bdf8",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              {currentBoardTheme === "chessground_blue" && <Check size={12} />}
+              <span>{isVi ? "Bật 2D Blue" : "2D Blue"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onSelectBoardTheme("chessground_wood");
+                onSelectPieceTheme("chessground_wood3d");
+                soundManager.playVictory();
+              }}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 6,
+                background:
+                  currentBoardTheme === "chessground_wood"
+                    ? "rgba(212, 174, 26, 0.45)"
+                    : "rgba(212, 174, 26, 0.2)",
+                border: "1px solid rgba(212, 174, 26, 0.5)",
+                color: "var(--gold-light)",
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              {currentBoardTheme === "chessground_wood" && <Check size={12} />}
+              <span>{isVi ? "Bật 3D Wood" : "3D Wood"}</span>
+            </button>
+          </div>
+        </div>
+
         {/* Tab Selection */}
         <div
           style={{

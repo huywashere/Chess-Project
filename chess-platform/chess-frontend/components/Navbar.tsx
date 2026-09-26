@@ -22,6 +22,7 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { ThemeAccentSwitcher } from "./ThemeAccentSwitcher";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -79,30 +80,38 @@ export default function Navbar() {
         borderBottom: `1px solid ${scrolled || mobileMenuOpen ? "var(--divider)" : "var(--border-subtle)"}`,
         backdropFilter: "blur(12px)",
         transition: "border-color 0.25s ease, background 0.25s ease",
-        overflow: "hidden",
+        overflow: "visible",
       }}
     >
-      {/* Subtle isometric matrix ambient decoration in header */}
+      {/* Subtle isometric matrix ambient decoration in header clipped to navbar bounds */}
       <div
         style={{
           position: "absolute",
-          top: -22,
-          right: "24%",
-          width: 108,
-          height: 108,
-          opacity: isDark ? 0.16 : 0.1,
+          inset: 0,
+          overflow: "hidden",
           pointerEvents: "none",
           zIndex: 0,
-          filter: "drop-shadow(0 0 16px rgba(225, 29, 130, 0.25))",
         }}
       >
-        <Image
-          src="/geometric_matrix_pink.png"
-          alt=""
-          width={108}
-          height={108}
-          style={{ objectFit: "contain" }}
-        />
+        <div
+          style={{
+            position: "absolute",
+            top: -22,
+            right: "24%",
+            width: 108,
+            height: 108,
+            opacity: isDark ? 0.16 : 0.1,
+            filter: "drop-shadow(0 0 16px rgba(225, 29, 130, 0.25))",
+          }}
+        >
+          <Image
+            src="/geometric_matrix_pink.png"
+            alt=""
+            width={108}
+            height={108}
+            style={{ objectFit: "contain" }}
+          />
+        </div>
       </div>
 
       <div
@@ -301,6 +310,9 @@ export default function Navbar() {
             {isDark ? <Sun size={17} /> : <Moon size={17} />}
           </button>
 
+          {/* Theme Accent Color Switcher */}
+          <ThemeAccentSwitcher variant="dropdown" />
+
           {/* User Profile or Login/Register */}
           {user ? (
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -469,6 +481,9 @@ export default function Navbar() {
             {isDark ? <Sun size={17} /> : <Moon size={17} />}
           </button>
 
+          {/* Mobile Theme Accent Switcher */}
+          <ThemeAccentSwitcher variant="dropdown" />
+
           {/* Quick Language Toggle */}
           <button
             type="button"
@@ -606,6 +621,9 @@ export default function Navbar() {
               </button>
             </div>
           </div>
+
+          {/* Mobile Drawer Inline Accent Switcher */}
+          <ThemeAccentSwitcher variant="inline" />
 
           {navLinks.map(({ label, href, icon: Icon, isNew }) => {
             const isActive = pathname === href;

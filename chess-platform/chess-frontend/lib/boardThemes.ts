@@ -1,7 +1,16 @@
 import { defaultPieces, PieceRenderObject } from "react-chessboard";
 
 export type BoardThemeKey =
-  "listudy" | "green" | "wood" | "brown" | "slate" | "icy" | "violet";
+  | "listudy"
+  | "green"
+  | "wood"
+  | "brown"
+  | "slate"
+  | "icy"
+  | "violet"
+  | "chessground_blue"
+  | "chessground_wood"
+  | "chessground_canvas";
 
 export interface BoardThemeConfig {
   id: BoardThemeKey;
@@ -17,6 +26,42 @@ export interface BoardThemeConfig {
 }
 
 export const BOARD_THEMES: Record<BoardThemeKey, BoardThemeConfig> = {
+  chessground_blue: {
+    id: "chessground_blue",
+    name: "Chessground Blue (Lichess Chuẩn)",
+    nameEn: "Chessground Blue (Lichess)",
+    tag: "Chessground 2D",
+    tagEn: "Chessground 2D",
+    dark: "#8ca2ad",
+    light: "#dee3e6",
+    border: "#6b828d",
+    darkNotationColor: "#dee3e6",
+    lightNotationColor: "#8ca2ad",
+  },
+  chessground_wood: {
+    id: "chessground_wood",
+    name: "Chessground 3D Wood (Gỗ Maple & Óc Chó)",
+    nameEn: "Chessground 3D Wood (Maple & Walnut)",
+    tag: "Chessground 3D",
+    tagEn: "Chessground 3D",
+    dark: "#b58863",
+    light: "#f0d9b5",
+    border: "#6f4827",
+    darkNotationColor: "#f0d9b5",
+    lightNotationColor: "#b58863",
+  },
+  chessground_canvas: {
+    id: "chessground_canvas",
+    name: "Chessground Canvas (Vải Canvas Tự Nhiên)",
+    nameEn: "Chessground Canvas (Olive)",
+    tag: "Lichess Canvas",
+    tagEn: "Lichess Canvas",
+    dark: "#5e8062",
+    light: "#cddbbd",
+    border: "#3f5c42",
+    darkNotationColor: "#cddbbd",
+    lightNotationColor: "#5e8062",
+  },
   listudy: {
     id: "listudy",
     name: "Xanh Listudy / Lichess Blue",
@@ -103,7 +148,13 @@ export const BOARD_THEMES: Record<BoardThemeKey, BoardThemeConfig> = {
   },
 };
 
-export type PieceThemeKey = "cburnett" | "staunton" | "neo" | "wood" | "alpha";
+export type PieceThemeKey =
+  | "cburnett"
+  | "chessground_wood3d"
+  | "staunton"
+  | "neo"
+  | "wood"
+  | "alpha";
 
 export interface PieceThemeConfig {
   id: PieceThemeKey;
@@ -124,13 +175,29 @@ export const PIECE_THEMES: Record<PieceThemeKey, PieceThemeConfig> = {
     id: "cburnett",
     name: "Cburnett (Chuẩn Listudy / Lichess)",
     nameEn: "Cburnett (Listudy / Lichess Standard)",
-    tag: "Listudy Vector",
-    tagEn: "Listudy Vector",
-    desc: "Nét vẽ thanh thoát, tỷ lệ chuẩn mực quốc tế, độ tương phản sắc nét.",
+    tag: "Chessground 2D",
+    tagEn: "Chessground 2D",
+    desc: "Nét vẽ vector thanh thoát, tỷ lệ chuẩn mực quốc tế, độ tương phản sắc nét.",
     descEn:
       "Clean vector linework with international tournament proportions and sharp contrast.",
     whiteFill: "#ffffff",
     blackFill: "#000000",
+  },
+  chessground_wood3d: {
+    id: "chessground_wood3d",
+    name: "Lichess 3D Wood (Đổ Bóng Nổi 3D)",
+    nameEn: "Lichess 3D Wood (Cast Shadows)",
+    tag: "Chessground 3D",
+    tagEn: "Chessground 3D",
+    desc: "Quân gỗ đổ bóng 3D chân thực, sồi vàng sáng & mun đen tuyền như trên repo Chessground.",
+    descEn:
+      "Realistic 3D wood pieces with multi-layered cast shadows and rich depth as seen on Chessground.",
+    whiteFill: "#f7e4c8",
+    blackFill: "#3a2517",
+    whiteFilter:
+      "drop-shadow(3px 5px 3px rgba(0, 0, 0, 0.6)) drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.35))",
+    blackFilter:
+      "drop-shadow(3px 5px 4px rgba(0, 0, 0, 0.85)) drop-shadow(1px 2px 1px rgba(0, 0, 0, 0.5))",
   },
   staunton: {
     id: "staunton",
@@ -218,3 +285,43 @@ export function getCustomPieces(theme: PieceThemeConfig): PieceRenderObject {
 
   return pieces as PieceRenderObject;
 }
+
+export const CHESSGROUND_ARROW_OPTIONS = {
+  colors: {
+    default: "#157811", // Lichess Green (Castle & King mobility)
+    shift: "#1b78d0",   // Lichess Blue (Tactical lines / Queen)
+    alt: "#e11d48",     // Lichess Red (Threats & Attacks)
+    ctrl: "#f59e0b",    // Lichess Yellow (Alternatives)
+    meta: "#8b5cf6",    // Lichess Purple
+  },
+  color: "#157811",
+  secondaryColor: "#1b78d0",
+  tertiaryColor: "#e11d48",
+  arrowLengthReducerDenominator: 2.5,
+  sameTargetArrowLengthReducerDenominator: 3,
+  arrowWidthDenominator: 14,
+  activeArrowWidthMultiplier: 1.3,
+  opacity: 0.85,
+  activeOpacity: 0.95,
+  arrowStartOffset: 0.2,
+};
+
+export const CHESSGROUND_DEMO_ARROWS = [
+  { startSquare: "e8", endSquare: "c8", color: "#157811" }, // Castling
+  { startSquare: "e8", endSquare: "a4", color: "#1b78d0" }, // Queen/Bishop long diagonal
+  { startSquare: "d8", endSquare: "d6", color: "rgba(27, 120, 208, 0.45)" }, // Vertical pressure
+  { startSquare: "d5", endSquare: "h5", color: "#1b78d0" }, // Queen rank attack
+  { startSquare: "f3", endSquare: "e5", color: "#e11d48" }, // Knight fork 1
+  { startSquare: "f3", endSquare: "g5", color: "#e11d48" }, // Knight fork 2
+];
+
+export const CHESSGROUND_DEMO_SQUARES: Record<string, React.CSSProperties> = {
+  a4: {
+    boxShadow: "inset 0 0 0 3.5px #1b78d0, 0 0 12px rgba(27, 120, 208, 0.45)",
+    borderRadius: "50%",
+  },
+  c3: {
+    backgroundColor: "rgba(34, 197, 94, 0.35)",
+  },
+};
+

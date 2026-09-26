@@ -135,6 +135,137 @@
   --divider: #ded8ce;
 }
 
+/* ════════════════════════════════════════════════════════════════════════
+   PRIMARY COLOR ACCENTS: Green (Default), Blue, Red, Purple
+   Dynamically adapts main buttons, highlights, badges, and glow effects
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ─── 1. Green (Emerald - Default) ─── */
+:root,
+[data-accent="green"] {
+  --primary-vivid: #10b981;
+  --primary-dark: #059669;
+  --primary-light: #34d399;
+  --primary-bg: rgba(16, 185, 129, 0.14);
+  --primary-border: rgba(16, 185, 129, 0.35);
+  --primary-glow: rgba(16, 185, 129, 0.4);
+  --primary-gradient: linear-gradient(135deg, #10b981, #059669);
+  --green-vivid: #10b981;
+  --green-dark: #059669;
+  --green-light: #34d399;
+  --green-bg: rgba(16, 185, 129, 0.14);
+  --green-border: rgba(16, 185, 129, 0.35);
+}
+
+[data-theme="light"],
+[data-theme="light"][data-accent="green"] {
+  --primary-vivid: #059669;
+  --primary-dark: #047857;
+  --primary-light: #10b981;
+  --primary-bg: #ecfdf5;
+  --primary-border: #a7f3d0;
+  --primary-glow: rgba(5, 150, 105, 0.25);
+  --primary-gradient: linear-gradient(135deg, #059669, #047857);
+  --green-vivid: #059669;
+  --green-dark: #047857;
+  --green-light: #10b981;
+  --green-bg: #ecfdf5;
+  --green-border: #a7f3d0;
+}
+
+/* ─── 2. Blue (Ocean / Sapphire) ─── */
+[data-accent="blue"] {
+  --primary-vivid: #3b82f6;
+  --primary-dark: #1d4ed8;
+  --primary-light: #60a5fa;
+  --primary-bg: rgba(59, 130, 246, 0.14);
+  --primary-border: rgba(59, 130, 246, 0.38);
+  --primary-glow: rgba(59, 130, 246, 0.45);
+  --primary-gradient: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  --green-vivid: #3b82f6;
+  --green-dark: #1d4ed8;
+  --green-light: #60a5fa;
+  --green-bg: rgba(59, 130, 246, 0.14);
+  --green-border: rgba(59, 130, 246, 0.38);
+}
+
+[data-theme="light"][data-accent="blue"] {
+  --primary-vivid: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #3b82f6;
+  --primary-bg: #eff6ff;
+  --primary-border: #bfdbfe;
+  --primary-glow: rgba(37, 99, 235, 0.25);
+  --primary-gradient: linear-gradient(135deg, #2563eb, #1d4ed8);
+  --green-vivid: #2563eb;
+  --green-dark: #1d4ed8;
+  --green-light: #3b82f6;
+  --green-bg: #eff6ff;
+  --green-border: #bfdbfe;
+}
+
+/* ─── 3. Red (Ruby / Crimson) ─── */
+[data-accent="red"] {
+  --primary-vivid: #ef4444;
+  --primary-dark: #b91c1c;
+  --primary-light: #f87171;
+  --primary-bg: rgba(239, 68, 68, 0.14);
+  --primary-border: rgba(239, 68, 68, 0.38);
+  --primary-glow: rgba(239, 68, 68, 0.45);
+  --primary-gradient: linear-gradient(135deg, #ef4444, #b91c1c);
+  --green-vivid: #ef4444;
+  --green-dark: #b91c1c;
+  --green-light: #f87171;
+  --green-bg: rgba(239, 68, 68, 0.14);
+  --green-border: rgba(239, 68, 68, 0.38);
+}
+
+[data-theme="light"][data-accent="red"] {
+  --primary-vivid: #dc2626;
+  --primary-dark: #b91c1c;
+  --primary-light: #ef4444;
+  --primary-bg: #fef2f2;
+  --primary-border: #fecaca;
+  --primary-glow: rgba(220, 38, 38, 0.25);
+  --primary-gradient: linear-gradient(135deg, #dc2626, #b91c1c);
+  --green-vivid: #dc2626;
+  --green-dark: #b91c1c;
+  --green-light: #ef4444;
+  --green-bg: #fef2f2;
+  --green-border: #fecaca;
+}
+
+/* ─── 4. Purple (Amethyst / Royal) ─── */
+[data-accent="purple"] {
+  --primary-vivid: #a855f7;
+  --primary-dark: #7e22ce;
+  --primary-light: #c084fc;
+  --primary-bg: rgba(168, 85, 247, 0.14);
+  --primary-border: rgba(168, 85, 247, 0.38);
+  --primary-glow: rgba(168, 85, 247, 0.45);
+  --primary-gradient: linear-gradient(135deg, #a855f7, #7e22ce);
+  --green-vivid: #a855f7;
+  --green-dark: #7e22ce;
+  --green-light: #c084fc;
+  --green-bg: rgba(168, 85, 247, 0.14);
+  --green-border: rgba(168, 85, 247, 0.38);
+}
+
+[data-theme="light"][data-accent="purple"] {
+  --primary-vivid: #9333ea;
+  --primary-dark: #7e22ce;
+  --primary-light: #a855f7;
+  --primary-bg: #faf5ff;
+  --primary-border: #e9d5ff;
+  --primary-glow: rgba(147, 51, 234, 0.25);
+  --primary-gradient: linear-gradient(135deg, #9333ea, #7e22ce);
+  --green-vivid: #9333ea;
+  --green-dark: #7e22ce;
+  --green-light: #a855f7;
+  --green-bg: #faf5ff;
+  --green-border: #e9d5ff;
+}
+
 /* ─── Reset ─── */
 *,
 *::before,
@@ -272,15 +403,25 @@ body {
 
 .arena-grid {
   display: grid;
-  grid-template-columns: min(calc(100vh - 260px), 720px) minmax(360px, 1fr);
-  gap: 28px;
+  grid-template-columns: minmax(auto, min(calc(100vh - 215px), 820px)) 350px;
+  justify-content: center;
+  gap: 20px;
+  align-items: start;
+}
+
+.arena-3d-grid {
+  display: grid;
+  grid-template-columns: minmax(auto, min(calc(100vh - 150px), 860px)) 340px;
+  justify-content: center;
+  gap: 20px;
   align-items: start;
 }
 
 @media (max-width: 1024px) {
-  .arena-grid {
+  .arena-grid,
+  .arena-3d-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 16px;
   }
 }
 
